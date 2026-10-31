@@ -1,3 +1,4 @@
+import { jsPDF } from 'jspdf';
 import { formatINR } from './currency';
 
 export interface ReceiptData {
@@ -10,6 +11,8 @@ export interface ReceiptData {
     companyName?: string | null;
     email: string;
     address?: string | null;
+    city?: string | null;
+    country?: string | null;
   };
   subscription?: {
     subscriptionNumber: string;
@@ -40,338 +43,306 @@ export interface ReceiptData {
   }>;
 }
 
-export function generateReceiptHTML(data: ReceiptData): string {
+/**
+ * Generates and downloads an authentic, professional PDF document directly.
+ */
+export function downloadReceiptPDF(data: ReceiptData) {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+  });
+
+  const pageWidth = 210;
+  const pageHeight = 297;
+  const margin = 16;
+  const contentWidth = pageWidth - margin * 2;
+
   const balanceDue = Math.max(0, data.grandTotal - data.amountPaid);
   const isPaid = data.status === 'PAID' || balanceDue <= 0;
+
+  let y = margin;
+
+  // 1. HEADER: Draw Brand Logo (Sunburst Rays + Infinity Loop)
+  // Orange Sunburst Rays
+  doc.setDrawColor(245, 158, 11); // Amber #F59E0B
+  doc.setLineWidth(0.8);
+  // Center ray
+  doc.line(margin + 6, y + 2, margin + 6, y + 5);
+  // Left ray
+  doc.line(margin + 3.5, y + 3, margin + 4.5, y + 5.5);
+  // Right ray
+  doc.line(margin + 8.5, y + 3, margin + 7.5, y + 5.5);
+
+  // Indigo Infinity Loop
+  doc.setDrawColor(79, 70, 229); // Indigo #4F46E5
+  doc.setLineWidth(1.2);
+  // Draw left loop and right loop
+  doc.ellipse(margin + 3.5, y + 9, 3.2, 2.4);
+  doc.ellipse(margin + 8.5, y + 9, 3.2, 2.4);
+
+  // Brand Name
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(18);
+  doc.setTextColor(49, 46, 129); // Deep Indigo
+  doc.text('Brightloop', margin + 14, y + 10);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(100, 116, 139); // Slate 500
+  doc.text('Subscription Billing & Revenue Platform', margin + 14, y + 14);
+
+  // Right Header: Receipt Status & Details
+  if (isPaid) {
+    doc.setFillColor(236, 253, 245); // Emerald 50
+    doc.setDrawColor(167, 243, 208); // Emerald 200
+    doc.roundedRect(pageWidth - margin - 38, y + 2, 38, 7.5, 3, 3, 'FD');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(4, 120, 87); // Emerald 700
+    doc.text('PAID · OFFICIAL RECEIPT', pageWidth - margin - 35, y + 7);
+  } else {
+    doc.setFillColor(254, 242, 242); // Rose 50
+    doc.setDrawColor(254, 205, 211); // Rose 200
+    doc.roundedRect(pageWidth - margin - 36, y + 2, 36, 7.5, 3, 3, 'FD');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(190, 18, 60); // Rose 700
+    doc.text(`DUE · ${data.status}`, pageWidth - margin - 33, y + 7);
+  }
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(11);
+  doc.setTextColor(15, 23, 42);
+  doc.text(data.invoiceNumber, pageWidth - margin, y + 15, { align: 'right' });
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(100, 116, 139);
+  doc.text(`Issue Date: ${new Date(data.issueDate).toLocaleDateString('en-IN')}`, pageWidth - margin, y + 19, { align: 'right' });
+  doc.text(`Due Date: ${new Date(data.dueDate).toLocaleDateString('en-IN')}`, pageWidth - margin, y + 23, { align: 'right' });
+
+  // Divider Line
+  y += 28;
+  doc.setDrawColor(226, 232, 240);
+  doc.setLineWidth(0.4);
+  doc.line(margin, y, pageWidth - margin, y);
+
+  // 2. METADATA: ISSUED BY & BILLED TO
+  y += 6;
+  const colWidth = contentWidth / 2;
+
+  // Left Col: Issued By
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(148, 163, 184); // Slate 400
+  doc.text('ISSUED BY', margin, y);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9.5);
+  doc.setTextColor(15, 23, 42);
+  doc.text('Brightloop Software Inc.', margin, y + 4.5);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(71, 85, 105);
+  doc.text('100 Enterprise Way, Suite 400', margin, y + 8.5);
+  doc.text('GSTIN: 27AABCB1234F1Z8', margin, y + 12.5);
+  doc.text('Email: billing@brightloop.com', margin, y + 16.5);
+
+  // Right Col: Billed To
+  const rightColX = margin + colWidth + 5;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(148, 163, 184);
+  doc.text('BILLED TO', rightColX, y);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9.5);
+  doc.setTextColor(15, 23, 42);
+  doc.text(data.customer.name, rightColX, y + 4.5);
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(71, 85, 105);
+  let billY = y + 8.5;
+  if (data.customer.companyName) {
+    doc.text(data.customer.companyName, rightColX, billY);
+    billY += 4;
+  }
+  doc.text(data.customer.email, rightColX, billY);
+  billY += 4;
+  if (data.customer.address) {
+    doc.text(data.customer.address, rightColX, billY);
+    billY += 4;
+  }
+  if (data.subscription) {
+    doc.setTextColor(79, 70, 229);
+    doc.text(`Subscription Ref: ${data.subscription.subscriptionNumber}`, rightColX, billY);
+    billY += 4;
+  }
+
+  y = Math.max(y + 22, billY + 2);
+
+  // 3. LINE ITEMS TABLE
+  doc.setFillColor(248, 250, 252);
+  doc.rect(margin, y, contentWidth, 7, 'F');
+  doc.setDrawColor(203, 213, 225);
+  doc.line(margin, y + 7, pageWidth - margin, y + 7);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(7.5);
+  doc.setTextColor(100, 116, 139);
+  doc.text('ITEM & DESCRIPTION', margin + 3, y + 4.8);
+  doc.text('QTY', margin + 92, y + 4.8, { align: 'center' });
+  doc.text('UNIT PRICE', margin + 118, y + 4.8, { align: 'right' });
+  doc.text('GST RATE', margin + 142, y + 4.8, { align: 'right' });
+  doc.text('AMOUNT (INR)', pageWidth - margin - 3, y + 4.8, { align: 'right' });
+
+  y += 7;
+
+  const lines = data.lines && data.lines.length > 0 ? data.lines : [
+    {
+      description: 'Subscription Service Plan',
+      quantity: 1,
+      unitPrice: data.subtotal,
+      taxRate: 18,
+      taxAmount: data.taxTotal,
+      lineTotal: data.grandTotal,
+    }
+  ];
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(30, 41, 59);
+
+  for (const line of lines) {
+    y += 5.5;
+    doc.setFont('helvetica', 'bold');
+    doc.text(line.description, margin + 3, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(String(line.quantity), margin + 92, y, { align: 'center' });
+    doc.text(formatINR(line.unitPrice), margin + 118, y, { align: 'right' });
+    doc.text(`${line.taxRate}%`, margin + 142, y, { align: 'right' });
+    doc.setFont('helvetica', 'bold');
+    doc.text(formatINR(line.lineTotal), pageWidth - margin - 3, y, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+
+    y += 2.5;
+    doc.setDrawColor(241, 245, 249);
+    doc.setLineWidth(0.2);
+    doc.line(margin, y, pageWidth - margin, y);
+  }
+
+  // 4. TOTALS SUMMARY AREA
+  y += 6;
+  const summaryX = pageWidth - margin - 75;
+  const summaryValX = pageWidth - margin - 3;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.setTextColor(100, 116, 139);
+  doc.text('Subtotal:', summaryX, y);
+  doc.setTextColor(15, 23, 42);
+  doc.text(formatINR(data.subtotal), summaryValX, y, { align: 'right' });
+
+  if (data.discountTotal && data.discountTotal > 0) {
+    y += 4.5;
+    doc.setTextColor(79, 70, 229);
+    doc.text('Discount Applied:', summaryX, y);
+    doc.text(`-${formatINR(data.discountTotal)}`, summaryValX, y, { align: 'right' });
+  }
+
+  y += 4.5;
+  doc.setTextColor(100, 116, 139);
+  doc.text('GST Total (18%):', summaryX, y);
+  doc.setTextColor(15, 23, 42);
+  doc.text(formatINR(data.taxTotal), summaryValX, y, { align: 'right' });
+
+  y += 5.5;
+  doc.setDrawColor(203, 213, 225);
+  doc.setLineWidth(0.4);
+  doc.line(summaryX, y - 1, pageWidth - margin, y - 1);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.setTextColor(15, 23, 42);
+  doc.text('Grand Total:', summaryX, y + 3);
+  doc.text(formatINR(data.grandTotal), summaryValX, y + 3, { align: 'right' });
+
+  y += 7.5;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.setTextColor(5, 150, 105); // Emerald
+  doc.text('Amount Paid:', summaryX, y);
+  doc.text(`-${formatINR(data.amountPaid)}`, summaryValX, y, { align: 'right' });
+
+  y += 5;
+  doc.setDrawColor(226, 232, 240);
+  doc.line(summaryX, y - 1, pageWidth - margin, y - 1);
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  if (balanceDue > 0) {
+    doc.setTextColor(225, 29, 72);
+    doc.text('Balance Due:', summaryX, y + 3);
+    doc.text(formatINR(balanceDue), summaryValX, y + 3, { align: 'right' });
+  } else {
+    doc.setTextColor(5, 150, 105);
+    doc.text('Balance Due:', summaryX, y + 3);
+    doc.text('₹0.00 (Fully Settled)', summaryValX, y + 3, { align: 'right' });
+  }
+
+  // 5. PAYMENT SETTLEMENT DETAILS BOX
+  y += 14;
   const paymentMethod = data.payments && data.payments.length > 0 
     ? data.payments[0].method.replace('_', ' ') 
-    : 'BANK TRANSFER / UPI';
+    : 'BANK WIRE / UPI';
   const paymentRef = data.payments && data.payments.length > 0 
     ? data.payments[0].transactionReference 
-    : `REF-${data.invoiceNumber}`;
+    : `PAY-${data.invoiceNumber}`;
   const paymentDate = data.payments && data.payments.length > 0 
     ? new Date(data.payments[0].paymentDate).toLocaleDateString('en-IN') 
     : new Date().toLocaleDateString('en-IN');
 
-  const rows = data.lines && data.lines.length > 0
-    ? data.lines.map((l) => `
-      <tr>
-        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #1e293b;">
-          <strong>${l.description}</strong>
-        </td>
-        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: center; color: #475569;">
-          ${l.quantity}
-        </td>
-        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: right; color: #475569;">
-          ${formatINR(l.unitPrice)}
-        </td>
-        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: right; color: #475569;">
-          ${l.taxRate}% (${formatINR(l.taxAmount)})
-        </td>
-        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: right; font-weight: 600; color: #0f172a;">
-          ${formatINR(l.lineTotal)}
-        </td>
-      </tr>
-    `).join('')
-    : `
-      <tr>
-        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #1e293b;">
-          Subscription Service Fee
-        </td>
-        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: center; color: #475569;">1</td>
-        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: right; color: #475569;">${formatINR(data.subtotal)}</td>
-        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: right; color: #475569;">18% (${formatINR(data.taxTotal)})</td>
-        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; font-size: 13px; text-align: right; font-weight: 600; color: #0f172a;">${formatINR(data.grandTotal)}</td>
-      </tr>
-    `;
+  doc.setFillColor(248, 250, 252);
+  doc.setDrawColor(226, 232, 240);
+  doc.roundedRect(margin, y, contentWidth, 13, 2, 2, 'FD');
 
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Payment Receipt - ${data.invoiceNumber}</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: #f8fafc;
-      color: #0f172a;
-      padding: 40px 20px;
-      line-height: 1.5;
-    }
-    .receipt-container {
-      max-width: 800px;
-      margin: 0 auto;
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      padding: 48px;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      border-bottom: 2px solid #f1f5f9;
-      padding-bottom: 24px;
-      margin-bottom: 32px;
-    }
-    .logo-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .badge-paid {
-      display: inline-flex;
-      align-items: center;
-      background: #ecfdf5;
-      color: #047857;
-      border: 1px solid #a7f3d0;
-      padding: 6px 14px;
-      border-radius: 9999px;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-    .badge-unpaid {
-      display: inline-flex;
-      align-items: center;
-      background: #fff1f2;
-      color: #be123c;
-      border: 1px solid #fecdd3;
-      padding: 6px 14px;
-      border-radius: 9999px;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-    .meta-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 32px;
-      margin-bottom: 32px;
-    }
-    .meta-box h4 {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #64748b;
-      margin-bottom: 8px;
-    }
-    .meta-box p {
-      font-size: 13px;
-      color: #334155;
-      margin-bottom: 4px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 32px;
-    }
-    th {
-      background: #f8fafc;
-      padding: 10px 14px;
-      font-size: 11px;
-      font-weight: 600;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border-bottom: 1px solid #cbd5e1;
-    }
-    .totals-area {
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 32px;
-    }
-    .totals-table {
-      width: 320px;
-    }
-    .totals-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 6px 0;
-      font-size: 13px;
-      color: #475569;
-    }
-    .totals-row.grand {
-      font-size: 16px;
-      font-weight: 700;
-      color: #0f172a;
-      border-top: 1px solid #cbd5e1;
-      padding-top: 10px;
-      margin-top: 6px;
-    }
-    .totals-row.paid {
-      color: #059669;
-      font-weight: 600;
-    }
-    .totals-row.balance {
-      font-size: 14px;
-      font-weight: 700;
-      color: ${balanceDue > 0 ? '#e11d48' : '#059669'};
-      border-top: 1px dashed #e2e8f0;
-      padding-top: 8px;
-      margin-top: 4px;
-    }
-    .footer {
-      border-top: 1px solid #f1f5f9;
-      padding-top: 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 11px;
-      color: #94a3b8;
-    }
-    .actions {
-      margin-top: 24px;
-      text-align: center;
-    }
-    .btn-print {
-      display: inline-block;
-      padding: 10px 20px;
-      background: #4f46e5;
-      color: #ffffff;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 600;
-      text-decoration: none;
-      cursor: pointer;
-      border: none;
-      box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
-    }
-    .btn-print:hover {
-      background: #4338ca;
-    }
-    @media print {
-      body { background: #ffffff; padding: 0; }
-      .receipt-container { box-shadow: none; border: none; padding: 24px; }
-      .actions { display: none; }
-    }
-  </style>
-</head>
-<body>
-  <div class="receipt-container">
-    <div class="header">
-      <div class="logo-wrapper">
-        <svg width="40" height="40" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="120" height="120" rx="28" fill="#4f46e5"/>
-          <line x1="60" y1="20" x2="60" y2="34" stroke="#ff9800" stroke-width="7" stroke-linecap="round"/>
-          <line x1="42" y1="26" x2="52" y2="37" stroke="#ff9800" stroke-width="7" stroke-linecap="round"/>
-          <line x1="78" y1="26" x2="68" y2="37" stroke="#ff9800" stroke-width="7" stroke-linecap="round"/>
-          <path d="M40 76C47 76 53 70 60 60C67 50 73 44 80 44C88.8 44 96 51.2 96 60C96 68.8 88.8 76 80 76C73 76 67 70 60 60C53 50 47 44 40 44C31.2 44 24 51.2 24 60C24 68.8 31.2 76 40 76Z" stroke="#ffffff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <div>
-          <h2 style="font-size: 20px; font-weight: 800; color: #1e1b4b; letter-spacing: -0.02em;">Brightloop</h2>
-          <p style="font-size: 11px; color: #64748b;">Subscription Billing &amp; Invoicing</p>
-        </div>
-      </div>
-      <div style="text-align: right;">
-        <span class="${isPaid ? 'badge-paid' : 'badge-unpaid'}">
-          ${isPaid ? 'Official Receipt · Paid' : `Payment Due · ${data.status}`}
-        </span>
-        <h3 style="font-size: 16px; font-weight: 700; margin-top: 8px; color: #0f172a;">${data.invoiceNumber}</h3>
-        <p style="font-size: 11px; color: #64748b; margin-top: 2px;">Date: ${new Date(data.issueDate).toLocaleDateString('en-IN')}</p>
-      </div>
-    </div>
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8);
+  doc.setTextColor(71, 85, 105);
+  doc.text('Payment Settlement:', margin + 4, y + 5);
 
-    <div class="meta-grid">
-      <div class="meta-box">
-        <h4>Issued By</h4>
-        <p><strong>Brightloop Software Inc.</strong></p>
-        <p>100 Enterprise Way, Suite 400</p>
-        <p>GSTIN: 27AABCB1234F1Z8</p>
-        <p>billing@brightloop.com</p>
-      </div>
-      <div class="meta-box">
-        <h4>Billed &amp; Receipted To</h4>
-        <p><strong>${data.customer.name}</strong></p>
-        ${data.customer.companyName ? `<p>${data.customer.companyName}</p>` : ''}
-        <p>${data.customer.email}</p>
-        ${data.customer.address ? `<p>${data.customer.address}</p>` : ''}
-        ${data.subscription ? `<p style="font-size: 11px; color: #6366f1; margin-top: 4px;">Ref: ${data.subscription.subscriptionNumber}</p>` : ''}
-      </div>
-    </div>
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(15, 23, 42);
+  doc.text(`Settled via ${paymentMethod}  ·  Reference: ${paymentRef}`, margin + 35, y + 5);
 
-    <table>
-      <thead>
-        <tr>
-          <th style="text-align: left;">Item &amp; Description</th>
-          <th style="text-align: center; width: 60px;">Qty</th>
-          <th style="text-align: right; width: 120px;">Unit Price</th>
-          <th style="text-align: right; width: 130px;">GST Rate</th>
-          <th style="text-align: right; width: 120px;">Amount (INR)</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows}
-      </tbody>
-    </table>
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(71, 85, 105);
+  doc.text('Settlement Date:', margin + 4, y + 9.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(15, 23, 42);
+  doc.text(paymentDate, margin + 35, y + 9.5);
 
-    <div class="totals-area">
-      <div class="totals-table">
-        <div class="totals-row">
-          <span>Subtotal:</span>
-          <span>${formatINR(data.subtotal)}</span>
-        </div>
-        ${data.discountTotal && data.discountTotal > 0 ? `
-        <div class="totals-row" style="color: #4f46e5;">
-          <span>Discount Applied:</span>
-          <span>-${formatINR(data.discountTotal)}</span>
-        </div>` : ''}
-        <div class="totals-row">
-          <span>Taxes (GST 18%):</span>
-          <span>${formatINR(data.taxTotal)}</span>
-        </div>
-        <div class="totals-row grand">
-          <span>Grand Total:</span>
-          <span>${formatINR(data.grandTotal)}</span>
-        </div>
-        <div class="totals-row paid">
-          <span>Amount Paid:</span>
-          <span>-${formatINR(data.amountPaid)}</span>
-        </div>
-        <div class="totals-row balance">
-          <span>Balance Due:</span>
-          <span>${formatINR(balanceDue)}</span>
-        </div>
-      </div>
-    </div>
+  // 6. FOOTER
+  const footerY = pageHeight - margin - 8;
+  doc.setDrawColor(241, 245, 249);
+  doc.line(margin, footerY, pageWidth - margin, footerY);
 
-    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 18px; margin-bottom: 24px; font-size: 12px; color: #475569;">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <strong>Payment Settlement:</strong> Settled via <strong>${paymentMethod}</strong> (Ref: <code style="color: #4f46e5;">${paymentRef}</code>)
-        </div>
-        <div>
-          Date: <strong>${paymentDate}</strong>
-        </div>
-      </div>
-    </div>
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7);
+  doc.setTextColor(148, 163, 184);
+  doc.text('This is a computer-generated tax receipt from Brightloop. Authorized digital record.', margin, footerY + 4);
+  doc.text('Brightloop Software Inc. · www.brightloop.com', pageWidth - margin, footerY + 4, { align: 'right' });
 
-    <div class="footer">
-      <div>This is a computer-generated tax receipt from Brightloop. No physical signature required.</div>
-      <div>Page 1 of 1</div>
-    </div>
-
-    <div class="actions">
-      <button onclick="window.print()" class="btn-print">Print or Save as PDF</button>
-    </div>
-  </div>
-</body>
-</html>`;
+  // Direct Save as PDF file
+  doc.save(`Receipt-${data.invoiceNumber}.pdf`);
 }
 
+/**
+ * Backward compatibility alias: downloads authentic PDF directly.
+ */
 export function downloadReceiptFile(data: ReceiptData) {
-  const html = generateReceiptHTML(data);
-  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `Receipt-${data.invoiceNumber}.html`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  downloadReceiptPDF(data);
 }
