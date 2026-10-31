@@ -1,12 +1,10 @@
 import React from 'react';
-import Image from 'next/image';
 
 interface BrightloopLogoProps {
   className?: string;
   showText?: boolean;
   inverted?: boolean;
   size?: 'sm' | 'md' | 'lg' | 'xl';
-  useRaster?: boolean;
 }
 
 export function BrightloopLogo({
@@ -14,75 +12,55 @@ export function BrightloopLogo({
   showText = true,
   inverted = false,
   size = 'md',
-  useRaster = true,
 }: BrightloopLogoProps) {
-  const heightMap = {
-    sm: 'h-6',
-    md: 'h-8',
-    lg: 'h-10',
-    xl: 'h-14',
-  };
-
-  const iconSizeMap = {
+  const iconDimensions = {
     sm: 24,
-    md: 32,
-    lg: 40,
-    xl: 56,
+    md: 28,
+    lg: 36,
+    xl: 44,
   };
 
-  const primaryColor = inverted ? '#ffffff' : '#5638F5';
-  const sunColor = '#FF9800';
+  const textSizes = {
+    sm: 'text-sm font-semibold tracking-tight',
+    md: 'text-base font-semibold tracking-tight',
+    lg: 'text-xl font-semibold tracking-tight',
+    xl: 'text-2xl font-semibold tracking-tight',
+  };
 
-  if (useRaster && showText && !inverted) {
-    return (
-      <div className={`flex items-center gap-2.5 ${className}`}>
-        <img
-          src="/logo.png"
-          alt="Brightloop"
-          className={`${heightMap[size]} w-auto object-contain select-none`}
-        />
-      </div>
-    );
-  }
+  const dim = iconDimensions[size];
 
   return (
-    <div className={`flex items-center gap-2.5 ${className}`}>
-      {/* Radiant Infinity Loop Icon */}
+    <div className={`inline-flex items-center gap-2.5 ${className}`}>
+      {/* Precision Vector Infinity Icon */}
       <svg
-        width={iconSizeMap[size]}
-        height={iconSizeMap[size]}
-        viewBox="0 0 100 100"
+        width={dim}
+        height={dim}
+        viewBox="0 0 32 32"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="shrink-0 transition-transform group-hover:scale-105"
+        className="shrink-0"
+        aria-hidden="true"
       >
-        {/* 3 Radiant Sunburst Rays */}
-        <g stroke={sunColor} strokeWidth="6.5" strokeLinecap="round">
-          {/* Middle Ray */}
-          <line x1="68" y1="28" x2="68" y2="16" />
-          {/* Left Ray */}
-          <line x1="56" y1="32" x2="47" y2="23" />
-          {/* Right Ray */}
-          <line x1="80" y1="32" x2="89" y2="23" />
-        </g>
-
-        {/* Infinity Loop Symbol */}
+        <rect
+          width="32"
+          height="32"
+          rx="8"
+          fill={inverted ? '#FFFFFF' : '#4F46E5'}
+        />
         <path
-          d="M33 40C23 40 15 48 15 58C15 68 23 76 33 76C44 76 52 68 60 58C68 48 76 40 85 40C94 40 101 47 101 58C101 69 94 76 85 76C76 76 68 68 60 58C52 48 44 40 33 40Z"
-          stroke={primaryColor}
-          strokeWidth="11"
+          d="M16 16C12.5 11 6.5 11 6.5 16C6.5 21 12.5 21 16 16C19.5 11 25.5 11 25.5 16C25.5 21 19.5 21 16 16Z"
+          stroke={inverted ? '#4F46E5' : '#FFFFFF'}
+          strokeWidth="2.75"
           strokeLinecap="round"
           strokeLinejoin="round"
-          transform="scale(0.85) translate(4, 5)"
         />
       </svg>
 
       {showText && (
         <span
-          className={`font-extrabold tracking-tight select-none transition-colors ${
-            size === 'sm' ? 'text-base' : size === 'lg' ? 'text-2xl' : size === 'xl' ? 'text-3xl' : 'text-xl'
+          className={`${textSizes[size]} ${
+            inverted ? 'text-white' : 'text-slate-900'
           }`}
-          style={{ color: primaryColor }}
         >
           Brightloop
         </span>
@@ -90,4 +68,3 @@ export function BrightloopLogo({
     </div>
   );
 }
-

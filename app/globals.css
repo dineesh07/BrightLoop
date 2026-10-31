@@ -3,39 +3,27 @@
 @tailwind utilities;
 
 :root {
-  /* Brightloop Brand Palette (Extracted directly from Brand Logo) */
-  --ground: #fafaff;
+  /* Apple & Emil Design Engineering Color Tokens */
+  --ground: #fafafa;
   --surface: #ffffff;
-  --raised: #f4f2fe;
-  --border: #e6e2f8;
-  --rule: #f2effd;
-  --control: #cfc8f4;
-  --text: #0d0c22;
-  --muted: #676585;
+  --raised: #f8fafc;
+  --border: rgba(15, 23, 42, 0.08);
+  --rule: #f1f5f9;
+  --control: #cbd5e1;
+  --text: #0f172a;
+  --muted: #64748b;
 
-  /* Primary Electric Blurple */
-  --accent: #5638F5;
-  --accent-hover: #4528e5;
-  --accent-light: #f0edff;
+  /* Single Primary Accent: Indigo */
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-light: #eef2ff;
 
-  /* Radiant Sunburst Amber/Orange from Logo Rays */
-  --sunburst: #FF9800;
-  --sunburst-hover: #f57c00;
-  --sunburst-light: #fff7ed;
-
-  /* Semantic status colors */
+  /* Semantic status colors (Orange strictly for Warning / Overdue) */
   --positive: #059669;
   --negative: #dc2626;
-  --warning: #FF9800;
+  --warning: #d97706;
 
-  /* Data Visualization colors */
-  --chart-1: #5638F5;
-  --chart-2: #FF9800;
-  --chart-3: #7c3aed;
-  --chart-4: #059669;
-  --chart-5: #3b82f6;
-
-  /* Status pills with matching borders */
+  /* Status pills with matching 1px borders */
   --pill-positive-bg: #ecfdf5;
   --pill-positive-ink: #065f46;
   --pill-positive-border: #a7f3d0;
@@ -44,18 +32,25 @@
   --pill-negative-ink: #991b1b;
   --pill-negative-border: #fecaca;
 
-  --pill-warning-bg: #fff7ed;
-  --pill-warning-ink: #9a3412;
-  --pill-warning-border: #ffedd5;
+  /* Warning / Overdue pill */
+  --pill-warning-bg: #fffbeb;
+  --pill-warning-ink: #92400e;
+  --pill-warning-border: #fde68a;
 
-  --pill-neutral-bg: #f4f2fe;
-  --pill-neutral-ink: #4338ca;
-  --pill-neutral-border: #e0e7ff;
+  --pill-neutral-bg: #f1f5f9;
+  --pill-neutral-ink: #334155;
+  --pill-neutral-border: #e2e8f0;
 
-  --radius-card: 12px;
-  --radius-control: 8px;
+  /* 8px Spacing Grid Foundations */
+  --radius-card: 20px;
+  --radius-control: 12px;
   --row-height: 48px;
-  --control-height: 40px;
+  --control-height: 44px;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -65,17 +60,19 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-size: 14px;
+  line-height: 1.5;
 }
 
-/* Numeric alignment for financial ledgers */
+/* Numeric alignment for invoices and ledgers */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
 
-/* Indian Rupee symbol styling helper */
-.currency-inr::before {
-  content: "₹";
-  margin-right: 1px;
+/* iOS Safe Form Elements (>= 16px to prevent automatic zooming) */
+@media screen and (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
 }
 
 /* Clean ledger table styling */
@@ -87,24 +84,46 @@ body {
 
 .ledger-table th {
   text-align: left;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--muted);
   border-bottom: 1px solid var(--border);
-  padding: 12px 14px;
+  padding: 12px 16px;
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  background-color: #fafaff;
+  background-color: #f8fafc;
 }
 
 .ledger-table td {
-  padding: 14px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--rule);
   color: var(--text);
 }
 
 .ledger-table tr:hover td {
-  background-color: #f7f6fe;
+  background-color: #f8fafc;
+}
+
+/* Touch targets and press feedback */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Apple 100-150ms press feedback */
+.press-feedback {
+  transition: transform 120ms ease-out, background-color 120ms ease-out, border-color 120ms ease-out;
+}
+
+.press-feedback:active {
+  transform: scale(0.98);
+}
+
+/* Hover guarded by capability query */
+@media (hover: hover) and (pointer: fine) {
+  .interactive-hover:hover {
+    background-color: var(--raised);
+  }
 }
 
 /* Custom Scrollbar */
@@ -116,23 +135,23 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cfc8f4;
+  background: #cbd5e1;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #b2a7eb;
+  background: #94a3b8;
 }
 
-/* Gradient Background Effects */
-.bg-mesh-glow {
-  background: radial-gradient(circle at 50% 0%, rgba(86, 56, 245, 0.12) 0%, transparent 60%),
-              radial-gradient(circle at 90% 20%, rgba(255, 152, 0, 0.08) 0%, transparent 40%);
-}
-
-.bg-dark-mesh {
-  background: radial-gradient(circle at 20% 0%, rgba(86, 56, 245, 0.3) 0%, transparent 60%),
-              radial-gradient(circle at 80% 80%, rgba(255, 152, 0, 0.15) 0%, transparent 50%),
-              #0d0c22;
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Print styles for invoices */
