@@ -77,7 +77,7 @@ export default function BillingDayPage() {
         <button
           onClick={handleRunBillingDay}
           disabled={running}
-          className="px-4 py-2 text-xs font-semibold bg-chartHue text-white rounded hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
+          className="px-5 py-2.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-subtle press-feedback disabled:opacity-50 flex items-center gap-2 transition-all"
         >
           {running ? 'Processing Invoices...' : 'Run Billing Day Now'}
         </button>

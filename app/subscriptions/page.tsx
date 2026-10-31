@@ -65,36 +65,36 @@ export default function SubscriptionsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-text">Subscription Master Ledger</h1>
-          <p className="text-xs text-muted mt-0.5">
-            Full lifecycle tracking: Draft → Quotation → Confirmed → Active → Closed.
+          <h1 className="text-xl font-bold tracking-tight text-slate-900">Subscription Master Ledger</h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Full lifecycle tracking: Draft &rarr; Quotation &rarr; Confirmed &rarr; Active &rarr; Closed.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <Link
             href="/subscriptions/new"
-            className="px-3 py-1.5 text-xs font-medium bg-accent text-white rounded hover:opacity-90"
+            className="px-4 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-subtle press-feedback transition-all flex items-center gap-1.5"
           >
-            + New Subscription / Quote
+            <span>+ New Subscription / Quote</span>
           </Link>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-        {/* Status Tabs */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-1">
+        {/* Status Tabs - iOS/macOS smooth segmented pill control */}
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 border border-slate-200/70 overflow-x-auto">
           {statuses.map((s) => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
-              className={`px-3 py-1 text-xs rounded border transition-colors whitespace-nowrap ${
+              className={`px-3 py-1.5 text-xs rounded-lg transition-all whitespace-nowrap font-medium press-feedback ${
                 statusFilter === s
-                  ? 'bg-text text-white border-text font-medium'
-                  : 'bg-surface text-muted border-border hover:text-text'
+                  ? 'bg-white text-slate-900 shadow-subtle font-semibold'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
               }`}
             >
               {s}
@@ -109,11 +109,11 @@ export default function SubscriptionsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by customer, plan or number..."
-            className="px-3 py-1 text-xs border border-border rounded bg-surface text-text w-64"
+            className="px-3.5 py-2 text-xs border border-slate-200 rounded-xl bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 w-64 shadow-subtle"
           />
           <button
             type="submit"
-            className="px-3 py-1 text-xs bg-raised border border-border rounded text-text hover:bg-ground"
+            className="px-3.5 py-2 text-xs font-medium bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-slate-700 shadow-subtle press-feedback transition-colors"
           >
             Search
           </button>
@@ -202,16 +202,16 @@ export default function SubscriptionsPage() {
                             <button
                               disabled={actionLoading === sub.id}
                               onClick={() => handleAction(sub.id, 'ACTIVATE')}
-                              className="px-2 py-0.5 text-xs bg-positive text-white rounded hover:opacity-90 font-medium"
+                              className="px-3 py-1 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-subtle font-medium transition-all press-feedback"
                             >
-                              Confirm & Activate
+                              Confirm &amp; Activate
                             </button>
                           )}
                           {sub.status === 'CONFIRMED' && (
                             <button
                               disabled={actionLoading === sub.id}
                               onClick={() => handleAction(sub.id, 'ACTIVATE')}
-                              className="px-2 py-0.5 text-xs bg-positive text-white rounded hover:opacity-90 font-medium"
+                              className="px-3 py-1 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-subtle font-medium transition-all press-feedback"
                             >
                               Activate
                             </button>
@@ -222,7 +222,7 @@ export default function SubscriptionsPage() {
                                 <button
                                   disabled={actionLoading === sub.id}
                                   onClick={() => handleAction(sub.id, 'PAUSE')}
-                                  className="px-2 py-0.5 text-xs bg-raised border border-border rounded hover:bg-ground text-warning"
+                                  className="px-2.5 py-1 text-xs bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 rounded-lg font-medium transition-colors press-feedback"
                                 >
                                   Pause
                                 </button>
@@ -231,7 +231,7 @@ export default function SubscriptionsPage() {
                                 <button
                                   disabled={actionLoading === sub.id}
                                   onClick={() => handleAction(sub.id, 'CLOSE')}
-                                  className="px-2 py-0.5 text-xs bg-raised border border-border rounded hover:bg-ground text-negative"
+                                  className="px-2.5 py-1 text-xs bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 rounded-lg font-medium transition-colors press-feedback"
                                 >
                                   Close
                                 </button>
@@ -242,7 +242,7 @@ export default function SubscriptionsPage() {
                             <button
                               disabled={actionLoading === sub.id}
                               onClick={() => handleAction(sub.id, 'RESUME')}
-                              className="px-2 py-0.5 text-xs bg-positive text-white rounded hover:opacity-90 font-medium"
+                              className="px-3 py-1 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-subtle font-medium transition-all press-feedback"
                             >
                               Resume
                             </button>
@@ -251,14 +251,14 @@ export default function SubscriptionsPage() {
                             <button
                               disabled={actionLoading === sub.id}
                               onClick={() => handleAction(sub.id, 'RENEW')}
-                              className="px-2 py-0.5 text-xs bg-raised border border-border rounded hover:bg-ground font-medium"
+                              className="px-2.5 py-1 text-xs bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-lg font-medium transition-colors press-feedback"
                             >
                               Renew
                             </button>
                           )}
                           <Link
                             href={`/subscriptions/${sub.id}`}
-                            className="px-2 py-0.5 text-xs bg-raised border border-border rounded hover:bg-ground text-muted"
+                            className="px-2.5 py-1 text-xs bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-600 hover:text-slate-900 transition-colors press-feedback"
                           >
                             Details
                           </Link>

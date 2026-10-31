@@ -42,8 +42,14 @@ export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<UserSession | null>(null);
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  
+  // Expand on hover + optional pin state
+  const [isPinned, setIsPinned] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Visible as expanded if pinned OR if hovered
+  const isExpanded = isPinned || isHovered;
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -105,29 +111,33 @@ export function AppSidebar() {
   };
 
   const navContent = (
-    <div className="flex flex-col h-full justify-between bg-white border-r border-slate-200 select-none">
-      {/* Top: Logo & Toggle */}
+    <div className="flex flex-col h-full justify-between bg-white border-r border-slate-200 select-none shadow-subtle">
+      {/* Top: Logo & Toggle Header */}
       <div>
         <div
-          className={`h-16 flex items-center border-b border-slate-100 px-4 ${
-            isCollapsed ? 'justify-center' : 'justify-between'
+          className={`h-16 flex items-center border-b border-slate-100 transition-all ${
+            isExpanded ? 'px-4 justify-between' : 'px-0 justify-center'
           }`}
         >
           <Link
             href={user?.role === 'CUSTOMER' ? '/portal' : '/dashboard'}
-            className="flex items-center gap-2 overflow-hidden"
+            className="flex items-center gap-2.5 overflow-hidden"
           >
-            <BrightloopLogo size="sm" showText={!isCollapsed} />
+            <BrightloopLogo size="sm" showText={isExpanded} />
           </Link>
-          <button
-            type="button"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="hidden lg:flex w-7 h-7 rounded-lg border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-50 items-center justify-center transition-colors"
-            title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-          </button>
+          
+          {/* Toggle button only renders when expanded to avoid crowding the logo in compact mode */}
+          {isExpanded && (
+            <button
+              type="button"
+              onClick={() => setIsPinned(!isPinned)}
+              className="hidden lg:flex w-7 h-7 rounded-lg border border-slate-200 text-slate-400 hover:text-slate-800 hover:bg-slate-50 items-center justify-center transition-colors press-feedback"
+              title={isPinned ? 'Collapse to icon bar' : 'Pin sidebar expanded'}
+              aria-label={isPinned ? 'Collapse to icon bar' : 'Pin sidebar expanded'}
+            >
+              {isPinned ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+            </button>
+          )}
         </div>
 
         {/* Navigation list */}
@@ -142,15 +152,15 @@ export function AppSidebar() {
                     key={item.href}
                     href={item.href}
                     onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors ${
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
                       active
-                        ? 'bg-indigo-50 text-indigo-700 font-semibold'
+                        ? 'bg-indigo-50 text-indigo-700 font-semibold shadow-subtle'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                    } ${isCollapsed ? 'justify-center px-0' : ''}`}
-                    title={isCollapsed ? item.label : undefined}
+                    } ${!isExpanded ? 'justify-center px-0' : ''}`}
+                    title={!isExpanded ? item.label : undefined}
                   >
                     <Icon className="w-4 h-4 shrink-0" />
-                    {!isCollapsed && <span className="truncate">{item.label}</span>}
+                    {isExpanded && <span className="truncate">{item.label}</span>}
                   </Link>
                 );
               })}
@@ -158,7 +168,7 @@ export function AppSidebar() {
           ) : (
             filteredAdminSections.map((section, sIdx) => (
               <div key={sIdx} className="space-y-1">
-                {!isCollapsed && (
+                {isExpanded && (
                   <div className="px-3 pb-1 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
                     {section.heading}
                   </div>
@@ -171,15 +181,15 @@ export function AppSidebar() {
                       key={item.href}
                       href={item.href}
                       onClick={() => setMobileOpen(false)}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors ${
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
                         active
                           ? 'bg-indigo-50 text-indigo-700 font-semibold shadow-subtle'
                           : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                      } ${isCollapsed ? 'justify-center px-0' : ''}`}
-                      title={isCollapsed ? item.label : undefined}
+                      } ${!isExpanded ? 'justify-center px-0' : ''}`}
+                      title={!isExpanded ? item.label : undefined}
                     >
                       <Icon className="w-4 h-4 shrink-0" />
-                      {!isCollapsed && <span className="truncate">{item.label}</span>}
+                      {isExpanded && <span className="truncate">{item.label}</span>}
                     </Link>
                   );
                 })}
@@ -192,40 +202,38 @@ export function AppSidebar() {
       {/* Bottom: User Profile & Actions */}
       <div className="p-3 border-t border-slate-100 bg-slate-50/50 space-y-2">
         {user ? (
-          <div className={`flex items-center gap-2.5 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+          <div className={`flex items-center gap-2.5 ${!isExpanded ? 'justify-center' : 'justify-between'}`}>
             <div className="flex items-center gap-2.5 overflow-hidden">
               <div className="w-8 h-8 rounded-full bg-indigo-600 text-white font-medium text-xs flex items-center justify-center shrink-0">
                 {user.name.charAt(0).toUpperCase()}
               </div>
-              {!isCollapsed && (
+              {isExpanded && (
                 <div className="truncate text-left">
                   <div className="text-xs font-semibold text-slate-900 truncate">{user.name}</div>
-                  <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
-                    <span className="capitalize">{user.role.toLowerCase()}</span>
-                  </div>
+                  <div className="text-[11px] text-slate-500 capitalize">{user.role.toLowerCase()}</div>
                 </div>
               )}
             </div>
-            {!isCollapsed && (
+            {isExpanded ? (
               <button
                 type="button"
                 onClick={handleLogout}
-                className="w-8 h-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors"
+                className="w-8 h-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors press-feedback"
                 title="Sign out"
                 aria-label="Sign out"
               >
                 <LogOut className="w-4 h-4" />
               </button>
-            )}
+            ) : null}
           </div>
         ) : (
           <Link
             href="/auth/login"
             className={`w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs flex items-center justify-center transition-colors ${
-              isCollapsed ? 'px-0' : 'px-3'
+              !isExpanded ? 'px-0' : 'px-3'
             }`}
           >
-            {isCollapsed ? <UserCheck className="w-4 h-4" /> : 'Sign In'}
+            {isExpanded ? 'Sign In' : <UserCheck className="w-4 h-4" />}
           </Link>
         )}
       </div>
@@ -234,16 +242,22 @@ export function AppSidebar() {
 
   return (
     <>
-      {/* Desktop Sticky Sidebar */}
+      {/* Desktop Hover-to-Expand + Pin Sidebar */}
       <aside
-        className={`hidden lg:block shrink-0 sticky top-0 h-[100dvh] transition-all duration-200 z-40 ${
-          isCollapsed ? 'w-[68px]' : 'w-[240px]'
+        onMouseEnter={() => {
+          if (!isPinned) setIsHovered(true);
+        }}
+        onMouseLeave={() => {
+          if (!isPinned) setIsHovered(false);
+        }}
+        className={`hidden lg:block shrink-0 sticky top-0 h-[100dvh] transition-all duration-200 ease-out z-40 ${
+          isExpanded ? 'w-[240px]' : 'w-[68px]'
         }`}
       >
         {navContent}
       </aside>
 
-      {/* Mobile Top Header with Hamburger */}
+      {/* Mobile Top Header */}
       <div className="lg:hidden sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 h-14 flex items-center justify-between">
         <Link href={user?.role === 'CUSTOMER' ? '/portal' : '/dashboard'} className="flex items-center">
           <BrightloopLogo size="sm" showText={true} />
@@ -251,7 +265,7 @@ export function AppSidebar() {
         <button
           type="button"
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="w-10 h-10 rounded-lg flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100"
           aria-label="Toggle navigation"
         >
           {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

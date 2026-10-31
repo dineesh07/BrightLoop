@@ -153,7 +153,7 @@ export default function CustomerPortalPage() {
           </div>
           <Link
             href="/subscriptions/new"
-            className="px-3 py-1 text-xs font-semibold bg-accent text-white rounded hover:opacity-90"
+            className="px-4 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-subtle press-feedback transition-all flex items-center gap-1.5"
           >
             + Add New Plan
           </Link>
@@ -205,7 +205,7 @@ export default function CustomerPortalPage() {
                         {sub.status === 'ACTIVE' && sub.plan.allowPause && (
                           <button
                             onClick={() => handleSubscriptionAction(sub.id, 'PAUSE')}
-                            className="px-2 py-0.5 text-xs border border-border rounded text-warning hover:bg-raised"
+                            className="px-2.5 py-1 text-xs border border-amber-200 bg-amber-50 rounded-lg text-amber-800 hover:bg-amber-100 font-medium transition-colors press-feedback"
                           >
                             Pause
                           </button>
@@ -213,7 +213,7 @@ export default function CustomerPortalPage() {
                         {sub.status === 'PAUSED' && (
                           <button
                             onClick={() => handleSubscriptionAction(sub.id, 'RESUME')}
-                            className="px-2 py-0.5 text-xs bg-positive text-white rounded hover:opacity-90 font-medium"
+                            className="px-3 py-1 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-subtle font-medium transition-all press-feedback"
                           >
                             Resume
                           </button>
@@ -221,14 +221,14 @@ export default function CustomerPortalPage() {
                         {sub.status === 'ACTIVE' && sub.plan.allowEarlyClose && (
                           <button
                             onClick={() => handleSubscriptionAction(sub.id, 'CLOSE')}
-                            className="px-2 py-0.5 text-xs border border-border rounded text-negative hover:bg-raised"
+                            className="px-2.5 py-1 text-xs border border-rose-200 bg-rose-50 rounded-lg text-rose-700 hover:bg-rose-100 font-medium transition-colors press-feedback"
                           >
                             Cancel Plan
                           </button>
                         )}
                         <Link
                           href={`/subscriptions/${sub.id}`}
-                          className="px-2 py-0.5 text-xs bg-raised border border-border rounded text-text hover:bg-ground"
+                          className="px-2.5 py-1 text-xs bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-600 hover:text-slate-900 transition-colors press-feedback"
                         >
                           View Contract
                         </Link>

@@ -77,7 +77,7 @@ export default function TaxesPage() {
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="px-3 py-1.5 text-xs font-medium bg-accent text-white rounded hover:opacity-90"
+          className="px-4 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-subtle press-feedback transition-all flex items-center gap-1.5"
         >
           + Add Tax Rule
         </button>
@@ -186,14 +186,14 @@ export default function TaxesPage() {
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="px-3 py-1.5 border border-border rounded text-text hover:bg-raised"
+              className="px-4 py-2 text-xs font-medium border border-slate-200 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors press-feedback"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="px-4 py-1.5 bg-accent text-white rounded font-medium hover:opacity-90 disabled:opacity-50"
+              className="px-4 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-subtle press-feedback disabled:opacity-50 transition-all"
             >
               {saving ? 'Creating...' : 'Create Tax Rule'}
             </button>

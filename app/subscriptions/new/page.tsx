@@ -573,14 +573,14 @@ export default function NewSubscriptionPage() {
           <div className="flex items-center justify-end gap-3 pt-2">
             <Link
               href="/subscriptions"
-              className="px-4 py-2 text-xs border border-border rounded text-text hover:bg-raised"
+              className="px-4 py-2 text-xs font-medium border border-slate-200 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors press-feedback"
             >
               Cancel
             </Link>
             <button
               type="submit"
               disabled={submitting}
-              className="px-5 py-2 text-xs font-semibold bg-accent text-white rounded hover:opacity-90 disabled:opacity-50"
+              className="px-5 py-2.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-subtle press-feedback disabled:opacity-50 transition-all"
             >
               {submitting ? 'Generating...' : `Generate ${initialStatus === 'QUOTATION' ? 'Quotation' : 'Subscription'}`}
             </button>

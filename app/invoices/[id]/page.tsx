@@ -119,14 +119,14 @@ export default function InvoiceDetailPage() {
               <button
                 disabled={actionLoading}
                 onClick={() => handleAction('confirm')}
-                className="px-3 py-1.5 text-xs font-medium bg-positive text-white rounded hover:opacity-90 disabled:opacity-50"
+                className="px-3.5 py-1.5 text-xs font-semibold bg-emerald-600 text-white rounded-xl shadow-subtle hover:bg-emerald-700 press-feedback disabled:opacity-50"
               >
                 Confirm Invoice
               </button>
               <button
                 disabled={actionLoading}
                 onClick={() => handleAction('cancel')}
-                className="px-3 py-1.5 text-xs font-medium border border-border bg-surface text-negative rounded hover:bg-raised disabled:opacity-50"
+                className="px-3.5 py-1.5 text-xs font-medium border border-rose-200 bg-rose-50/50 text-rose-700 rounded-xl hover:bg-rose-100/60 press-feedback disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -137,7 +137,7 @@ export default function InvoiceDetailPage() {
             <button
               disabled={actionLoading}
               onClick={() => setIsPayOpen(true)}
-              className="px-3 py-1.5 text-xs font-medium bg-accent text-white rounded hover:opacity-90 disabled:opacity-50"
+              className="px-3.5 py-1.5 text-xs font-semibold bg-indigo-600 text-white rounded-xl shadow-subtle hover:bg-indigo-700 press-feedback disabled:opacity-50"
             >
               Record Payment
             </button>
@@ -146,14 +146,14 @@ export default function InvoiceDetailPage() {
           <button
             disabled={actionLoading}
             onClick={() => handleAction('send')}
-            className="px-3 py-1.5 text-xs font-medium border border-border bg-surface text-text rounded hover:bg-raised"
+            className="px-3.5 py-1.5 text-xs font-medium border border-slate-200 bg-white text-slate-700 rounded-xl hover:bg-slate-50 press-feedback"
           >
             {invoice.sentAt ? 'Resend to Customer' : 'Send Invoice'}
           </button>
 
           <button
             onClick={() => window.print()}
-            className="px-3 py-1.5 text-xs font-medium bg-raised border border-border rounded text-text hover:bg-ground"
+            className="px-3.5 py-1.5 text-xs font-medium border border-slate-200 bg-white text-slate-700 rounded-xl hover:bg-slate-50 press-feedback"
           >
             Print / PDF
           </button>
@@ -355,7 +355,7 @@ export default function InvoiceDetailPage() {
                 required
                 value={payAmount}
                 onChange={(e) => setPayAmount(parseFloat(e.target.value) || 0)}
-                className="w-full p-2 border border-border rounded bg-surface text-text tabular-nums text-sm font-bold"
+                className="w-full p-2.5 border border-border rounded-xl bg-surface text-text tabular-nums text-sm font-bold"
               />
             </div>
 
@@ -364,7 +364,7 @@ export default function InvoiceDetailPage() {
               <select
                 value={payMethod}
                 onChange={(e) => setPayMethod(e.target.value)}
-                className="w-full p-2 border border-border rounded bg-surface text-text"
+                className="w-full p-2.5 border border-border rounded-xl bg-surface text-text"
               >
                 <option value="BANK_TRANSFER">Bank Wire / Transfer</option>
                 <option value="CREDIT_CARD">Credit Card / Stripe</option>
@@ -382,7 +382,7 @@ export default function InvoiceDetailPage() {
                 value={payRef}
                 onChange={(e) => setPayRef(e.target.value)}
                 placeholder="e.g. WIRE-89102"
-                className="w-full p-2 border border-border rounded bg-surface text-text font-mono"
+                className="w-full p-2.5 border border-border rounded-xl bg-surface text-text font-mono"
               />
             </div>
 
@@ -393,7 +393,7 @@ export default function InvoiceDetailPage() {
                 value={payNotes}
                 onChange={(e) => setPayNotes(e.target.value)}
                 placeholder="Payment memo"
-                className="w-full p-2 border border-border rounded bg-surface text-text"
+                className="w-full p-2.5 border border-border rounded-xl bg-surface text-text"
               />
             </div>
 
@@ -401,14 +401,14 @@ export default function InvoiceDetailPage() {
               <button
                 type="button"
                 onClick={() => setIsPayOpen(false)}
-                className="px-3 py-1.5 border border-border rounded text-text hover:bg-raised"
+                className="px-4 py-2 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 hover:bg-slate-50 press-feedback"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={actionLoading}
-                className="px-3 py-1.5 bg-accent text-white rounded font-medium hover:opacity-90 disabled:opacity-50"
+                className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-semibold hover:bg-indigo-700 press-feedback disabled:opacity-50"
               >
                 {actionLoading ? 'Recording...' : 'Confirm Payment'}
               </button>
