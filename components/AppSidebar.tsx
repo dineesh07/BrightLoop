@@ -129,54 +129,24 @@ export function AppSidebar() {
 
   const navContent = (
     <div className="flex flex-col h-full justify-between bg-white border-r border-slate-200 select-none shadow-subtle">
-      {/* Top: Logo & Toggle Header */}
+      {/* Top: Pure Logo Header (Clean & Uncrowded) */}
       <div>
-        {isExpanded ? (
-          <div className="h-16 px-4 flex items-center justify-between border-b border-slate-100">
-            <Link
-              href={user?.role === 'CUSTOMER' ? '/portal' : '/dashboard'}
-              className="flex items-center gap-2.5 overflow-hidden"
-            >
-              <BrightloopLogo size="sm" showText={true} />
-            </Link>
-            <button
-              type="button"
-              onClick={toggleSidebar}
-              className="hidden lg:flex w-8 h-8 rounded-lg border border-slate-200 text-slate-400 hover:text-slate-800 hover:bg-slate-50 items-center justify-center transition-colors press-feedback"
-              title="Collapse sidebar"
-              aria-label="Collapse sidebar"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-          </div>
-        ) : (
-          <>
-            <div className="h-16 px-0 flex items-center justify-center border-b border-slate-100">
-              <Link
-                href={user?.role === 'CUSTOMER' ? '/portal' : '/dashboard'}
-                className="flex items-center justify-center"
-                title="Brightloop Dashboard"
-              >
-                <BrightloopLogo size="sm" showText={false} />
-              </Link>
-            </div>
-            {/* Dedicated Expand Button centered cleanly beneath the logo */}
-            <div className="p-2 border-b border-slate-100 flex justify-center bg-slate-50/50">
-              <button
-                type="button"
-                onClick={toggleSidebar}
-                className="hidden lg:flex w-9 h-9 rounded-xl border border-slate-200/90 bg-white hover:bg-indigo-50 hover:border-indigo-200 text-slate-500 hover:text-indigo-600 items-center justify-center transition-all press-feedback shadow-subtle"
-                title="Expand sidebar"
-                aria-label="Expand sidebar"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </>
-        )}
+        <div
+          className={`h-16 flex items-center border-b border-slate-100 transition-all ${
+            isExpanded ? 'px-4' : 'px-0 justify-center'
+          }`}
+        >
+          <Link
+            href={user?.role === 'CUSTOMER' ? '/portal' : '/dashboard'}
+            className="flex items-center gap-2.5 overflow-hidden"
+            title="Brightloop"
+          >
+            <BrightloopLogo size="sm" showText={isExpanded} />
+          </Link>
+        </div>
 
         {/* Navigation list */}
-        <div className="p-3 space-y-5 overflow-y-auto max-h-[calc(100dvh-140px)]">
+        <div className="p-3 space-y-5 overflow-y-auto max-h-[calc(100dvh-180px)]">
           {user?.role === 'CUSTOMER' ? (
             <div className="space-y-1">
               {customerNav.map((item) => {
@@ -234,43 +204,70 @@ export function AppSidebar() {
         </div>
       </div>
 
-      {/* Bottom: User Profile & Actions */}
-      <div className="p-3 border-t border-slate-100 bg-slate-50/50 space-y-2">
-        {user ? (
-          <div className={`flex items-center gap-2.5 ${!isExpanded ? 'justify-center' : 'justify-between'}`}>
-            <div className="flex items-center gap-2.5 overflow-hidden">
-              <div className="w-8 h-8 rounded-full bg-indigo-600 text-white font-medium text-xs flex items-center justify-center shrink-0">
-                {user.name.charAt(0).toUpperCase()}
-              </div>
-              {isExpanded && (
-                <div className="truncate text-left">
-                  <div className="text-xs font-semibold text-slate-900 truncate">{user.name}</div>
-                  <div className="text-[11px] text-slate-500 capitalize">{user.role.toLowerCase()}</div>
-                </div>
-              )}
-            </div>
-            {isExpanded ? (
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="w-8 h-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors press-feedback"
-                title="Sign out"
-                aria-label="Sign out"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-            ) : null}
-          </div>
-        ) : (
-          <Link
-            href="/auth/login"
-            className={`w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs flex items-center justify-center transition-colors ${
-              !isExpanded ? 'px-0' : 'px-3'
+      {/* Bottom: Collapse Toggle & User Profile */}
+      <div className="border-t border-slate-100 bg-slate-50/50">
+        {/* Dedicated Collapse / Expand Toggle Button directly ABOVE profile avatar */}
+        <div className={`p-2 border-b border-slate-100/80 flex ${isExpanded ? 'px-3' : 'justify-center'}`}>
+          <button
+            type="button"
+            onClick={toggleSidebar}
+            className={`hidden lg:flex items-center rounded-xl border border-slate-200/90 bg-white hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors press-feedback shadow-subtle ${
+              isExpanded
+                ? 'w-full px-3 py-2 justify-between text-xs font-medium'
+                : 'w-10 h-10 justify-center'
             }`}
+            title={isExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
+            aria-label={isExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
           >
-            {isExpanded ? 'Sign In' : <UserCheck className="w-4 h-4" />}
-          </Link>
-        )}
+            {isExpanded ? (
+              <>
+                <span className="text-slate-600 font-medium text-xs">Collapse</span>
+                <ChevronLeft className="w-4 h-4 text-slate-400" />
+              </>
+            ) : (
+              <ChevronRight className="w-4 h-4 text-slate-600" />
+            )}
+          </button>
+        </div>
+
+        {/* User Profile Avatar Section */}
+        <div className="p-3">
+          {user ? (
+            <div className={`flex items-center gap-2.5 ${!isExpanded ? 'justify-center' : 'justify-between'}`}>
+              <div className="flex items-center gap-2.5 overflow-hidden">
+                <div className="w-8 h-8 rounded-full bg-indigo-600 text-white font-medium text-xs flex items-center justify-center shrink-0">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                {isExpanded && (
+                  <div className="truncate text-left">
+                    <div className="text-xs font-semibold text-slate-900 truncate">{user.name}</div>
+                    <div className="text-[11px] text-slate-500 capitalize">{user.role.toLowerCase()}</div>
+                  </div>
+                )}
+              </div>
+              {isExpanded ? (
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-8 h-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors press-feedback"
+                  title="Sign out"
+                  aria-label="Sign out"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              ) : null}
+            </div>
+          ) : (
+            <Link
+              href="/auth/login"
+              className={`w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs flex items-center justify-center transition-colors ${
+                !isExpanded ? 'px-0' : 'px-3'
+              }`}
+            >
+              {isExpanded ? 'Sign In' : <UserCheck className="w-4 h-4" />}
+            </Link>
+          )}
+        </div>
       </div>
     </div>
   );
