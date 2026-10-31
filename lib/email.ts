@@ -1,20 +1,16 @@
 import nodemailer, { Transporter } from 'nodemailer';
 
-// Configure SMTP transport with environment variables or safe development fallback
-const smtpHost = process.env.SMTP_HOST;
-const smtpPort = parseInt(process.env.SMTP_PORT || '587', 10);
-const smtpUser = process.env.SMTP_USER;
-const smtpPass = process.env.SMTP_PASS;
-const smtpSecure = process.env.SMTP_SECURE === 'true' || smtpPort === 465;
-const emailFrom = process.env.EMAIL_FROM || '"Brightloop Software" <billing@brightloop.com>';
-
 let transporter: Transporter | null = null;
 
 function getTransporter(): Transporter {
-  if (transporter) return transporter;
+  const smtpHost = process.env.SMTP_HOST;
+  const smtpPort = parseInt(process.env.SMTP_PORT || '587', 10);
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+  const smtpSecure = process.env.SMTP_SECURE === 'true' || smtpPort === 465;
 
   if (smtpHost && smtpUser && smtpPass) {
-    transporter = nodemailer.createTransport({
+    return nodemailer.createTransport({
       host: smtpHost,
       port: smtpPort,
       secure: smtpSecure,
@@ -25,14 +21,12 @@ function getTransporter(): Transporter {
     });
   } else {
     // Development fallback transport: logs email details safely without requiring live SMTP credentials
-    transporter = nodemailer.createTransport({
+    return nodemailer.createTransport({
       streamTransport: true,
       newline: 'unix',
       buffer: true,
     });
   }
-
-  return transporter;
 }
 
 export interface SendEmailOptions {
@@ -45,8 +39,10 @@ export interface SendEmailOptions {
 export async function sendEmail({ to, subject, html, text }: SendEmailOptions) {
   try {
     const client = getTransporter();
+    const fromAddress = process.env.EMAIL_FROM || '"Brightloop Software" <billing@brightloop.com>';
+
     const info = await client.sendMail({
-      from: emailFrom,
+      from: fromAddress,
       to,
       subject,
       html,
