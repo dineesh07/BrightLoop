@@ -59,7 +59,8 @@ export async function sendEmail({ to, subject, html, text }: SendEmailOptions) {
 
 // 1. Password Reset Email
 export async function sendPasswordResetEmail(email: string, resetUrl: string) {
-  const fullUrl = resetUrl.startsWith('http') ? resetUrl : `http://localhost:3000${resetUrl}`;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+  const fullUrl = resetUrl.startsWith('http') ? resetUrl : `${baseUrl}${resetUrl}`;
 
   const html = `
     <!DOCTYPE html>
@@ -106,8 +107,9 @@ export async function sendPasswordResetEmail(email: string, resetUrl: string) {
 
 // 2. Invoice Dispatch Email
 export async function sendInvoiceEmail(invoice: any, to: string) {
-  const invoiceUrl = `http://localhost:3000/invoices/${invoice.id}`;
-  const portalUrl = `http://localhost:3000/portal`;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+  const invoiceUrl = `${baseUrl}/invoices/${invoice.id}`;
+  const portalUrl = `${baseUrl}/portal`;
   const balanceDue = Math.max(0, invoice.grandTotal - invoice.amountPaid);
 
   const linesHtml = (invoice.lines || [])
