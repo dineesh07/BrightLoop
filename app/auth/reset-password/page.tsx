@@ -60,71 +60,83 @@ function ResetPasswordContent() {
   };
 
   return (
-    <div className="max-w-md mx-auto py-12 space-y-6">
-      <div className="text-center space-y-1">
-        <h1 className="text-xl font-bold tracking-tight text-text">Choose New Password</h1>
-        <p className="text-xs text-muted">
-          Update credentials for your Brightloop account.
+    <div className="max-w-md mx-auto py-12 px-4 space-y-6">
+      <div className="text-center space-y-2">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white mx-auto shadow-md shadow-blue-500/20">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+        </div>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Choose New Password</h1>
+        <p className="text-xs text-slate-500">
+          Update your secure access credentials for Brightloop.
         </p>
       </div>
 
       {success ? (
-        <div className="p-4 bg-surface border border-positive rounded-card text-xs text-positive text-center space-y-2">
-          <div className="font-bold">Password Successfully Updated!</div>
-          <div className="text-muted">Redirecting you to login...</div>
+        <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-800 text-center space-y-2 shadow-sm">
+          <div className="font-bold text-sm">Password Successfully Updated!</div>
+          <div className="text-slate-600">Redirecting you to the sign-in page...</div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="bg-surface p-6 rounded-card border border-border space-y-4 text-xs">
+        <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/80 shadow-card space-y-4 text-xs">
           {error && (
-            <div className="p-3 bg-ground border border-negative text-negative rounded text-xs">
-              {error}
+            <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs flex items-center gap-2">
+              <svg className="w-4 h-4 shrink-0 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>{error}</span>
             </div>
           )}
 
           <div>
-            <label className="block text-muted font-medium mb-1">New Password *</label>
+            <label className="block text-slate-700 font-semibold mb-1.5">New Password *</label>
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••••••"
-              className="w-full p-2 border border-border rounded bg-ground text-text"
+              className="w-full p-2.5 border border-slate-300 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-muted font-medium mb-1">Confirm New Password *</label>
+            <label className="block text-slate-700 font-semibold mb-1.5">Confirm New Password *</label>
             <input
               type="password"
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="••••••••••••"
-              className="w-full p-2 border border-border rounded bg-ground text-text"
+              className="w-full p-2.5 border border-slate-300 rounded-lg bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
             />
           </div>
 
-          <div className="p-2.5 bg-ground rounded border border-rule space-y-1 text-[11px]">
-            <div className="font-semibold text-text mb-1">Password Requirements:</div>
-            <div className={hasMinLength ? 'text-positive font-medium' : 'text-muted'}>
-              {hasMinLength ? '[Met]' : '[Pending]'} More than 8 characters
+          <div className="mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5 text-[11px]">
+            <div className="font-semibold text-slate-800 mb-1">Password Requirements:</div>
+            <div className={`flex items-center gap-1.5 ${hasMinLength ? 'text-emerald-700 font-medium' : 'text-slate-500'}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${hasMinLength ? 'bg-emerald-500' : 'bg-slate-300'}`}></span>
+              <span>More than 8 characters</span>
             </div>
-            <div className={hasUpper ? 'text-positive font-medium' : 'text-muted'}>
-              {hasUpper ? '[Met]' : '[Pending]'} At least one uppercase letter (A-Z)
+            <div className={`flex items-center gap-1.5 ${hasUpper ? 'text-emerald-700 font-medium' : 'text-slate-500'}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${hasUpper ? 'bg-emerald-500' : 'bg-slate-300'}`}></span>
+              <span>At least one uppercase letter (A-Z)</span>
             </div>
-            <div className={hasLower ? 'text-positive font-medium' : 'text-muted'}>
-              {hasLower ? '[Met]' : '[Pending]'} At least one lowercase letter (a-z)
+            <div className={`flex items-center gap-1.5 ${hasLower ? 'text-emerald-700 font-medium' : 'text-slate-500'}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${hasLower ? 'bg-emerald-500' : 'bg-slate-300'}`}></span>
+              <span>At least one lowercase letter (a-z)</span>
             </div>
-            <div className={hasSpecial ? 'text-positive font-medium' : 'text-muted'}>
-              {hasSpecial ? '[Met]' : '[Pending]'} At least one special character
+            <div className={`flex items-center gap-1.5 ${hasSpecial ? 'text-emerald-700 font-medium' : 'text-slate-500'}`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${hasSpecial ? 'bg-emerald-500' : 'bg-slate-300'}`}></span>
+              <span>At least one special character</span>
             </div>
           </div>
 
           <button
             type="submit"
             disabled={loading || !isPasswordValid || !token}
-            className="w-full py-2 bg-accent text-white rounded font-semibold text-xs hover:opacity-90 disabled:opacity-50"
+            className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-semibold text-xs shadow-md shadow-blue-500/25 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {loading ? 'Updating Password...' : 'Save New Password'}
           </button>
@@ -136,7 +148,7 @@ function ResetPasswordContent() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="p-12 text-center text-xs text-muted">Loading reset form...</div>}>
+    <Suspense fallback={<div className="p-12 text-center text-xs text-slate-500">Loading reset form...</div>}>
       <ResetPasswordContent />
     </Suspense>
   );

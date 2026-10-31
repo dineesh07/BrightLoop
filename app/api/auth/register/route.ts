@@ -63,6 +63,12 @@ export async function POST(req: Request) {
       maxAge: 60 * 60 * 24 * 7,
     });
 
+    // Send welcome email via Nodemailer
+    const { sendWelcomeEmail } = await import('@/lib/email');
+    sendWelcomeEmail(newUser.email, newUser.name).catch((err) =>
+      console.error('Welcome email error:', err)
+    );
+
     return Response.json({
       success: true,
       user: {

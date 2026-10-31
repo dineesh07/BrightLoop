@@ -19,24 +19,24 @@ export function KpiCard({
 }: KpiCardProps) {
   return (
     <div
-      className={`p-3.5 sm:p-5 rounded-card bg-surface border border-border flex flex-col justify-between transition-colors overflow-hidden ${
-        highlight ? 'border-l-4 border-l-chartHue' : ''
+      className={`p-4 sm:p-5 rounded-xl bg-white border border-slate-200/80 shadow-card hover:shadow-card-hover transition-all flex flex-col justify-between overflow-hidden relative ${
+        highlight ? 'border-l-4 border-l-blue-600 bg-gradient-to-br from-blue-50/20 to-white' : ''
       }`}
     >
-      <div className="text-[13px] font-medium text-muted tracking-tight">{label}</div>
-      <div className="mt-2 text-xl sm:text-2xl lg:text-[28px] font-bold tracking-tight text-text tabular-nums leading-tight truncate">
+      <div className="text-[12px] font-semibold text-slate-500 uppercase tracking-wider">{label}</div>
+      <div className="mt-2.5 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 tabular-nums leading-tight truncate">
         {value}
       </div>
       {(subline || deltaText) && (
-        <div className="mt-2 text-xs flex items-center gap-1.5 text-muted truncate">
+        <div className="mt-2 text-xs flex items-center gap-1.5 text-slate-500 truncate pt-2 border-t border-slate-100">
           {deltaText && (
             <span
-              className={`font-medium ${
+              className={`font-semibold px-1.5 py-0.5 rounded text-[11px] ${
                 isPositiveChange === true
-                  ? 'text-positive'
+                  ? 'bg-emerald-50 text-emerald-700'
                   : isPositiveChange === false
-                  ? 'text-negative'
-                  : 'text-muted'
+                  ? 'bg-rose-50 text-rose-700'
+                  : 'bg-slate-100 text-slate-600'
               }`}
             >
               {deltaText}

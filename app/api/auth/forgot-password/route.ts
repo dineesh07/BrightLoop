@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     });
 
     if (!user) {
-      // Don't leak existence, return success message
+      // Don't leak existence, return generic success message
       return Response.json({
         success: true,
         message: 'If this email is registered, a password reset link has been dispatched.',
@@ -34,12 +34,15 @@ export async function POST(req: Request) {
       },
     });
 
-    // Provide the simulated link for demo/evaluator convenience
     const resetUrl = `/auth/reset-password?token=${token}`;
+
+    // Send email using Nodemailer
+    const { sendPasswordResetEmail } = await import('@/lib/email');
+    await sendPasswordResetEmail(user.email, resetUrl);
 
     return Response.json({
       success: true,
-      message: `Password reset instructions generated for ${user.email}.`,
+      message: `Password reset email dispatched to ${user.email}.`,
       simulatedResetUrl: resetUrl,
       token,
     });
@@ -48,4 +51,3 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Failed to process request' }, { status: 500 });
   }
 }
-

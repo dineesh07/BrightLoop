@@ -22,11 +22,19 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       sentAt: new Date(),
       status: invoice.status === 'DRAFT' ? 'CONFIRMED' : invoice.status,
     },
+    include: {
+      customer: true,
+      lines: true,
+    },
   });
+
+  // Send real email via Nodemailer
+  const { sendInvoiceEmail } = await import('@/lib/email');
+  await sendInvoiceEmail(updated, invoice.customer.email);
 
   return Response.json({
     success: true,
-    message: `Invoice ${invoice.invoiceNumber} successfully emailed to ${invoice.customer.email}`,
+    message: `Invoice ${invoice.invoiceNumber} emailed via Nodemailer to ${invoice.customer.email}`,
     invoice: updated,
   });
 }

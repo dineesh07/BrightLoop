@@ -10,24 +10,27 @@ export function DemoRoleSwitcher() {
   const personas = [
     {
       id: 'admin',
-      name: 'Elena (Admin)',
+      name: 'Elena',
+      label: 'Admin',
       email: 'admin@brightloop.com',
       password: 'Admin@12345!',
-      badge: 'Admin',
+      badgeClass: 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100',
     },
     {
       id: 'staff',
-      name: 'Sarah (Sales Staff)',
+      name: 'Sarah',
+      label: 'Staff',
       email: 'sarah.sales@brightloop.com',
       password: 'Staff@12345!',
-      badge: 'Staff',
+      badgeClass: 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100',
     },
     {
       id: 'customer',
-      name: 'Alex (Customer)',
+      name: 'Alex',
+      label: 'Customer',
       email: 'alex@nordicretail.com',
       password: 'Customer@12345!',
-      badge: 'Customer',
+      badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100',
     },
   ];
 
@@ -50,19 +53,20 @@ export function DemoRoleSwitcher() {
   };
 
   return (
-    <div className="flex items-center gap-1.5 text-xs bg-raised p-1 rounded-control border border-border">
-      <span className="text-muted px-1.5 font-medium">Role Demo:</span>
+    <div className="flex items-center gap-1.5 text-xs bg-slate-100/80 p-1 rounded-lg border border-slate-200/80">
+      <span className="text-slate-500 px-2 font-medium text-[11px] uppercase tracking-wider">Demo Role:</span>
       {personas.map((p) => (
         <button
           key={p.id}
           disabled={loading}
           onClick={() => handleSwitch(p.email, p.password)}
-          className="px-2 py-0.5 rounded bg-surface hover:bg-ground border border-border text-text font-medium transition-colors disabled:opacity-50"
+          className={`px-2.5 py-1 rounded-md border text-xs font-semibold transition-all shadow-subtle disabled:opacity-50 flex items-center gap-1.5 ${p.badgeClass}`}
+          title={`Switch to ${p.name} (${p.label})`}
         >
-          {p.name}
+          <span>{p.name}</span>
+          <span className="text-[10px] opacity-75 font-normal">({p.label})</span>
         </button>
       ))}
     </div>
   );
 }
-

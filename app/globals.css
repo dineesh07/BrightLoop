@@ -3,33 +3,52 @@
 @tailwind utilities;
 
 :root {
-  --ground: #f8f8f8;
+  /* Modern Vibrant SaaS Palette */
+  --ground: #f8fafc;
   --surface: #ffffff;
-  --raised: #eeeeee;
-  --border: #e6e6e6;
-  --rule: #f0f0f0;
-  --control: #d4d4d4;
-  --text: #0a0a0a;
-  --muted: #6b6b6b;
-  --accent: #141414;
-  --positive: #2e7d32;
-  --negative: #c4242a;
-  --warning: #92400e;
-  --chart-1: #141414;
-  --chart-2: #8a8a8a;
-  --chart-3: #1d5fbf;
-  --pill-positive-bg: #dcfae5;
-  --pill-positive-ink: #04250e;
-  --pill-negative-bg: #ffedea;
-  --pill-negative-ink: #831c1e;
+  --raised: #f1f5f9;
+  --border: #e2e8f0;
+  --rule: #f1f5f9;
+  --control: #cbd5e1;
+  --text: #0f172a;
+  --muted: #64748b;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-light: #eff6ff;
+
+  /* Semantic status colors */
+  --positive: #059669;
+  --negative: #dc2626;
+  --warning: #d97706;
+
+  /* Data Visualization colors */
+  --chart-1: #2563eb;
+  --chart-2: #6366f1;
+  --chart-3: #0284c7;
+  --chart-4: #10b981;
+  --chart-5: #f59e0b;
+
+  /* Status pills with matching borders */
+  --pill-positive-bg: #ecfdf5;
+  --pill-positive-ink: #065f46;
+  --pill-positive-border: #a7f3d0;
+
+  --pill-negative-bg: #fef2f2;
+  --pill-negative-ink: #991b1b;
+  --pill-negative-border: #fecaca;
+
   --pill-warning-bg: #fffbeb;
   --pill-warning-ink: #92400e;
-  --pill-neutral-bg: #eeeeee;
-  --pill-neutral-ink: #3d3d3d;
-  --radius-card: 8px;
-  --radius-control: 6px;
-  --row-height: 44px;
-  --control-height: 36px;
+  --pill-warning-border: #fde68a;
+
+  --pill-neutral-bg: #f8fafc;
+  --pill-neutral-ink: #475569;
+  --pill-neutral-border: #e2e8f0;
+
+  --radius-card: 10px;
+  --radius-control: 8px;
+  --row-height: 46px;
+  --control-height: 38px;
 }
 
 body {
@@ -55,21 +74,40 @@ body {
 
 .ledger-table th {
   text-align: left;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--muted);
   border-bottom: 1px solid var(--border);
-  padding: 10px 12px;
-  font-size: 13px;
+  padding: 12px 14px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background-color: #f8fafc;
 }
 
 .ledger-table td {
-  padding: 12px;
+  padding: 14px;
   border-bottom: 1px solid var(--rule);
   color: var(--text);
 }
 
 .ledger-table tr:hover td {
-  background-color: #fafafa;
+  background-color: #f8fafc;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 /* Print styles for invoices */

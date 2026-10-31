@@ -1,8 +1,8 @@
 # Brightloop Software — Subscription Management & Recurring Billing Platform
 
-A unified platform built for **Brightloop Software** to run the full life of a recurring subscription business: from configuring products, brand variants, and plans, to sales quotation generation, automated billing day execution, tax and discount rules, multi-method payment recording, and sub-2-second finance analytics.
+A unified, modern enterprise platform built for **Brightloop Software** to manage the complete lifecycle of a recurring subscription business: from configuring products, brand variants, and plans, to sales quotation generation, automated billing day execution, tax and discount rules, multi-method payment recording, transactional emails via Nodemailer, and sub-2-second finance analytics.
 
-Designed according to the anti-slop **`achromatic-ledger`** art direction (from `design-taste-frontend`) and modern Web Interface Guidelines.
+Powered by **Next.js 14**, **TypeScript**, **Neon Serverless PostgreSQL**, **Prisma ORM**, **Tailwind CSS**, and **Nodemailer**.
 
 ---
 
@@ -18,14 +18,24 @@ The top navigation bar contains a **1-click Role Demo Switcher** allowing instan
 
 ---
 
+## ✨ Key Features & Enhancements
+
+- **🐘 Neon Serverless PostgreSQL**: Native support for Neon connection pooling (`DATABASE_URL` with `pgbouncer=true`) for high-concurrency serverless queries, along with `DIRECT_URL` for Prisma migrations and schema push.
+- **✉️ Transactional Email with Nodemailer**: Production-grade email dispatches with responsive HTML templates for password resets, invoices, and customer registration. Seamless fallback transport ensures local dev and tests run without requiring live SMTP credentials.
+- **🎨 Vibrant SaaS Design System**: Modern, high-conversion visual design inspired by Stripe, Linear, and Vercel. Rich slate canvas (`#f8fafc`), crisp card borders, obsidian typography, radiant electric blue accents (`#2563eb`), and status badges with indicator dots.
+- **🔐 Redesigned Auth Experience**: Split-screen SaaS authentication interface highlighting Brightloop core capabilities, social proof, one-click persona autofill, password visibility toggle, and real-time security requirement validation.
+
+---
+
 ## 📖 Walkthrough of "A Month at Brightloop"
 
 ### Scene 1: A New Customer Signs Up
 - **Self-Service Registration** (`/auth/register`):
   - Strictly validates password criteria: **more than 8 characters**, with **at least one uppercase letter**, **one lowercase letter**, and **one special character**.
   - Enforces email address uniqueness.
+  - Sends a branded welcome email via Nodemailer.
 - **Forgot Password Recovery** (`/auth/forgot-password` and `/auth/reset-password`):
-  - Generates secure cryptographic reset tokens with 1-hour expiry and simulated recovery link delivery.
+  - Generates secure cryptographic reset tokens with 1-hour expiry and dispatches recovery emails via Nodemailer.
 - **Role-Based Access Control (RBAC)**:
   - Admin controls the entire system.
   - Internal staff handle quotes, subscriptions, billing, and payments with limited access (cannot modify taxes/discounts or invite staff).
@@ -61,7 +71,7 @@ The top navigation bar contains a **1-click Role Demo Switcher** allowing instan
 - **Invoice Document & Actions** (`/invoices` and `/invoices/[id]`):
   - Itemized product lines, variants, unit prices, taxes, and applied discounts.
   - Status lifecycle: `DRAFT` → `CONFIRMED` → `PAID` (or `CANCELLED`).
-  - Actions: **Confirm**, **Cancel**, **Send** (simulated customer email dispatch), and **Print/PDF** layout.
+  - Actions: **Confirm**, **Cancel**, **Send** (dispatches styled HTML invoice to customer via Nodemailer), and **Print/PDF** layout.
 
 ### Scene 5: A Customer Asks for a Better Price
 - **Admin Discount Rules** (`/discounts`):
@@ -88,16 +98,16 @@ The top navigation bar contains a **1-click Role Demo Switcher** allowing instan
   - Total Cash Revenue Collected in bank.
   - Total Outstanding Receivables owed.
   - **Overdue Invoices Queue**: Instant highlight of invoices past their due date with 1-click payment recording.
-  - **Recharts Visualizations**: Monthly revenue collection trend and subscription distribution by plan using the restrained `#1d5fbf` / ink palette.
+  - **Recharts Visualizations**: Monthly revenue collection trend and subscription distribution by plan.
 
 ---
 
 ## 🛠️ Tech Stack & Architecture
 
 - **Framework**: Next.js 14 (App Router) + TypeScript
-- **Database**: SQLite (100% offline-friendly, zero external dependencies default) with Prisma ORM
-- **PostgreSQL Ready**: `docker-compose.yml` included for PostgreSQL 16 containerization
-- **Styling**: Tailwind CSS configured with the `achromatic-ledger` palette tokens
+- **Database**: Neon Serverless PostgreSQL with Prisma ORM (supports connection pooling and direct migrations)
+- **Emails**: Nodemailer with custom branded HTML templates and safe dev fallback transport
+- **Styling**: Tailwind CSS configured with a modern, high-conversion SaaS palette
 - **Auth**: Custom JWT session tokens with HTTP-only cookies, bcrypt hashing, and strict password security rules
 - **Validation**: Shared Zod schemas across client and server
 - **Charts**: Recharts with minimal chrome and tabular figures
@@ -107,21 +117,26 @@ The top navigation bar contains a **1-click Role Demo Switcher** allowing instan
 ## 💻 Getting Started Locally
 
 ```bash
-# 1. Install dependencies
+# 1. Clone the repository and install dependencies
 npm install
 
-# 2. Push Prisma database schema (creates local dev.db)
+# 2. Configure environment variables in .env (copy from .env.example)
+# Add your Neon PostgreSQL connection strings and SMTP credentials:
+# DATABASE_URL="postgresql://[user]:[password]@[neon-hostname]/neondb?sslmode=require&pgbouncer=true"
+# DIRECT_URL="postgresql://[user]:[password]@[neon-hostname]/neondb?sslmode=require"
+
+# 3. Generate Prisma client & push schema to Neon
+npx prisma generate
 npx prisma db push
 
-# 3. Seed realistic Brightloop demo data
+# 4. Seed realistic Brightloop demo data
 node prisma/seed.js
 
-# 4. Build optimized production bundle
+# 5. Build optimized production bundle
 npm run build
 
-# 5. Start the production server
+# 6. Start the production server
 npm start
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
-
