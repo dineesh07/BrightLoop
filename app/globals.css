@@ -3,20 +3,20 @@
 @tailwind utilities;
 
 :root {
-  /* Apple & Emil Design Engineering Color Tokens */
-  --ground: #fafafa;
+  /* Architectural craft palette: warm limestone ground, deep charcoal ink */
+  --ground: #f7f6f2;
   --surface: #ffffff;
-  --raised: #f8fafc;
-  --border: rgba(15, 23, 42, 0.08);
-  --rule: #f1f5f9;
-  --control: #cbd5e1;
-  --text: #0f172a;
-  --muted: #64748b;
+  --raised: #f1efea;
+  --border: rgba(20, 20, 19, 0.08);
+  --rule: #eae8e1;
+  --control: #d7d4c9;
+  --text: #141413;
+  --muted: #67655e;
 
-  /* Single Primary Accent: Indigo */
-  --accent: #4f46e5;
-  --accent-hover: #4338ca;
-  --accent-light: #eef2ff;
+  /* Single Primary Accent: Deep purposeful navy */
+  --accent: #1e3a8a;
+  --accent-hover: #172554;
+  --accent-light: #eff6ff;
 
   /* Semantic status colors (Orange strictly for Warning / Overdue) */
   --positive: #059669;
@@ -37,13 +37,13 @@
   --pill-warning-ink: #92400e;
   --pill-warning-border: #fde68a;
 
-  --pill-neutral-bg: #f1f5f9;
+  --pill-neutral-bg: #f1efea;
   --pill-neutral-ink: #334155;
-  --pill-neutral-border: #e2e8f0;
+  --pill-neutral-border: #d7d4c9;
 
   /* 8px Spacing Grid Foundations */
-  --radius-card: 20px;
-  --radius-control: 12px;
+  --radius-card: 12px;
+  --radius-control: 8px;
   --row-height: 48px;
   --control-height: 44px;
 }

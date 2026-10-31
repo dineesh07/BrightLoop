@@ -44,12 +44,11 @@ export function Navbar() {
     router.push('/');
   };
 
-  // 4 links max for public visitors
+  // 3 direct links max for public visitors
   const publicLinks = [
-    { href: '/#features', label: 'Features' },
-    { href: '/#workflow', label: 'Workflow' },
+    { href: '/#preview', label: 'Live Ledger' },
+    { href: '/#workflow', label: 'Architecture' },
     { href: '/#pricing', label: 'Pricing' },
-    { href: '/#preview', label: 'Live Preview' },
   ];
 
   const appLinks = user?.role === 'CUSTOMER'
@@ -69,10 +68,10 @@ export function Navbar() {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-200 backdrop-blur-md ${
+      className={`sticky top-0 z-50 w-full transition-colors ${
         scrolled
-          ? 'bg-white/85 border-b border-slate-200/80 shadow-subtle'
-          : 'bg-white/70 border-b border-transparent'
+          ? 'bg-[#f7f6f2] border-b border-stone-300'
+          : 'bg-[#f7f6f2] border-b border-stone-200/60'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
@@ -92,10 +91,10 @@ export function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                     isActive
-                      ? 'text-indigo-600 bg-indigo-50 font-semibold'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                      ? 'text-stone-950 bg-stone-200 font-semibold'
+                      : 'text-stone-700 hover:text-stone-950 hover:bg-stone-200/60'
                   }`}
                 >
                   {link.label}
@@ -114,15 +113,15 @@ export function Navbar() {
               </div>
               <Link
                 href="/auth/login"
-                className="text-xs font-medium text-slate-600 hover:text-slate-900 px-2 py-1.5 transition-colors"
+                className="text-xs font-medium text-stone-700 hover:text-stone-950 px-2 py-1.5 transition-colors"
               >
                 Sign in
               </Link>
               <Link
                 href="/dashboard"
-                className="h-9 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs flex items-center justify-center press-feedback shadow-subtle"
+                className="h-9 px-4 rounded-lg bg-stone-950 hover:bg-stone-800 text-white font-medium text-xs flex items-center justify-center transition-colors"
               >
-                Get Started
+                Launch Workspace
               </Link>
             </>
           ) : (

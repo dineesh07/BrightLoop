@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { AppSidebar } from './AppSidebar';
 import { Navbar } from './Navbar';
@@ -19,18 +20,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="min-h-[100dvh] bg-ground text-text flex flex-col">
         <Navbar />
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">{children}</main>
-        <footer className="border-t border-border bg-white py-8 text-xs text-muted">
+        <footer className="border-t border-stone-200/80 bg-stone-100/60 py-8 text-xs text-slate-600">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-slate-800">Brightloop Software</span>
+              <span className="font-semibold text-slate-900">Brightloop Software Inc.</span>
               <span>&bull;</span>
-              <span>Recurring Billing &amp; Plan Management</span>
+              <span>Recurring Billing and Plan Management</span>
             </div>
-            <div className="flex items-center gap-4 text-slate-500">
-              <a href="#features" className="hover:text-slate-900 transition-colors">Features</a>
-              <a href="#workflow" className="hover:text-slate-900 transition-colors">Workflow</a>
-              <a href="#pricing" className="hover:text-slate-900 transition-colors">Pricing</a>
-              <a href="/auth/login" className="hover:text-slate-900 transition-colors">Sign In</a>
+            <div className="flex items-center gap-4 text-slate-500 text-xs">
+              <Link href="/terms" className="hover:text-slate-900 transition-colors">Terms of Service</Link>
+              <Link href="/privacy" className="hover:text-slate-900 transition-colors">Privacy Policy</Link>
+              <Link href="/auth/login" className="hover:text-slate-900 transition-colors">Sign In</Link>
             </div>
           </div>
         </footer>
