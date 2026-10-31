@@ -23,8 +23,11 @@ export function KpiCard({
         highlight ? 'border-l-4 border-l-brand bg-gradient-to-br from-brand-light/25 to-white' : ''
       }`}
     >
-      <div className="text-[11px] font-bold text-muted uppercase tracking-wider">{label}</div>
-      <div className="mt-2.5 text-2xl sm:text-3xl font-extrabold tracking-tight text-text tabular-nums leading-tight truncate">
+      <div className="text-[11px] font-semibold text-muted uppercase tracking-wider">{label}</div>
+      <div
+        className="mt-2 text-xl xl:text-2xl font-bold tracking-tight text-text tabular-nums leading-tight whitespace-nowrap"
+        title={typeof value === 'string' ? value : undefined}
+      >
         {value}
       </div>
       {(subline || deltaText) && (

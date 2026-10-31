@@ -160,13 +160,13 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
         <KpiCard
           label="MRR (Monthly)"
-          value={formatINR(metrics.mrr)}
+          value={formatINR(metrics.mrr, { showDecimals: false })}
           subline="Normalized recurring"
           highlight={true}
         />
         <KpiCard
           label="ARR (Annual)"
-          value={formatINR(metrics.arr)}
+          value={formatINR(metrics.arr, { showDecimals: false })}
           subline="Annual run-rate"
         />
         <KpiCard
@@ -176,18 +176,18 @@ export default function DashboardPage() {
         />
         <KpiCard
           label="Total Collected"
-          value={formatINR(metrics.totalRevenueCollected)}
+          value={formatINR(metrics.totalRevenueCollected, { showDecimals: false })}
           subline="Cash in bank"
         />
         <KpiCard
           label="Outstanding Owed"
-          value={formatINR(metrics.outstandingRevenue)}
+          value={formatINR(metrics.outstandingRevenue, { showDecimals: false })}
           subline="Unpaid receivables"
         />
         <KpiCard
           label="Overdue Invoices"
           value={metrics.overdueInvoicesCount}
-          subline={`${formatINR(metrics.overdueAmount)} past due`}
+          subline={`${formatINR(metrics.overdueAmount, { showDecimals: false })} past due`}
           isPositiveChange={metrics.overdueInvoicesCount === 0}
           deltaText={metrics.overdueInvoicesCount > 0 ? 'Requires Action' : 'All Clear'}
         />
