@@ -2,6 +2,20 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import {
+  ArrowRight,
+  Check,
+  Zap,
+  Package,
+  FileSpreadsheet,
+  Receipt,
+  ShieldCheck,
+  Layers,
+  CreditCard,
+  Users,
+  Percent,
+  CheckCircle2,
+} from 'lucide-react';
 import { formatINR } from '@/lib/currency';
 
 interface PreviewInvoice {
@@ -56,559 +70,457 @@ const SEED_FALLBACK: PreviewData = {
 };
 
 export default function LandingPage() {
-  const [loading, setLoading] = useState(true);
+  const [billingCycle, setBillingCycle] = useState<'MONTHLY' | 'ANNUAL'>('ANNUAL');
   const [previewData, setPreviewData] = useState<PreviewData>(SEED_FALLBACK);
-  const [filterStatus, setFilterStatus] = useState<'ALL' | 'PAID' | 'CONFIRMED' | 'OVERDUE'>('ALL');
-  
-  // Interactive volume pricing calculator state
-  const [subscriberCount, setSubscriberCount] = useState<number>(250);
-  const [annualBilling, setAnnualBilling] = useState<boolean>(true);
 
-  // Fetch real preview data from API
   useEffect(() => {
-    let isMounted = true;
-    setLoading(true);
-
     fetch('/api/preview')
       .then((res) => (res.ok ? res.json() : SEED_FALLBACK))
       .then((data: PreviewData) => {
-        if (isMounted && data && typeof data.activeSubscriptions === 'number') {
+        if (data && typeof data.activeSubscriptions === 'number') {
           setPreviewData(data);
         }
       })
       .catch(() => {
-        if (isMounted) setPreviewData(SEED_FALLBACK);
-      })
-      .finally(() => {
-        if (isMounted) {
-          // Slight natural delay to showcase authentic skeleton transitions
-          setTimeout(() => setLoading(false), 300);
-        }
+        setPreviewData(SEED_FALLBACK);
       });
-
-    return () => {
-      isMounted = false;
-    };
   }, []);
 
-  // Filtered invoice rows in real preview
-  const displayedInvoices = previewData.invoices.filter((inv) => {
-    if (filterStatus === 'ALL') return true;
-    return inv.status === filterStatus;
-  });
-
-  // Interactive live ledger simulation
-  const handleSimulatePayment = (invoiceId: string) => {
-    setPreviewData((prev) => {
-      const target = prev.invoices.find((i) => i.id === invoiceId);
-      if (!target || target.status === 'PAID') return prev;
-
-      const updatedInvoices = prev.invoices.map((inv) =>
-        inv.id === invoiceId ? { ...inv, status: 'PAID' as const } : inv
-      );
-
-      return {
-        ...prev,
-        revenueCollected: prev.revenueCollected + target.amount,
-        outstandingAmount: Math.max(0, prev.outstandingAmount - target.amount),
-        invoices: updatedInvoices,
-      };
-    });
-  };
-
-  // Pricing calculations
-  const baseRatePerSub = 18; // INR per active subscription
-  const rawSubTotal = Math.max(2499, subscriberCount * baseRatePerSub);
-  const discountRate = annualBilling ? 0.8 : 1.0;
-  const netPlatformFee = Math.round(rawSubTotal * discountRate);
-  const gstAmount = Math.round(netPlatformFee * 0.18);
-  const totalBilled = netPlatformFee + gstAmount;
+  const discountMultiplier = billingCycle === 'ANNUAL' ? 0.8 : 1.0;
 
   return (
-    <div className="space-y-24 py-8 max-w-6xl mx-auto px-4 sm:px-6 text-stone-900 font-sans">
+    <div className="space-y-24 py-4 sm:py-8 overflow-hidden">
       {/* 1. HERO SECTION */}
-      <section className="pt-4 sm:pt-10 max-w-4xl mx-auto text-center space-y-6">
-        <h1 className="font-serif text-[clamp(2.5rem,5vw,4.25rem)] font-normal tracking-tight text-stone-950 leading-[1.08] [text-wrap:balance]">
-          The billing ledger for subscription software.
-        </h1>
+      <section className="text-center max-w-5xl mx-auto px-4 space-y-6">
+        {/* Subtle Announcement Pill */}
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200 text-xs font-medium text-slate-700 shadow-subtle">
+          <span className="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
+          <span>Subscription Lifecycle &amp; Recurring Billing</span>
+          <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+        </div>
 
-        <p className="text-lg text-stone-700 max-w-[58ch] mx-auto leading-relaxed">
-          Set up plans, automate recurring invoices with GST, collect customer payments in INR, and reconcile accounts receivable without spreadsheets.
-        </p>
+        {/* Hero Headline */}
+        <div className="space-y-3">
+          <h1 className="text-[clamp(2.5rem,5vw,4.25rem)] font-semibold tracking-tight text-slate-900 leading-[1.06] [text-wrap:balance]">
+            Recurring billing and subscriptions, <span className="text-indigo-600">simplified.</span>
+          </h1>
+          <p className="text-[18px] text-slate-600 max-w-[60ch] mx-auto leading-relaxed font-normal">
+            Run your entire subscription workflow in one place. Set up plans, turn quotes into subscriptions, generate accurate invoices with GST, collect payments, and track revenue.
+          </p>
+        </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+        {/* Hero CTAs */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-1">
           <Link
             href="/dashboard"
-            className="w-full sm:w-auto px-6 py-3 rounded-lg bg-stone-950 text-white font-medium text-sm transition-colors hover:bg-stone-800"
+            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm press-feedback shadow-subtle flex items-center justify-center gap-2"
           >
-            Launch Workspace
+            <span>Open Workspace</span>
+            <ArrowRight className="w-4 h-4" />
           </Link>
+
           <Link
             href="/auth/login"
-            className="w-full sm:w-auto px-6 py-3 rounded-lg bg-stone-100 text-stone-800 font-medium text-sm border border-stone-300 hover:bg-stone-200 transition-colors"
+            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-medium text-sm border border-slate-200 press-feedback flex items-center justify-center"
           >
-            Sign in to Demo
+            Sign In
           </Link>
         </div>
-      </section>
 
-      {/* 2. LIVE INTERACTIVE LEDGER (REAL DATA & SKELETON LOADERS) */}
-      <section id="preview" className="space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-stone-300 pb-3">
-          <div>
-            <h2 className="font-serif text-2xl font-normal text-stone-950">Live Ledger Interface</h2>
-            <p className="text-xs text-stone-600 mt-0.5">
-              Interactive preview querying live database records from the active billing engine.
-            </p>
-          </div>
+        {/* 2. REAL PRODUCT PREVIEW DASHBOARD */}
+        <div id="preview" className="pt-6 text-left">
+          <div className="rounded-[20px] border border-slate-200/80 bg-white shadow-card overflow-hidden">
+            {/* Window Chrome Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50/70">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-slate-300 inline-block"></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-slate-300 inline-block"></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-slate-300 inline-block"></span>
+                <span className="text-xs text-slate-500 font-medium ml-2">Brightloop &bull; Billing Overview</span>
+              </div>
+              <span className="text-[11px] font-medium text-slate-500 px-2.5 py-0.5 rounded-md bg-white border border-slate-200">
+                Live Overview
+              </span>
+            </div>
 
-          {/* Filter Pills */}
-          <div className="flex items-center gap-1.5 text-xs">
-            <span className="text-stone-500 mr-1">Filter:</span>
-            {(['ALL', 'PAID', 'CONFIRMED', 'OVERDUE'] as const).map((st) => (
-              <button
-                key={st}
-                type="button"
-                onClick={() => setFilterStatus(st)}
-                className={`px-2.5 py-1 rounded-md text-xs font-medium border transition-colors ${
-                  filterStatus === st
-                    ? 'bg-stone-900 text-white border-stone-900'
-                    : 'bg-white text-stone-700 border-stone-300 hover:bg-stone-100'
-                }`}
-              >
-                {st === 'ALL' ? 'All Records' : st.charAt(0) + st.slice(1).toLowerCase()}
-              </button>
-            ))}
-          </div>
-        </div>
+            {/* 3 KPI Summary Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 sm:p-5 border-b border-slate-100 bg-white">
+              <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/50">
+                <div className="text-xs font-medium text-slate-500">Active Subscriptions</div>
+                <div className="text-2xl font-semibold text-slate-900 mt-1 tabular-nums">
+                  {previewData.activeSubscriptions}
+                </div>
+                <div className="text-xs text-slate-500 mt-1">Currently billing</div>
+              </div>
 
-        {/* Product Preview Card */}
-        <div className="bg-white rounded-lg border border-stone-300 overflow-hidden">
-          {/* Summary Metric Rows */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-stone-200 border-b border-stone-200 bg-stone-50">
-            {loading ? (
-              <>
-                <div className="p-4 space-y-2">
-                  <div className="h-3 w-28 bg-stone-200 rounded animate-pulse"></div>
-                  <div className="h-7 w-16 bg-stone-200 rounded animate-pulse"></div>
-                  <div className="h-3 w-20 bg-stone-200 rounded animate-pulse"></div>
+              <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/50">
+                <div className="text-xs font-medium text-slate-500">Revenue Collected</div>
+                <div className="text-2xl font-semibold text-slate-900 mt-1 tabular-nums truncate">
+                  {formatINR(previewData.revenueCollected, { showDecimals: false })}
                 </div>
-                <div className="p-4 space-y-2">
-                  <div className="h-3 w-28 bg-stone-200 rounded animate-pulse"></div>
-                  <div className="h-7 w-28 bg-stone-200 rounded animate-pulse"></div>
-                  <div className="h-3 w-20 bg-stone-200 rounded animate-pulse"></div>
-                </div>
-                <div className="p-4 space-y-2">
-                  <div className="h-3 w-28 bg-stone-200 rounded animate-pulse"></div>
-                  <div className="h-7 w-24 bg-stone-200 rounded animate-pulse"></div>
-                  <div className="h-3 w-20 bg-stone-200 rounded animate-pulse"></div>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="p-4 sm:p-5">
-                  <div className="text-xs text-stone-600 font-medium">Active Contracts</div>
-                  <div className="text-2xl font-semibold text-stone-950 mt-1 tabular-nums">
-                    {previewData.activeSubscriptions}
-                  </div>
-                  <div className="text-[11px] text-stone-500 mt-0.5">Recurring billing cycles</div>
-                </div>
+                <div className="text-xs text-slate-500 mt-1">Settled payments</div>
+              </div>
 
-                <div className="p-4 sm:p-5">
-                  <div className="text-xs text-stone-600 font-medium">Collected Revenue</div>
-                  <div className="text-2xl font-semibold text-stone-950 mt-1 tabular-nums">
-                    {formatINR(previewData.revenueCollected, { showDecimals: false })}
-                  </div>
-                  <div className="text-[11px] text-emerald-700 mt-0.5">Settled via NEFT, UPI, Cards</div>
+              <div className="p-4 rounded-xl border border-slate-100 bg-slate-50/50">
+                <div className="text-xs font-medium text-slate-500">Outstanding Invoices</div>
+                <div className="text-2xl font-semibold text-slate-900 mt-1 tabular-nums truncate">
+                  {formatINR(previewData.outstandingAmount, { showDecimals: false })}
                 </div>
+                <div className="text-xs text-slate-500 mt-1">Awaiting settlement</div>
+              </div>
+            </div>
 
-                <div className="p-4 sm:p-5">
-                  <div className="text-xs text-stone-600 font-medium">Receivables Outstanding</div>
-                  <div className="text-2xl font-semibold text-stone-950 mt-1 tabular-nums">
-                    {formatINR(previewData.outstandingAmount, { showDecimals: false })}
-                  </div>
-                  <div className="text-[11px] text-stone-500 mt-0.5">Awaiting reconciliation</div>
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Table Header & Rows */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="border-b border-stone-200 bg-stone-100 text-stone-600 font-medium">
-                  <th className="py-3 px-4 font-medium">Invoice Reference</th>
-                  <th className="py-3 px-4 font-medium">Counterparty Account</th>
-                  <th className="py-3 px-4 font-medium text-right">Settlement Total</th>
-                  <th className="py-3 px-4 font-medium text-center">Status</th>
-                  <th className="py-3 px-4 font-medium text-right">Interactive Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-200">
-                {loading ? (
-                  // Skeleton Rows
-                  [1, 2, 3, 4].map((n) => (
-                    <tr key={n}>
-                      <td className="py-4 px-4">
-                        <div className="h-3 w-24 bg-stone-200 rounded animate-pulse"></div>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="h-3 w-40 bg-stone-200 rounded animate-pulse"></div>
-                      </td>
-                      <td className="py-4 px-4 text-right">
-                        <div className="h-3 w-16 bg-stone-200 rounded ml-auto animate-pulse"></div>
-                      </td>
-                      <td className="py-4 px-4 text-center">
-                        <div className="h-5 w-16 bg-stone-200 rounded mx-auto animate-pulse"></div>
-                      </td>
-                      <td className="py-4 px-4 text-right">
-                        <div className="h-6 w-20 bg-stone-200 rounded ml-auto animate-pulse"></div>
-                      </td>
-                    </tr>
-                  ))
-                ) : displayedInvoices.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="py-8 text-center text-stone-500">
-                      No invoices currently match this filter.
-                    </td>
+            {/* Invoices Table: 4 rows with Paid / Confirmed / Overdue status pills */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50/60 text-slate-500 font-medium">
+                    <th className="py-3 px-4 sm:px-5 font-medium">Invoice Number</th>
+                    <th className="py-3 px-4 sm:px-5 font-medium">Customer</th>
+                    <th className="py-3 px-4 sm:px-5 font-medium text-right">Amount</th>
+                    <th className="py-3 px-4 sm:px-5 font-medium text-right">Status</th>
                   </tr>
-                ) : (
-                  displayedInvoices.map((inv) => (
-                    <tr key={inv.id} className="hover:bg-stone-50 transition-colors">
-                      <td className="py-3.5 px-4 font-mono font-medium text-stone-900">
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-700">
+                  {previewData.invoices.slice(0, 4).map((inv) => (
+                    <tr key={inv.id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-3.5 px-4 sm:px-5 font-mono font-medium text-slate-900 whitespace-nowrap">
                         {inv.invoiceNumber}
                       </td>
-                      <td className="py-3.5 px-4 text-stone-800 font-medium">
+                      <td className="py-3.5 px-4 sm:px-5 font-medium text-slate-800 max-w-[260px] truncate" title={inv.customerName}>
                         {inv.customerName}
                       </td>
-                      <td className="py-3.5 px-4 text-right font-medium text-stone-900 tabular-nums">
+                      <td className="py-3.5 px-4 sm:px-5 text-right font-medium tabular-nums text-slate-900 whitespace-nowrap">
                         {formatINR(inv.amount)}
                       </td>
-                      <td className="py-3.5 px-4 text-center">
+                      <td className="py-3.5 px-4 sm:px-5 text-right whitespace-nowrap">
                         {inv.status === 'PAID' && (
-                          <span className="inline-block px-2 py-0.5 text-[11px] font-medium rounded border border-emerald-300 bg-emerald-50 text-emerald-800">
-                            Settled
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            Paid
                           </span>
                         )}
                         {inv.status === 'CONFIRMED' && (
-                          <span className="inline-block px-2 py-0.5 text-[11px] font-medium rounded border border-stone-300 bg-stone-100 text-stone-800">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200">
                             Confirmed
                           </span>
                         )}
                         {inv.status === 'OVERDUE' && (
-                          <span className="inline-block px-2 py-0.5 text-[11px] font-medium rounded border border-amber-300 bg-amber-50 text-amber-900">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200">
                             Overdue
                           </span>
                         )}
                         {inv.status === 'DRAFT' && (
-                          <span className="inline-block px-2 py-0.5 text-[11px] font-medium rounded border border-stone-300 bg-stone-50 text-stone-600">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
                             Draft
                           </span>
                         )}
                       </td>
-                      <td className="py-3.5 px-4 text-right">
-                        {inv.status === 'PAID' ? (
-                          <span className="text-stone-400 text-[11px]">Reconciled</span>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => handleSimulatePayment(inv.id)}
-                            className="px-2.5 py-1 text-[11px] font-medium rounded border border-stone-400 bg-white hover:bg-stone-100 text-stone-800 transition-colors"
-                          >
-                            Simulate Payment
-                          </button>
-                        )}
-                      </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 3. THE RECURRING SUBSCRIPTION ARCHITECTURE (EDITORIAL NARRATIVE) */}
-      <section id="workflow" className="space-y-8 pt-4">
-        <div className="border-b border-stone-300 pb-3">
-          <h2 className="font-serif text-2xl font-normal text-stone-950">Lifecycle Architecture</h2>
-          <p className="text-xs text-stone-600 mt-0.5">
-            How recurring contracts transition from price catalog to tax-compliant invoices.
+      {/* 3. THE MONTHLY SUBSCRIPTION LIFECYCLE (WORKFLOW) */}
+      <section id="workflow" className="max-w-5xl mx-auto px-4 space-y-8">
+        <div className="text-center space-y-2">
+          <h2 className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">The Lifecycle</h2>
+          <p className="text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight">
+            How a billing month runs in Brightloop
+          </p>
+          <p className="text-sm text-slate-600 max-w-xl mx-auto">
+            From product creation to collecting payments, every step is automated without spreadsheets.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          {/* Left Column: 4 Disciplined Steps */}
-          <div className="space-y-6">
-            <div className="border border-stone-300 rounded-lg p-5 bg-white space-y-2">
-              <div className="text-xs font-mono text-stone-500">STAGE 01</div>
-              <h3 className="text-base font-semibold text-stone-950">Catalog and Variant Rules</h3>
-              <p className="text-xs text-stone-700 leading-relaxed">
-                Define software suites, modular add-ons, and edition variants. Attach billing intervals: daily sprints, weekly cohorts, calendar monthly, or annual commitments.
-              </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="p-5 rounded-[20px] bg-white border border-slate-200/80 shadow-card space-y-3">
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-semibold text-xs">
+              <Package className="w-4 h-4" />
             </div>
-
-            <div className="border border-stone-300 rounded-lg p-5 bg-white space-y-2">
-              <div className="text-xs font-mono text-stone-500">STAGE 02</div>
-              <h3 className="text-base font-semibold text-stone-950">Quote to Active Subscription</h3>
-              <p className="text-xs text-stone-700 leading-relaxed">
-                Pre-populate proposal terms from reusable quotation templates. Subscriptions transition through Draft, Quotation Sent, and Confirmed states without duplicate manual entry.
-              </p>
-            </div>
-
-            <div className="border border-stone-300 rounded-lg p-5 bg-white space-y-2">
-              <div className="text-xs font-mono text-stone-500">STAGE 03</div>
-              <h3 className="text-base font-semibold text-stone-950">Automated Billing Runs</h3>
-              <p className="text-xs text-stone-700 leading-relaxed">
-                On each contract due date, the system verifies previous cycles to prevent double billing. Invoices generate with calculated line items, volume discount thresholds, and regional GST.
-              </p>
-            </div>
-
-            <div className="border border-stone-300 rounded-lg p-5 bg-white space-y-2">
-              <div className="text-xs font-mono text-stone-500">STAGE 04</div>
-              <h3 className="text-base font-semibold text-stone-950">Settlement and Receivables</h3>
-              <p className="text-xs text-stone-700 leading-relaxed">
-                Record receipts against bank transfers, UPI transactions, or credit card clearances. Outstanding receivables update in real time with customer account history.
-              </p>
-            </div>
+            <h3 className="text-base font-semibold text-slate-900">1. Products &amp; Plans</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Define software products with custom brand variants. Set daily, weekly, monthly, or yearly intervals with minimum quantities.
+            </p>
           </div>
 
-          {/* Right Column: Detailed Technical Specification Sheet */}
-          <div className="border border-stone-300 rounded-lg bg-white overflow-hidden sticky top-24">
-            <div className="p-4 border-b border-stone-200 bg-stone-50">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-stone-700">Contract Engine Rules</h3>
-              <p className="text-[11px] text-stone-500 mt-0.5">Automated constraints enforced across all active plans.</p>
+          <div className="p-5 rounded-[20px] bg-white border border-slate-200/80 shadow-card space-y-3">
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-semibold text-xs">
+              <FileSpreadsheet className="w-4 h-4" />
             </div>
+            <h3 className="text-base font-semibold text-slate-900">2. Quotes to Contracts</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Start sales proposals from reusable quotation templates. Move from Draft to Quotation to Confirmed and Active in one click.
+            </p>
+          </div>
 
-            <table className="w-full text-left text-xs border-collapse">
-              <tbody className="divide-y divide-stone-200 text-stone-800">
-                <tr>
-                  <td className="py-3 px-4 font-medium text-stone-600 bg-stone-50/50 w-1/3">Concurrency Guard</td>
-                  <td className="py-3 px-4">Database row locks ensure no contract can be processed twice for the same billing date.</td>
-                </tr>
-                <tr>
-                  <td className="py-3 px-4 font-medium text-stone-600 bg-stone-50/50">Tax Rules</td>
-                  <td className="py-3 px-4">State-wise GST engine calculates CGST (9%) + SGST (9%) or IGST (18%) automatically.</td>
-                </tr>
-                <tr>
-                  <td className="py-3 px-4 font-medium text-stone-600 bg-stone-50/50">Discount Limits</td>
-                  <td className="py-3 px-4">Quantity thresholds, minimum spend constraints, and calendar expiry limits enforced at invoice creation.</td>
-                </tr>
-                <tr>
-                  <td className="py-3 px-4 font-medium text-stone-600 bg-stone-50/50">Receipt Generation</td>
-                  <td className="py-3 px-4">Authoritative vector PDF receipts with full GST breakdown, tax invoice serials, and bank references.</td>
-                </tr>
-                <tr>
-                  <td className="py-3 px-4 font-medium text-stone-600 bg-stone-50/50">Lifecycle Policies</td>
-                  <td className="py-3 px-4">Contract controls for Auto-Close on End Date, Early Cancellation, Pausing, and Auto-Renewal.</td>
-                </tr>
-              </tbody>
-            </table>
+          <div className="p-5 rounded-[20px] bg-white border border-slate-200/80 shadow-card space-y-3">
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-semibold text-xs">
+              <Zap className="w-4 h-4" />
+            </div>
+            <h3 className="text-base font-semibold text-slate-900">3. Automated Billing</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              When subscriptions are due, invoices generate automatically with customer lines, GST calculations, and volume discounts applied.
+            </p>
+          </div>
+
+          <div className="p-5 rounded-[20px] bg-white border border-slate-200/80 shadow-card space-y-3">
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-semibold text-xs">
+              <Receipt className="w-4 h-4" />
+            </div>
+            <h3 className="text-base font-semibold text-slate-900">4. Payments &amp; Reports</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Record UPI, NEFT, and card payments against invoices. Track active subscriptions, cash collected, and overdue receivables.
+            </p>
           </div>
         </div>
       </section>
 
-      {/* 4. TRANSPARENT PRICING & VOLUME CALCULATOR (ANTI-3-TIERS) */}
-      <section id="pricing" className="space-y-6 pt-4">
-        <div className="border-b border-stone-300 pb-3">
-          <h2 className="font-serif text-2xl font-normal text-stone-950">Platform Fee Schedule</h2>
-          <p className="text-xs text-stone-600 mt-0.5">
-            Transparent, volume-scaled pricing without hidden seat tiers or arbitrary feature gating.
+      {/* 4. PLATFORM CAPABILITIES */}
+      <section id="features" className="max-w-5xl mx-auto px-4 space-y-8">
+        <div className="text-center space-y-2">
+          <h2 className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">Capabilities</h2>
+          <p className="text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight">
+            Engineered for reliability and operational control
+          </p>
+          <p className="text-sm text-slate-600 max-w-xl mx-auto">
+            Everything your finance and operations team needs to manage subscriptions.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Interactive Volume Slider */}
-          <div className="lg:col-span-7 border border-stone-300 rounded-lg p-6 bg-white space-y-6">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label htmlFor="subscriber-slider" className="text-sm font-semibold text-stone-900">
-                  Active Subscriptions Managed
-                </label>
-                <span className="font-mono text-base font-bold text-stone-900 tabular-nums">
-                  {subscriberCount} accounts
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="p-6 rounded-[20px] bg-white border border-slate-200/80 shadow-card space-y-3">
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-semibold text-slate-900">Guaranteed Single Billing</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Subscriptions due on the same date are processed safely. Existing cycles are verified to guarantee no contract is billed twice or skipped.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-[20px] bg-white border border-slate-200/80 shadow-card space-y-3">
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <Percent className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-semibold text-slate-900">Automated GST &amp; Discounts</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Tax rules calculate automatically based on customer region. Volume discount rules calculate percentage or fixed deductions and cease once expired.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-[20px] bg-white border border-slate-200/80 shadow-card space-y-3">
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <Layers className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-semibold text-slate-900">Customer Self-Service Portal</h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Customers log in to view active contracts, download official GST PDF invoices, manage auto-renewal, and review past payment history.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. PRICING SECTION */}
+      <section id="pricing" className="max-w-5xl mx-auto px-4 space-y-8">
+        <div className="text-center space-y-2">
+          <h2 className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">Pricing</h2>
+          <p className="text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight">
+            Transparent plans for every scale
+          </p>
+          <p className="text-sm text-slate-600 max-w-xl mx-auto">
+            Choose the tier suited for your current volume. All plans include automated invoicing and email delivery.
+          </p>
+
+          {/* Billing Frequency Toggle */}
+          <div className="flex items-center justify-center gap-3 pt-3">
+            <span className={`text-xs font-medium ${billingCycle === 'MONTHLY' ? 'text-slate-900' : 'text-slate-500'}`}>
+              Monthly
+            </span>
+            <button
+              type="button"
+              onClick={() => setBillingCycle(billingCycle === 'MONTHLY' ? 'ANNUAL' : 'MONTHLY')}
+              className="w-11 h-6 rounded-full bg-indigo-600 p-0.5 transition-colors relative press-feedback"
+              aria-label="Toggle annual billing discount"
+            >
+              <span
+                className={`block w-5 h-5 rounded-full bg-white transition-transform ${
+                  billingCycle === 'ANNUAL' ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
+            <div className="flex items-center gap-1.5">
+              <span className={`text-xs font-medium ${billingCycle === 'ANNUAL' ? 'text-slate-900' : 'text-slate-500'}`}>
+                Annual
+              </span>
+              <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200">
+                Save 20%
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+          {/* Starter */}
+          <div className="p-6 rounded-[20px] bg-white border border-slate-200/80 shadow-card flex flex-col justify-between space-y-6">
+            <div className="space-y-4">
+              <div className="font-semibold text-sm text-slate-900">Starter</div>
+              <div className="text-xs text-slate-500">For boutique businesses and growing teams.</div>
+              <div className="pt-2">
+                <span className="text-3xl font-semibold text-slate-900 tabular-nums">
+                  {formatINR(Math.round(2499 * discountMultiplier), { showDecimals: false })}
+                </span>
+                <span className="text-xs text-slate-500 ml-1">/ month</span>
+              </div>
+              <ul className="space-y-2.5 text-xs text-slate-600 pt-4 border-t border-slate-100">
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-600" /> Up to 150 Active Subscriptions</li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-600" /> Daily, Weekly &amp; Monthly Plans</li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-600" /> Automated GST Invoicing</li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-600" /> Customer Self-Service Portal</li>
+              </ul>
+            </div>
+            <Link
+              href="/auth/register"
+              className="w-full py-2.5 text-center text-xs font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl border border-slate-200 press-feedback"
+            >
+              Get Started
+            </Link>
+          </div>
+
+          {/* Growth */}
+          <div className="p-6 rounded-[20px] bg-white border-2 border-indigo-600 shadow-card flex flex-col justify-between space-y-6 relative">
+            <div className="space-y-4">
+              <div className="font-semibold text-sm text-indigo-600">Growth</div>
+              <div className="text-xs text-slate-500">Full automation for scaling recurring businesses.</div>
+              <div className="pt-2">
+                <span className="text-3xl font-semibold text-slate-900 tabular-nums">
+                  {formatINR(Math.round(7999 * discountMultiplier), { showDecimals: false })}
+                </span>
+                <span className="text-xs text-slate-500 ml-1">/ month</span>
+              </div>
+              <ul className="space-y-2.5 text-xs text-slate-700 pt-4 border-t border-indigo-100 font-medium">
+                <li className="flex items-center gap-2 text-indigo-700"><Check className="w-3.5 h-3.5 text-indigo-600" /> Automated Billing Runs</li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-600" /> Up to 1,500 Active Subscriptions</li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-600" /> Product &amp; Brand Variants</li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-600" /> Quotation Templates</li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-600" /> Automated Discount Rules</li>
+              </ul>
+            </div>
+            <Link
+              href="/dashboard"
+              className="w-full py-2.5 text-center text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl press-feedback shadow-subtle"
+            >
+              Start Free Trial
+            </Link>
+          </div>
+
+          {/* Enterprise */}
+          <div className="p-6 rounded-[20px] bg-white border border-slate-200/80 shadow-card flex flex-col justify-between space-y-6">
+            <div className="space-y-4">
+              <div className="font-semibold text-sm text-slate-900">Enterprise</div>
+              <div className="text-xs text-slate-500">Dedicated capacity for large teams with custom contracts.</div>
+              <div className="pt-2">
+                <span className="text-3xl font-semibold text-slate-900 tabular-nums">
+                  {formatINR(Math.round(24999 * discountMultiplier), { showDecimals: false })}
+                </span>
+                <span className="text-xs text-slate-500 ml-1">/ month</span>
+              </div>
+              <ul className="space-y-2.5 text-xs text-slate-600 pt-4 border-t border-slate-100">
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-600" /> Unlimited Active Subscriptions</li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-600" /> Role-Based Access (Admin/Staff)</li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-600" /> Custom Product Variants</li>
+                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-indigo-600" /> Priority Support &amp; SLA</li>
+              </ul>
+            </div>
+            <Link
+              href="/auth/register"
+              className="w-full py-2.5 text-center text-xs font-medium bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl border border-slate-200 press-feedback"
+            >
+              Contact Sales
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. ONE-CLICK DEMO PERSONAS */}
+      <section className="max-w-5xl mx-auto px-4">
+        <div className="p-6 sm:p-8 rounded-[20px] bg-slate-900 text-white shadow-card space-y-6">
+          <div className="space-y-1">
+            <h2 className="text-xl font-semibold text-white tracking-tight">
+              Test with pre-configured demo personas
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300">
+              Explore the system with pre-seeded data across all three user roles.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <Link
+              href="/auth/login"
+              className="p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors text-left"
+            >
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-semibold text-white">Elena Rostova</span>
+                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-white/10 text-white border border-white/10">
+                  Admin
                 </span>
               </div>
-              <input
-                id="subscriber-slider"
-                type="range"
-                min="25"
-                max="1500"
-                step="25"
-                value={subscriberCount}
-                onChange={(e) => setSubscriberCount(Number(e.target.value))}
-                className="w-full accent-stone-900 h-2 bg-stone-200 rounded-lg cursor-pointer"
-              />
-              <div className="flex justify-between text-[11px] text-stone-500 mt-1">
-                <span>25 starter accounts</span>
-                <span>500 growth</span>
-                <span>1,500 enterprise scale</span>
-              </div>
-            </div>
+              <div className="text-xs text-slate-400">Controls billing runs, taxes, discount limits, and team access.</div>
+            </Link>
 
-            {/* Annual Billing Term Switch */}
-            <div className="flex items-center justify-between pt-4 border-t border-stone-200">
-              <div>
-                <div className="text-xs font-semibold text-stone-900">Billing Term</div>
-                <div className="text-[11px] text-stone-500">Annual commitment reflects a 20% deduction.</div>
+            <Link
+              href="/auth/login"
+              className="p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors text-left"
+            >
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-semibold text-white">Sarah Jenkins</span>
+                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-white/10 text-white border border-white/10">
+                  Staff
+                </span>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setAnnualBilling(false)}
-                  className={`px-3 py-1 text-xs rounded border transition-colors ${
-                    !annualBilling
-                      ? 'bg-stone-900 text-white border-stone-900'
-                      : 'bg-white text-stone-700 border-stone-300 hover:bg-stone-50'
-                  }`}
-                >
-                  Monthly
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAnnualBilling(true)}
-                  className={`px-3 py-1 text-xs rounded border transition-colors ${
-                    annualBilling
-                      ? 'bg-stone-900 text-white border-stone-900'
-                      : 'bg-white text-stone-700 border-stone-300 hover:bg-stone-50'
-                  }`}
-                >
-                  Annual (Save 20%)
-                </button>
-              </div>
-            </div>
+              <div className="text-xs text-slate-400">Prepares quotations from templates and records incoming payments.</div>
+            </Link>
 
-            {/* Everything Included List */}
-            <div className="pt-4 border-t border-stone-200 text-xs text-stone-700 space-y-2">
-              <div className="font-semibold text-stone-900">All capabilities included in every plan:</div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
-                <div>&bull; Unlimited quotation templates</div>
-                <div>&bull; Multi-tier variant pricing</div>
-                <div>&bull; Automated billing schedule engine</div>
-                <div>&bull; GST tax rules &amp; reverse charges</div>
-                <div>&bull; Direct PDF receipt generator</div>
-                <div>&bull; Customer self-service portal</div>
-                <div>&bull; Role-based team access</div>
-                <div>&bull; Raw data CSV &amp; JSON exports</div>
+            <Link
+              href="/auth/login"
+              className="p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-colors text-left"
+            >
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-semibold text-white">Alex Lindqvist</span>
+                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-white/10 text-white border border-white/10">
+                  Customer
+                </span>
               </div>
-            </div>
-          </div>
-
-          {/* Calculated Cost Breakdown Receipt */}
-          <div className="lg:col-span-5 border border-stone-300 rounded-lg p-6 bg-stone-50 space-y-4">
-            <div className="border-b border-stone-300 pb-3">
-              <div className="text-xs font-mono text-stone-500 uppercase">Estimated Monthly Fee</div>
-              <div className="text-3xl font-serif font-normal text-stone-950 mt-1 tabular-nums">
-                {formatINR(totalBilled, { showDecimals: false })}
-                <span className="text-xs font-sans text-stone-500 ml-1">/ month</span>
-              </div>
-            </div>
-
-            <div className="space-y-2 text-xs text-stone-700">
-              <div className="flex justify-between">
-                <span>Base Platform Capacity</span>
-                <span className="font-mono tabular-nums">{formatINR(netPlatformFee)}</span>
-              </div>
-              <div className="flex justify-between text-stone-500">
-                <span>Statutory GST (18%)</span>
-                <span className="font-mono tabular-nums">{formatINR(gstAmount)}</span>
-              </div>
-              <div className="border-t border-stone-300 pt-2 flex justify-between font-semibold text-stone-950">
-                <span>Net Total (Inclusive of Taxes)</span>
-                <span className="font-mono tabular-nums">{formatINR(totalBilled)}</span>
-              </div>
-            </div>
-
-            <div className="pt-4">
-              <Link
-                href="/auth/register"
-                className="block w-full py-3 text-center rounded-lg bg-stone-950 hover:bg-stone-800 text-white font-medium text-xs transition-colors"
-              >
-                Provision Workspace Account
-              </Link>
-              <div className="text-center text-[10px] text-stone-500 mt-2">
-                Includes 14 days of full functionality with pre-loaded demo records.
-              </div>
-            </div>
+              <div className="text-xs text-slate-400">Self-service portal to view seats and download GST invoices.</div>
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* 5. PRE-CONFIGURED ROLE SESSIONS */}
-      <section className="space-y-4 pt-4 border-t border-stone-300">
-        <div className="border-b border-stone-200 pb-3">
-          <h2 className="font-serif text-2xl font-normal text-stone-950">Verified Role Walkthroughs</h2>
-          <p className="text-xs text-stone-600 mt-0.5">
-            Authenticate directly as one of three pre-seeded persona profiles.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link
-            href="/auth/login"
-            className="border border-stone-300 rounded-lg p-5 bg-white hover:border-stone-500 transition-colors block text-left"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-sm text-stone-950">Elena Rostova</span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-stone-300 bg-stone-100 text-stone-700">
-                Administrator
-              </span>
-            </div>
-            <p className="text-xs text-stone-600 leading-relaxed">
-              Manages automated billing days, configures regional GST rules, defines volume discount bounds, and manages staff members.
-            </p>
-          </Link>
-
-          <Link
-            href="/auth/login"
-            className="border border-stone-300 rounded-lg p-5 bg-white hover:border-stone-500 transition-colors block text-left"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-sm text-stone-950">Sarah Jenkins</span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-stone-300 bg-stone-100 text-stone-700">
-                Billing Staff
-              </span>
-            </div>
-            <p className="text-xs text-stone-600 leading-relaxed">
-              Builds proposals from quotation templates, moves contracts from Draft to Confirmed, and records manual payment settlements.
-            </p>
-          </Link>
-
-          <Link
-            href="/auth/login"
-            className="border border-stone-300 rounded-lg p-5 bg-white hover:border-stone-500 transition-colors block text-left"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-sm text-stone-950">Alex Lindqvist</span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded border border-stone-300 bg-stone-100 text-stone-700">
-                Customer
-              </span>
-            </div>
-            <p className="text-xs text-stone-600 leading-relaxed">
-              Self-service customer portal. Accesses subscribed seat counts, tracks renewal dates, and downloads official tax invoice receipts.
-            </p>
-          </Link>
-        </div>
-      </section>
-
-      {/* 6. STATUTORY COMPLIANCE & EXPORTS */}
-      <section className="border border-stone-300 rounded-lg p-6 bg-white space-y-4">
-        <h3 className="font-serif text-xl font-normal text-stone-950">Statutory and Regulatory Adherence</h3>
-        <p className="text-xs text-stone-700 leading-relaxed">
-          Brightloop recurring software conforms to the GST Invoice Rules under the Central Goods and Services Tax Act, 2017. All generated invoices preserve consecutive alphanumeric serial numbering, mandatory HSN/SAC classifications, supplier GSTIN credentials, and itemized tax breakdowns.
+      {/* 7. FOOTER CALL TO ACTION */}
+      <section className="text-center max-w-3xl mx-auto px-4 space-y-4 pt-4">
+        <h2 className="text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight">
+          Ready to manage your recurring billing?
+        </h2>
+        <p className="text-sm text-slate-600 max-w-lg mx-auto">
+          Start exploring plans, subscriptions, and automated invoicing with pre-loaded data.
         </p>
-        <div className="flex flex-wrap gap-4 text-xs font-medium text-stone-600 pt-2 border-t border-stone-200">
-          <Link href="/terms" className="hover:text-stone-950 transition-colors">
-            Terms of Service
+        <div className="flex items-center justify-center gap-3 pt-2">
+          <Link
+            href="/dashboard"
+            className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm press-feedback shadow-subtle flex items-center gap-2"
+          >
+            <span>Open Workspace</span>
+            <ArrowRight className="w-4 h-4" />
           </Link>
-          <span className="text-stone-300">&bull;</span>
-          <Link href="/privacy" className="hover:text-stone-950 transition-colors">
-            Privacy Policy
-          </Link>
-          <span className="text-stone-300">&bull;</span>
-          <Link href="/auth/login" className="hover:text-stone-950 transition-colors">
-            System Sign In
+          <Link
+            href="/auth/login"
+            className="px-6 py-3 rounded-xl bg-white text-slate-700 font-medium text-sm border border-slate-200 hover:bg-slate-50 press-feedback"
+          >
+            Sign In
           </Link>
         </div>
       </section>
