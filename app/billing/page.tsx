@@ -91,7 +91,7 @@ export default function BillingDayPage() {
               <span>Billing Cycle Finished Successfully</span>
             </div>
             <span className="text-xs text-muted tabular-nums">
-              Total Billed: <strong className="text-text">${runResult.totalBilled?.toFixed(2)}</strong>
+              Total Billed: <strong className="text-text">₹{runResult.totalBilled?.toFixed(2)}</strong>
             </span>
           </div>
           <div className="text-xs text-text">
@@ -218,7 +218,7 @@ export default function BillingDayPage() {
                       {log.invoicesCreated}
                     </td>
                     <td className="text-right text-xs tabular-nums font-bold text-text">
-                      ${log.totalBilled.toFixed(2)}
+                      ₹{log.totalBilled.toFixed(2)}
                     </td>
                     <td>
                       <StatusBadge status={log.status} />

@@ -139,7 +139,7 @@ export default function TaxesPage() {
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Standard VAT 20% or US State Tax"
+              placeholder="e.g. Standard GST 18% or IGST"
               className="w-full p-2 border border-border rounded bg-ground text-text"
             />
           </div>

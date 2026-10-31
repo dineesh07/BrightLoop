@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { BrightloopLogo } from '@/components/BrightloopLogo';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -62,14 +63,7 @@ export default function RegisterPage() {
   return (
     <div className="max-w-xl mx-auto py-10 px-4 space-y-6">
       <div className="text-center space-y-2">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white mx-auto shadow-md shadow-blue-500/20">
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-            <path d="M3 3v5h5" />
-            <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
-            <path d="M16 21h5v-5" />
-          </svg>
-        </div>
+        <BrightloopLogo size="lg" showText={false} className="justify-center" />
         <h1 className="text-2xl font-bold tracking-tight text-slate-900">Create Brightloop Account</h1>
         <p className="text-sm text-slate-500">
           Self-service access to your subscriptions, invoices, and payment history.

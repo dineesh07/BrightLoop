@@ -213,7 +213,7 @@ export default function SubscriptionDetailPage() {
           </div>
           <div className="text-sm font-semibold text-text">{subscription.plan.name}</div>
           <div className="text-muted">
-            Interval: <strong>{subscription.plan.billingInterval}</strong> (Base rate ${subscription.plan.cost})
+            Interval: <strong>{subscription.plan.billingInterval}</strong> (Base rate ₹{subscription.plan.cost})
           </div>
           <div className="text-muted">
             Next Billing Date:{' '}
@@ -242,7 +242,7 @@ export default function SubscriptionDetailPage() {
               <div className="text-muted mt-0.5">{subscription.discountRule.description}</div>
               <div className="text-[11px] text-muted">
                 Discount Type: {subscription.discountRule.discountType} ({subscription.discountRule.value}
-                {subscription.discountRule.discountType === 'PERCENTAGE' ? '%' : '$'})
+                {subscription.discountRule.discountType === 'PERCENTAGE' ? '%' : '₹'})
               </div>
             </div>
           ) : (
@@ -269,7 +269,7 @@ export default function SubscriptionDetailPage() {
           </div>
           <div className="text-right">
             <span className="text-xs text-muted">Cycle Subtotal: </span>
-            <span className="text-sm font-bold text-text tabular-nums">${subtotal.toFixed(2)}</span>
+            <span className="text-sm font-bold text-text tabular-nums">₹{subtotal.toFixed(2)}</span>
           </div>
         </div>
 
@@ -292,17 +292,17 @@ export default function SubscriptionDetailPage() {
                   <td>
                     {line.variant ? (
                       <span className="text-xs text-chartHue font-medium">
-                        {line.variant.name} (+${line.variant.priceExtra})
+                        {line.variant.name} (+₹{line.variant.priceExtra})
                       </span>
                     ) : (
                       <span className="text-xs text-muted">Standard</span>
                     )}
                   </td>
                   <td className="text-center tabular-nums font-medium">{line.quantity}</td>
-                  <td className="text-right tabular-nums">${line.unitPrice.toFixed(2)}</td>
+                  <td className="text-right tabular-nums">₹{line.unitPrice.toFixed(2)}</td>
                   <td className="text-right tabular-nums text-muted">{line.taxRate}%</td>
                   <td className="text-right tabular-nums font-semibold text-text">
-                    ${(line.quantity * line.unitPrice).toFixed(2)}
+                    ₹{(line.quantity * line.unitPrice).toFixed(2)}
                   </td>
                 </tr>
               ))}
@@ -330,8 +330,8 @@ export default function SubscriptionDetailPage() {
                   <th>Invoice Number</th>
                   <th>Issue Date</th>
                   <th>Due Date</th>
-                  <th className="text-right">Total</th>
-                  <th className="text-right">Paid</th>
+                  <th className="text-right">Total (₹)</th>
+                  <th className="text-right">Paid (₹)</th>
                   <th>Status</th>
                   <th className="text-right">Action</th>
                 </tr>
@@ -351,10 +351,10 @@ export default function SubscriptionDetailPage() {
                       {new Date(inv.dueDate).toLocaleDateString()}
                     </td>
                     <td className="text-right font-medium tabular-nums">
-                      ${inv.grandTotal.toFixed(2)}
+                      ₹{inv.grandTotal.toFixed(2)}
                     </td>
                     <td className="text-right font-medium tabular-nums text-positive">
-                      ${inv.amountPaid.toFixed(2)}
+                      ₹{inv.amountPaid.toFixed(2)}
                     </td>
                     <td>
                       <StatusBadge status={inv.status} />

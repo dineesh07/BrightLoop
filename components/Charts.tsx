@@ -24,41 +24,46 @@ export function RevenueTrendChart({ data }: RevenueTrendProps) {
         <AreaChart data={data} margin={{ top: 12, right: 12, left: -10, bottom: 0 }}>
           <defs>
             <linearGradient id="revenueFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#2563eb" stopOpacity={0.25} />
-              <stop offset="95%" stopColor="#2563eb" stopOpacity={0.0} />
+              <stop offset="5%" stopColor="#5638F5" stopOpacity={0.3} />
+              <stop offset="95%" stopColor="#5638F5" stopOpacity={0.0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f2effd" />
           <XAxis
             dataKey="month"
-            stroke="#94a3b8"
+            stroke="#9590b8"
             fontSize={12}
             tickLine={false}
-            axisLine={{ stroke: '#e2e8f0' }}
+            axisLine={{ stroke: '#e6e2f8' }}
           />
           <YAxis
-            stroke="#94a3b8"
+            stroke="#9590b8"
             fontSize={12}
             tickLine={false}
             axisLine={false}
-            tickFormatter={(val) => `$${val >= 1000 ? `${(val / 1000).toFixed(0)}k` : val}`}
+            tickFormatter={(val) => {
+              if (val >= 10000000) return `₹${(val / 10000000).toFixed(1)}Cr`;
+              if (val >= 100000) return `₹${(val / 100000).toFixed(0)}L`;
+              if (val >= 1000) return `₹${(val / 1000).toFixed(0)}k`;
+              return `₹${val}`;
+            }}
           />
           <Tooltip
-            formatter={(value: number) => [`$${value.toLocaleString()}`, 'Monthly Revenue']}
+            formatter={(value: number) => [`₹${value.toLocaleString('en-IN')}`, 'Monthly Revenue']}
             contentStyle={{
               backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
+              border: '1px solid #e6e2f8',
+              borderRadius: '10px',
               fontSize: '12px',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.08)',
-              fontWeight: 500,
+              boxShadow: '0 8px 16px -4px rgba(86, 56, 245, 0.12)',
+              fontWeight: 600,
             }}
           />
           <Area
             type="monotone"
             dataKey="revenue"
-            stroke="#2563eb"
-            strokeWidth={2.5}
+            stroke="#5638F5"
+            strokeWidth={3}
             fillOpacity={1}
             fill="url(#revenueFill)"
           />
@@ -77,19 +82,19 @@ export function PlanDistributionChart({ data }: PlanBarProps) {
     <div className="w-full h-72">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 12, right: 12, left: -10, bottom: 25 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f2effd" />
           <XAxis
             dataKey="plan"
-            stroke="#94a3b8"
+            stroke="#9590b8"
             fontSize={11}
             tickLine={false}
-            axisLine={{ stroke: '#e2e8f0' }}
+            axisLine={{ stroke: '#e6e2f8' }}
             interval={0}
             angle={-15}
             textAnchor="end"
           />
           <YAxis
-            stroke="#94a3b8"
+            stroke="#9590b8"
             fontSize={12}
             tickLine={false}
             axisLine={false}
@@ -99,16 +104,16 @@ export function PlanDistributionChart({ data }: PlanBarProps) {
             formatter={(val: number) => [val, 'Active Subscriptions']}
             contentStyle={{
               backgroundColor: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
+              border: '1px solid #e6e2f8',
+              borderRadius: '10px',
               fontSize: '12px',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.08)',
-              fontWeight: 500,
+              boxShadow: '0 8px 16px -4px rgba(86, 56, 245, 0.12)',
+              fontWeight: 600,
             }}
           />
           <Bar
             dataKey="count"
-            fill="#3b82f6"
+            fill="#5638F5"
             radius={[6, 6, 0, 0]}
           />
         </BarChart>

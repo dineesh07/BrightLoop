@@ -233,7 +233,7 @@ export async function runBillingCycle(cutoffDate: Date = new Date()): Promise<Bi
 
       invoicesCreated++;
       totalBilled += grandTotal;
-      logs.push(`Generated ${invoiceNumber} for ${sub.customer.name} ($${grandTotal.toFixed(2)})`);
+      logs.push(`Generated ${invoiceNumber} for ${sub.customer.name} (₹${grandTotal.toFixed(2)})`);
 
       // Increment discount usage if applied
       if (discountApplicable && appliedDiscountRule && totalDiscount > 0) {
@@ -279,7 +279,7 @@ export async function runBillingCycle(cutoffDate: Date = new Date()): Promise<Bi
     },
   });
 
-  logs.push(`Billing run completed. Created ${invoicesCreated} invoices, total billed: $${totalBilled.toFixed(2)}.`);
+  logs.push(`Billing run completed. Created ${invoicesCreated} invoices, total billed: ₹${totalBilled.toFixed(2)}.`);
   return { subscriptionsProcessed, invoicesCreated, totalBilled, logs };
 }
 

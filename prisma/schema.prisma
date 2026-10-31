@@ -23,7 +23,7 @@ model User {
   city                  String?
   country               String?
   vatNumber             String?
-  currency              String         @default("USD")
+  currency              String         @default("INR")
   resetPasswordToken    String?
   resetPasswordExpires  DateTime?
   createdAt             DateTime       @default(now())

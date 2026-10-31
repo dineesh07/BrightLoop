@@ -343,7 +343,7 @@ export default function NewSubscriptionPage() {
               >
                 {plans.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name} (${p.cost}/{p.billingInterval.toLowerCase()} · Min qty: {p.minQuantity})
+                    {p.name} (₹{p.cost}/{p.billingInterval.toLowerCase()} · Min qty: {p.minQuantity})
                   </option>
                 ))}
               </select>
@@ -407,7 +407,7 @@ export default function NewSubscriptionPage() {
                 <option value="">-- No Discount Applied --</option>
                 {discounts.map((d) => (
                   <option key={d.id} value={d.id}>
-                    {d.code} ({d.discountType === 'PERCENTAGE' ? `${d.value}%` : `$${d.value}`} off)
+                    {d.code} ({d.discountType === 'PERCENTAGE' ? `${d.value}%` : `₹${d.value}`} off)
                   </option>
                 ))}
               </select>
@@ -432,7 +432,7 @@ export default function NewSubscriptionPage() {
         <div className="bg-surface p-5 rounded-card border border-border space-y-4">
           <div className="flex items-center justify-between pb-2 border-b border-rule">
             <h2 className="text-sm font-semibold text-text">
-              2. Product & Variant Lines
+              2. Product &amp; Variant Lines
             </h2>
             <button
               type="button"
@@ -463,7 +463,7 @@ export default function NewSubscriptionPage() {
                     >
                       {products.map((p) => (
                         <option key={p.id} value={p.id}>
-                          {p.name} (${p.salesPrice})
+                          {p.name} (₹{p.salesPrice})
                         </option>
                       ))}
                     </select>
@@ -471,7 +471,7 @@ export default function NewSubscriptionPage() {
 
                   {/* Variant */}
                   <div className="w-48">
-                    <label className="block text-muted mb-1">Variant (e.g. Odoo +$560)</label>
+                    <label className="block text-muted mb-1">Variant (e.g. Odoo +₹560)</label>
                     <select
                       value={line.productVariantId}
                       onChange={(e) => handleVariantChange(idx, e.target.value)}
@@ -480,7 +480,7 @@ export default function NewSubscriptionPage() {
                       <option value="">No Variant (Base Price)</option>
                       {product?.variants?.map((v) => (
                         <option key={v.id} value={v.id}>
-                          {v.name} (+${v.priceExtra})
+                          {v.name} (+₹{v.priceExtra})
                         </option>
                       ))}
                     </select>
@@ -500,7 +500,7 @@ export default function NewSubscriptionPage() {
 
                   {/* Unit Price */}
                   <div className="w-24">
-                    <label className="block text-muted mb-1">Unit Price ($)</label>
+                    <label className="block text-muted mb-1">Unit Price (₹)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -511,17 +511,18 @@ export default function NewSubscriptionPage() {
                   </div>
 
                   {/* Tax */}
-                  <div className="w-24">
-                    <label className="block text-muted mb-1">Tax (%)</label>
+                  <div className="w-28">
+                    <label className="block text-muted mb-1">GST Tax (%)</label>
                     <select
                       value={line.taxRate}
                       onChange={(e) => updateLineField(idx, 'taxRate', parseFloat(e.target.value) || 0)}
                       className="w-full p-1.5 border border-border rounded bg-surface text-text tabular-nums"
                     >
-                      <option value="0">0% (Zero)</option>
-                      <option value="8.25">8.25% (US)</option>
-                      <option value="19">19% (EU)</option>
-                      <option value="20">20% (VAT)</option>
+                      <option value="0">0% (Exempt)</option>
+                      <option value="5">5% (GST)</option>
+                      <option value="12">12% (GST)</option>
+                      <option value="18">18% (Standard GST)</option>
+                      <option value="28">28% (GST)</option>
                     </select>
                   </div>
 
@@ -529,7 +530,7 @@ export default function NewSubscriptionPage() {
                   <div className="w-28 text-right">
                     <label className="block text-muted mb-1">Line Total</label>
                     <div className="font-semibold text-text tabular-nums pt-1.5">
-                      ${lineTotal.toFixed(2)}
+                      ₹{lineTotal.toFixed(2)}
                     </div>
                   </div>
 
@@ -549,9 +550,9 @@ export default function NewSubscriptionPage() {
           </div>
 
           <div className="flex justify-between items-center pt-3 border-t border-rule text-xs">
-            <span className="text-muted">Subtotal across lines (excl. tax & discounts):</span>
+            <span className="text-muted">Subtotal across lines (excl. tax &amp; discounts):</span>
             <span className="text-sm font-bold text-text tabular-nums">
-              ${calculateSubtotal().toFixed(2)}
+              ₹{calculateSubtotal().toFixed(2)}
             </span>
           </div>
         </div>

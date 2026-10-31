@@ -123,7 +123,7 @@ export async function sendInvoiceEmail(invoice: any, to: string) {
           ${line.quantity}
         </td>
         <td style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; text-align: right; font-weight: 600; color: #0f172a;">
-          $${line.lineTotal.toFixed(2)}
+          ₹${line.lineTotal.toFixed(2)}
         </td>
       </tr>
     `
@@ -175,20 +175,20 @@ export async function sendInvoiceEmail(invoice: any, to: string) {
           <div class="total-box">
             <div style="display: flex; justify-content: space-between; font-size: 13px; color: #64748b; margin-bottom: 4px;">
               <span>Subtotal:</span>
-              <span>$${invoice.subtotal.toFixed(2)}</span>
+              <span>₹${invoice.subtotal.toFixed(2)}</span>
             </div>
             ${invoice.discountTotal > 0 ? `
-            <div style="display: flex; justify-content: space-between; font-size: 13px; color: #2563eb; margin-bottom: 4px;">
+            <div style="display: flex; justify-content: space-between; font-size: 13px; color: #5638F5; margin-bottom: 4px;">
               <span>Discount Applied:</span>
-              <span>-$${invoice.discountTotal.toFixed(2)}</span>
+              <span>-₹${invoice.discountTotal.toFixed(2)}</span>
             </div>` : ''}
             <div style="display: flex; justify-content: space-between; font-size: 13px; color: #64748b; margin-bottom: 8px;">
-              <span>Taxes:</span>
-              <span>$${invoice.taxTotal.toFixed(2)}</span>
+              <span>Taxes & GST:</span>
+              <span>₹${invoice.taxTotal.toFixed(2)}</span>
             </div>
             <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: 700; color: #0f172a; border-top: 1px solid #e2e8f0; padding-top: 8px;">
               <span>Balance Due:</span>
-              <span style="color: #dc2626;">$${balanceDue.toFixed(2)}</span>
+              <span style="color: #dc2626;">₹${balanceDue.toFixed(2)}</span>
             </div>
             <div style="font-size: 12px; color: #64748b; margin-top: 4px;">
               Due Date: ${new Date(invoice.dueDate).toLocaleDateString()}
@@ -200,11 +200,11 @@ export async function sendInvoiceEmail(invoice: any, to: string) {
           </div>
 
           <p style="font-size: 12px; color: #64748b; text-align: center;">
-            You can also view all contracts and settle invoices anytime in your <a href="${portalUrl}" style="color: #2563eb;">Customer Portal</a>.
+            You can also view all contracts and settle invoices anytime in your <a href="${portalUrl}" style="color: #5638F5;">Customer Portal</a>.
           </p>
 
           <div class="footer">
-            Brightloop Software — 100 Enterprise Way, Suite 400 · billing@brightloop.com
+            Brightloop Software — Recurring Billing & Plan Management Engine
           </div>
         </div>
       </body>
@@ -213,7 +213,7 @@ export async function sendInvoiceEmail(invoice: any, to: string) {
 
   return sendEmail({
     to,
-    subject: `Invoice ${invoice.invoiceNumber} from Brightloop Software ($${balanceDue.toFixed(2)} due)`,
+    subject: `Invoice ${invoice.invoiceNumber} from Brightloop Software (₹${balanceDue.toFixed(2)} due)`,
     html,
   });
 }

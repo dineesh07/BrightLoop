@@ -92,9 +92,9 @@ export default function ProductsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-text">Products & Variants Catalog</h1>
+          <h1 className="text-xl font-bold tracking-tight text-text">Products &amp; Variants Catalog</h1>
           <p className="text-xs text-muted mt-0.5">
-            Configure software suites, add-ons, modules and brand variants (e.g. Odoo Brand +$560).
+            Configure software suites, add-ons, modules and brand variants (e.g. Odoo Brand +₹560).
           </p>
         </div>
 
@@ -137,10 +137,10 @@ export default function ProductsPage() {
                       </span>
                     </td>
                     <td className="text-right font-bold text-text tabular-nums">
-                      ${p.salesPrice.toFixed(2)}
+                      ₹{p.salesPrice.toFixed(2)}
                     </td>
                     <td className="text-right text-muted tabular-nums">
-                      ${p.costPrice.toFixed(2)}
+                      ₹{p.costPrice.toFixed(2)}
                     </td>
                     <td>
                       {p.variants && p.variants.length > 0 ? (
@@ -153,10 +153,10 @@ export default function ProductsPage() {
                               <strong>{v.name}</strong>
                               {v.priceExtra > 0 ? (
                                 <span className="text-chartHue ml-1 font-semibold">
-                                  (+${v.priceExtra})
+                                  (+₹{v.priceExtra})
                                 </span>
                               ) : (
-                                <span className="text-muted ml-1 font-normal">(+$0)</span>
+                                <span className="text-muted ml-1 font-normal">(+₹0)</span>
                               )}
                             </span>
                           ))}
@@ -205,7 +205,7 @@ export default function ProductsPage() {
             </div>
 
             <div>
-              <label className="block text-muted font-medium mb-1">Base Price ($) *</label>
+              <label className="block text-muted font-medium mb-1">Base Price (₹ INR) *</label>
               <input
                 type="number"
                 step="0.01"
@@ -217,7 +217,7 @@ export default function ProductsPage() {
             </div>
 
             <div>
-              <label className="block text-muted font-medium mb-1">Cost Price ($)</label>
+              <label className="block text-muted font-medium mb-1">Cost Price (₹ INR)</label>
               <input
                 type="number"
                 step="0.01"
@@ -251,7 +251,7 @@ export default function ProductsPage() {
                   className="flex-1 p-1.5 border border-border rounded bg-ground text-text"
                 />
                 <div className="flex items-center gap-1 w-36">
-                  <span className="text-muted">+$</span>
+                  <span className="text-muted">+₹</span>
                   <input
                     type="number"
                     step="0.01"

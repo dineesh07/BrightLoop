@@ -244,9 +244,9 @@ export default function InvoiceDetailPage() {
                 <th className="text-center">Qty</th>
                 <th className="text-right">Unit Price</th>
                 <th className="text-right">Tax Rate</th>
-                <th className="text-right">Tax ($)</th>
-                <th className="text-right">Discount ($)</th>
-                <th className="text-right">Total</th>
+                <th className="text-right">Tax (₹)</th>
+                <th className="text-right">Discount (₹)</th>
+                <th className="text-right">Total (₹)</th>
               </tr>
             </thead>
             <tbody>
@@ -256,14 +256,14 @@ export default function InvoiceDetailPage() {
                     <div className="font-medium text-text">{line.description}</div>
                   </td>
                   <td className="text-center tabular-nums">{line.quantity}</td>
-                  <td className="text-right tabular-nums">${line.unitPrice.toFixed(2)}</td>
+                  <td className="text-right tabular-nums">₹{line.unitPrice.toFixed(2)}</td>
                   <td className="text-right tabular-nums text-muted">{line.taxRate}%</td>
-                  <td className="text-right tabular-nums text-muted">${line.taxAmount.toFixed(2)}</td>
+                  <td className="text-right tabular-nums text-muted">₹{line.taxAmount.toFixed(2)}</td>
                   <td className="text-right tabular-nums text-chartHue">
-                    {line.discountAmount > 0 ? `-$${line.discountAmount.toFixed(2)}` : '$0.00'}
+                    {line.discountAmount > 0 ? `-₹${line.discountAmount.toFixed(2)}` : '₹0.00'}
                   </td>
                   <td className="text-right tabular-nums font-semibold text-text">
-                    ${line.lineTotal.toFixed(2)}
+                    ₹{line.lineTotal.toFixed(2)}
                   </td>
                 </tr>
               ))}
@@ -276,34 +276,34 @@ export default function InvoiceDetailPage() {
           <div className="w-64 space-y-2">
             <div className="flex justify-between text-muted">
               <span>Subtotal:</span>
-              <span className="tabular-nums font-medium text-text">${invoice.subtotal.toFixed(2)}</span>
+              <span className="tabular-nums font-medium text-text">₹{invoice.subtotal.toFixed(2)}</span>
             </div>
 
             {invoice.discountTotal > 0 && (
               <div className="flex justify-between text-chartHue font-medium">
                 <span>Discount Applied:</span>
-                <span className="tabular-nums">-${invoice.discountTotal.toFixed(2)}</span>
+                <span className="tabular-nums">-₹{invoice.discountTotal.toFixed(2)}</span>
               </div>
             )}
 
             <div className="flex justify-between text-muted">
               <span>Tax Total:</span>
-              <span className="tabular-nums font-medium text-text">${invoice.taxTotal.toFixed(2)}</span>
+              <span className="tabular-nums font-medium text-text">₹{invoice.taxTotal.toFixed(2)}</span>
             </div>
 
             <div className="flex justify-between text-sm font-bold text-text pt-2 border-t border-border">
               <span>Grand Total:</span>
-              <span className="tabular-nums">${invoice.grandTotal.toFixed(2)}</span>
+              <span className="tabular-nums">₹{invoice.grandTotal.toFixed(2)}</span>
             </div>
 
             <div className="flex justify-between text-positive font-medium">
               <span>Amount Paid:</span>
-              <span className="tabular-nums">-${invoice.amountPaid.toFixed(2)}</span>
+              <span className="tabular-nums">-₹{invoice.amountPaid.toFixed(2)}</span>
             </div>
 
             <div className="flex justify-between text-sm font-bold text-negative pt-1 border-t border-rule">
               <span>Balance Due:</span>
-              <span className="tabular-nums">${balanceDue.toFixed(2)}</span>
+              <span className="tabular-nums">₹{balanceDue.toFixed(2)}</span>
             </div>
           </div>
         </div>
@@ -348,7 +348,7 @@ export default function InvoiceDetailPage() {
         >
           <form onSubmit={handleRecordPayment} className="space-y-4 text-xs">
             <div>
-              <label className="block text-muted mb-1 font-medium">Payment Amount ($)</label>
+              <label className="block text-muted mb-1 font-medium">Payment Amount (₹ INR)</label>
               <input
                 type="number"
                 step="0.01"

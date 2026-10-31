@@ -14,7 +14,7 @@ export function DemoRoleSwitcher() {
       label: 'Admin',
       email: 'admin@brightloop.com',
       password: 'Admin@12345!',
-      badgeClass: 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100',
+      badgeClass: 'bg-brand-light text-brand border-brand/20 hover:bg-brand hover:text-white',
     },
     {
       id: 'staff',
@@ -22,7 +22,7 @@ export function DemoRoleSwitcher() {
       label: 'Staff',
       email: 'sarah.sales@brightloop.com',
       password: 'Staff@12345!',
-      badgeClass: 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100',
+      badgeClass: 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-600 hover:text-white',
     },
     {
       id: 'customer',
@@ -30,7 +30,7 @@ export function DemoRoleSwitcher() {
       label: 'Customer',
       email: 'alex@nordicretail.com',
       password: 'Customer@12345!',
-      badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100',
+      badgeClass: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-600 hover:text-white',
     },
   ];
 
@@ -43,7 +43,7 @@ export function DemoRoleSwitcher() {
         body: JSON.stringify({ email, password }),
       });
       if (res.ok) {
-        window.location.reload();
+        window.location.href = '/dashboard';
       }
     } catch (err) {
       console.error('Failed to switch persona', err);
@@ -53,18 +53,18 @@ export function DemoRoleSwitcher() {
   };
 
   return (
-    <div className="flex items-center gap-1.5 text-xs bg-slate-100/80 p-1 rounded-lg border border-slate-200/80">
-      <span className="text-slate-500 px-2 font-medium text-[11px] uppercase tracking-wider">Demo Role:</span>
+    <div className="flex items-center gap-1.5 text-xs bg-raised p-1 rounded-xl border border-border shadow-subtle">
+      <span className="text-muted px-2 font-bold text-[10px] uppercase tracking-wider">Demo Role:</span>
       {personas.map((p) => (
         <button
           key={p.id}
           disabled={loading}
           onClick={() => handleSwitch(p.email, p.password)}
-          className={`px-2.5 py-1 rounded-md border text-xs font-semibold transition-all shadow-subtle disabled:opacity-50 flex items-center gap-1.5 ${p.badgeClass}`}
+          className={`px-2.5 py-1 rounded-lg border text-xs font-bold transition-all shadow-subtle disabled:opacity-50 flex items-center gap-1.5 ${p.badgeClass}`}
           title={`Switch to ${p.name} (${p.label})`}
         >
           <span>{p.name}</span>
-          <span className="text-[10px] opacity-75 font-normal">({p.label})</span>
+          <span className="text-[10px] opacity-80 font-normal">({p.label})</span>
         </button>
       ))}
     </div>

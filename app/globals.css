@@ -3,30 +3,37 @@
 @tailwind utilities;
 
 :root {
-  /* Modern Vibrant SaaS Palette */
-  --ground: #f8fafc;
+  /* Brightloop Brand Palette (Extracted directly from Brand Logo) */
+  --ground: #fafaff;
   --surface: #ffffff;
-  --raised: #f1f5f9;
-  --border: #e2e8f0;
-  --rule: #f1f5f9;
-  --control: #cbd5e1;
-  --text: #0f172a;
-  --muted: #64748b;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
-  --accent-light: #eff6ff;
+  --raised: #f4f2fe;
+  --border: #e6e2f8;
+  --rule: #f2effd;
+  --control: #cfc8f4;
+  --text: #0d0c22;
+  --muted: #676585;
+
+  /* Primary Electric Blurple */
+  --accent: #5638F5;
+  --accent-hover: #4528e5;
+  --accent-light: #f0edff;
+
+  /* Radiant Sunburst Amber/Orange from Logo Rays */
+  --sunburst: #FF9800;
+  --sunburst-hover: #f57c00;
+  --sunburst-light: #fff7ed;
 
   /* Semantic status colors */
   --positive: #059669;
   --negative: #dc2626;
-  --warning: #d97706;
+  --warning: #FF9800;
 
   /* Data Visualization colors */
-  --chart-1: #2563eb;
-  --chart-2: #6366f1;
-  --chart-3: #0284c7;
-  --chart-4: #10b981;
-  --chart-5: #f59e0b;
+  --chart-1: #5638F5;
+  --chart-2: #FF9800;
+  --chart-3: #7c3aed;
+  --chart-4: #059669;
+  --chart-5: #3b82f6;
 
   /* Status pills with matching borders */
   --pill-positive-bg: #ecfdf5;
@@ -37,18 +44,18 @@
   --pill-negative-ink: #991b1b;
   --pill-negative-border: #fecaca;
 
-  --pill-warning-bg: #fffbeb;
-  --pill-warning-ink: #92400e;
-  --pill-warning-border: #fde68a;
+  --pill-warning-bg: #fff7ed;
+  --pill-warning-ink: #9a3412;
+  --pill-warning-border: #ffedd5;
 
-  --pill-neutral-bg: #f8fafc;
-  --pill-neutral-ink: #475569;
-  --pill-neutral-border: #e2e8f0;
+  --pill-neutral-bg: #f4f2fe;
+  --pill-neutral-ink: #4338ca;
+  --pill-neutral-border: #e0e7ff;
 
-  --radius-card: 10px;
+  --radius-card: 12px;
   --radius-control: 8px;
-  --row-height: 46px;
-  --control-height: 38px;
+  --row-height: 48px;
+  --control-height: 40px;
 }
 
 body {
@@ -63,6 +70,12 @@ body {
 /* Numeric alignment for financial ledgers */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+/* Indian Rupee symbol styling helper */
+.currency-inr::before {
+  content: "₹";
+  margin-right: 1px;
 }
 
 /* Clean ledger table styling */
@@ -80,8 +93,8 @@ body {
   padding: 12px 14px;
   font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-  background-color: #f8fafc;
+  letter-spacing: 0.04em;
+  background-color: #fafaff;
 }
 
 .ledger-table td {
@@ -91,7 +104,7 @@ body {
 }
 
 .ledger-table tr:hover td {
-  background-color: #f8fafc;
+  background-color: #f7f6fe;
 }
 
 /* Custom Scrollbar */
@@ -103,11 +116,23 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #cfc8f4;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #b2a7eb;
+}
+
+/* Gradient Background Effects */
+.bg-mesh-glow {
+  background: radial-gradient(circle at 50% 0%, rgba(86, 56, 245, 0.12) 0%, transparent 60%),
+              radial-gradient(circle at 90% 20%, rgba(255, 152, 0, 0.08) 0%, transparent 40%);
+}
+
+.bg-dark-mesh {
+  background: radial-gradient(circle at 20% 0%, rgba(86, 56, 245, 0.3) 0%, transparent 60%),
+              radial-gradient(circle at 80% 80%, rgba(255, 152, 0, 0.15) 0%, transparent 50%),
+              #0d0c22;
 }
 
 /* Print styles for invoices */

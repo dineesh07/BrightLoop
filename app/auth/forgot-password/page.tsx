@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { BrightloopLogo } from '@/components/BrightloopLogo';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -37,11 +38,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="max-w-md mx-auto py-12 px-4 space-y-6">
       <div className="text-center space-y-2">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white mx-auto shadow-md shadow-blue-500/20">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-          </svg>
-        </div>
+        <BrightloopLogo size="lg" showText={false} className="justify-center" />
         <h1 className="text-2xl font-bold tracking-tight text-slate-900">Reset Password</h1>
         <p className="text-xs text-slate-500">
           Enter your registered email address to receive password recovery instructions via email.

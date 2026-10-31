@@ -145,7 +145,7 @@ export default function DiscountsPage() {
                       </td>
                       <td className="text-xs font-medium text-text">{d.description}</td>
                       <td className="text-xs font-bold text-text tabular-nums">
-                        {d.discountType === 'PERCENTAGE' ? `${d.value}% Off` : `$${d.value.toFixed(2)} Off`}
+                        {d.discountType === 'PERCENTAGE' ? `${d.value}% Off` : `₹${d.value.toFixed(2)} Off`}
                       </td>
                       <td>
                         {d.scope === 'ALL_SUBSCRIPTION' ? (
@@ -158,7 +158,7 @@ export default function DiscountsPage() {
                       </td>
                       <td className="text-xs text-muted">
                         {d.minQuantity && <div>Min Qty: {d.minQuantity} seats</div>}
-                        {d.minPurchaseAmount && <div>Min Spend: ${d.minPurchaseAmount.toFixed(2)}</div>}
+                        {d.minPurchaseAmount && <div>Min Spend: ₹{d.minPurchaseAmount.toFixed(2)}</div>}
                         {!d.minQuantity && !d.minPurchaseAmount && <div>None (Unconditional)</div>}
                       </td>
                       <td className="text-center text-xs tabular-nums font-medium text-text">
@@ -210,7 +210,7 @@ export default function DiscountsPage() {
                 className="w-full p-2 border border-border rounded bg-ground text-text"
               >
                 <option value="PERCENTAGE">Percentage (%)</option>
-                <option value="FIXED_AMOUNT">Fixed Amount ($)</option>
+                <option value="FIXED_AMOUNT">Fixed Amount (₹ INR)</option>
               </select>
             </div>
           </div>
@@ -253,7 +253,7 @@ export default function DiscountsPage() {
             </div>
 
             <div>
-              <label className="block text-muted font-medium mb-1">Min Purchase ($)</label>
+              <label className="block text-muted font-medium mb-1">Min Spend (₹ INR)</label>
               <input
                 type="number"
                 step="0.01"

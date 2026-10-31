@@ -130,7 +130,7 @@ export default function PlansPage() {
                       </span>
                     </td>
                     <td className="text-right font-bold text-text tabular-nums">
-                      ${p.cost.toFixed(2)}
+                      ₹{p.cost.toFixed(2)}
                     </td>
                     <td className="text-center tabular-nums text-muted">{p.minQuantity}</td>
                     <td className="text-xs text-muted">
@@ -224,7 +224,7 @@ export default function PlansPage() {
             </div>
 
             <div>
-              <label className="block text-muted font-medium mb-1">Base Cost ($) *</label>
+              <label className="block text-muted font-medium mb-1">Base Cost (₹ INR) *</label>
               <input
                 type="number"
                 step="0.01"

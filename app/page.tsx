@@ -1,367 +1,551 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { KpiCard } from '@/components/KpiCard';
-import { RevenueTrendChart, PlanDistributionChart } from '@/components/Charts';
-import { StatusBadge } from '@/components/StatusBadge';
-import { Modal } from '@/components/Modal';
+import { BrightloopLogo } from '@/components/BrightloopLogo';
+import { formatINR } from '@/lib/currency';
 
-interface AnalyticsData {
-  metrics: {
-    activeSubscriptions: number;
-    totalSubscriptions: number;
-    mrr: number;
-    arr: number;
-    totalRevenueCollected: number;
-    outstandingRevenue: number;
-    overdueInvoicesCount: number;
-    overdueAmount: number;
-    responseTimeMs: number;
-  };
-  revenueTrend: { month: string; revenue: number }[];
-  subscriptionsByPlan: { plan: string; count: number }[];
-  paymentMethods: { method: string; amount: number }[];
-  overdueInvoices: any[];
-}
+export default function LandingPage() {
+  const [billingCycle, setBillingCycle] = useState<'MONTHLY' | 'ANNUAL'>('ANNUAL');
+  const [activeTab, setActiveTab] = useState<'BILLING' | 'VARIANTS' | 'QUOTES' | 'TELEMETRY'>('BILLING');
 
-export default function DashboardPage() {
-  const [data, setData] = useState<AnalyticsData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Quick Payment Modal
-  const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
-  const [payAmount, setPayAmount] = useState<number>(0);
-  const [payMethod, setPayMethod] = useState<string>('BANK_TRANSFER');
-  const [payRef, setPayRef] = useState<string>('');
-  const [payLoading, setPayLoading] = useState(false);
-
-  const fetchAnalytics = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch('/api/analytics');
-      if (res.status === 401 || res.status === 403) {
-        // If customer, redirect to customer portal
-        window.location.href = '/portal';
-        return;
-      }
-      if (!res.ok) throw new Error('Failed to load financial metrics');
-      const json = await res.json();
-      setData(json);
-      setError(null);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAnalytics();
-  }, []);
-
-  const handleOpenPayment = (inv: any) => {
-    setSelectedInvoice(inv);
-    const balance = Math.max(0, inv.grandTotal - inv.amountPaid);
-    setPayAmount(balance);
-    setPayRef(`PAY-${Date.now().toString().slice(-6)}`);
-  };
-
-  const handleRecordPayment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedInvoice) return;
-    setPayLoading(true);
-    try {
-      const res = await fetch('/api/payments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          invoiceId: selectedInvoice.id,
-          amount: Number(payAmount),
-          method: payMethod,
-          transactionReference: payRef,
-          notes: 'Recorded via Finance Overview',
-        }),
-      });
-      if (!res.ok) {
-        const d = await res.json();
-        alert(d.error || 'Failed to record payment');
-        return;
-      }
-      setSelectedInvoice(null);
-      await fetchAnalytics();
-    } catch (err: any) {
-      alert(err.message);
-    } finally {
-      setPayLoading(false);
-    }
-  };
-
-  if (loading && !data) {
-    return (
-      <div className="py-20 text-center text-muted text-sm">
-        Calculating financial aggregates and recurring ledger...
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-4 bg-surface border border-negative text-negative rounded-card text-sm">
-        Error loading ledger: {error}
-      </div>
-    );
-  }
-
-  const { metrics, revenueTrend, subscriptionsByPlan, overdueInvoices } = data!;
+  const discountMultiplier = billingCycle === 'ANNUAL' ? 0.8 : 1.0;
 
   return (
-    <div className="space-y-6">
-      {/* Header bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-text">
-            Finance & Executive Overview
+    <div className="space-y-24 py-6 md:py-12 overflow-hidden">
+      {/* 1. HERO SECTION */}
+      <section className="relative text-center max-w-5xl mx-auto px-4 space-y-8 pt-6">
+        {/* Subtle background glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[350px] bg-gradient-to-tr from-brand/15 via-sunburst/10 to-transparent blur-3xl -z-10 pointer-events-none rounded-full" />
+
+        {/* Announcement Pill */}
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-border shadow-subtle text-xs font-semibold text-text hover:border-brand/40 transition-colors">
+          <span className="w-2 h-2 rounded-full bg-sunburst animate-ping"></span>
+          <span className="text-brand font-bold">New:</span>
+          <span>Automated Billing Day &amp; GST Compliance in ₹ INR</span>
+          <span className="text-muted">→</span>
+        </div>
+
+        {/* Main Headline */}
+        <div className="space-y-4">
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-text leading-[1.08]">
+            Turn subscriptions into <br />
+            <span className="bg-gradient-to-r from-brand via-brand to-sunburst bg-clip-text text-transparent">
+              predictable recurring revenue.
+            </span>
           </h1>
-          <p className="text-sm text-muted mt-1">
-            Brightloop Software recurring billing, receivables, and renewal posture.
+          <p className="max-w-2xl mx-auto text-base sm:text-lg text-muted leading-relaxed font-normal">
+            The unified platform that runs the full life of a recurring subscription business. 
+            From Odoo brand variants and quote-to-contract, to automated billing day and sub-2s INR telemetry.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="text-[11px] text-muted border border-border px-2 py-1 rounded bg-surface tabular-nums">
-            Engine Latency: <strong className="text-positive">{metrics.responseTimeMs}ms</strong>
-          </span>
+        {/* Hero CTAs */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
           <Link
-            href="/billing"
-            className="px-3 py-1.5 text-xs font-medium bg-chartHue text-white rounded hover:opacity-90 transition-opacity"
+            href="/dashboard"
+            className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-brand hover:bg-brand-hover text-white font-bold text-sm shadow-brand hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
           >
-            Billing Day Center
+            <span>Launch Live Console</span>
+            <span className="bg-sunburst px-2 py-0.5 rounded-md text-[10px] uppercase font-extrabold tracking-wider text-white">
+              ₹ INR
+            </span>
           </Link>
+
           <Link
-            href="/subscriptions/new"
-            className="px-3 py-1.5 text-xs font-medium bg-accent text-white rounded hover:opacity-90 transition-opacity"
+            href="/auth/login"
+            className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-white hover:bg-raised text-text font-bold text-sm border border-border shadow-subtle hover:border-brand/30 transition-all flex items-center justify-center gap-2"
           >
-            + New Subscription
+            <span>Sign in to Workspace</span>
+            <span className="text-muted text-xs">→</span>
           </Link>
         </div>
-      </div>
 
-      {/* KPI Cards Strip */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        <KpiCard
-          label="MRR"
-          value={`$${metrics.mrr.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-          subline="Monthly recurring"
-          highlight={true}
-        />
-        <KpiCard
-          label="ARR"
-          value={`$${metrics.arr.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-          subline="Annual run-rate"
-        />
-        <KpiCard
-          label="Active Subscriptions"
-          value={metrics.activeSubscriptions}
-          subline={`of ${metrics.totalSubscriptions} total`}
-        />
-        <KpiCard
-          label="Total Collected"
-          value={`$${metrics.totalRevenueCollected.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
-          subline="Cash in bank"
-        />
-        <KpiCard
-          label="Outstanding Owed"
-          value={`$${metrics.outstandingRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
-          subline="Unpaid invoices"
-        />
-        <KpiCard
-          label="Overdue Invoices"
-          value={metrics.overdueInvoicesCount}
-          subline={`$${metrics.overdueAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} past due`}
-          isPositiveChange={metrics.overdueInvoicesCount === 0}
-          deltaText={metrics.overdueInvoicesCount > 0 ? 'Requires action' : 'All clear'}
-        />
-      </div>
-
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-surface p-5 rounded-card border border-border">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-sm font-semibold text-text">Recurring Revenue Collection Trend</h2>
-              <p className="text-xs text-muted">Trailing monthly payments collected</p>
-            </div>
-            <span className="text-xs text-muted tabular-nums">Currency: USD</span>
+        {/* Quick Micro-Proof */}
+        <div className="flex flex-wrap items-center justify-center gap-6 text-xs text-muted pt-2">
+          <div className="flex items-center gap-1.5 font-medium">
+            <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+            </svg>
+            <span>Idempotent Billing Runs</span>
           </div>
-          <RevenueTrendChart data={revenueTrend} />
+          <div className="flex items-center gap-1.5 font-medium">
+            <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+            </svg>
+            <span>Sub-20ms Telemetry</span>
+          </div>
+          <div className="flex items-center gap-1.5 font-medium">
+            <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+            </svg>
+            <span>Nodemailer + GST Ready</span>
+          </div>
         </div>
 
-        <div className="bg-surface p-5 rounded-card border border-border">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-sm font-semibold text-text">Subscriptions by Plan</h2>
-              <p className="text-xs text-muted">Distribution of active contracts</p>
+        {/* 2. HERO PRODUCT INTERFACE SHOWCASE (Realistic App Frame) */}
+        <div className="pt-6">
+          <div className="rounded-2xl border border-border bg-white shadow-2xl p-2 sm:p-3 relative overflow-hidden">
+            {/* Window Chrome Header */}
+            <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-raised/50 rounded-t-xl mb-3">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-rose-400 inline-block"></span>
+                <span className="w-3 h-3 rounded-full bg-amber-400 inline-block"></span>
+                <span className="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span>
+                <span className="text-[11px] font-mono text-muted ml-2">brightloop.internal/telemetry</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-brand text-white">
+                  Live Engine
+                </span>
+              </div>
+            </div>
+
+            {/* Mock Telemetry Strip */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-3 text-left">
+              <div className="p-4 rounded-xl bg-gradient-to-br from-brand-light to-white border border-brand/20">
+                <div className="text-[11px] font-bold text-brand uppercase tracking-wider">Monthly Recurring (MRR)</div>
+                <div className="text-2xl font-black text-text mt-1">₹14,50,000</div>
+                <div className="text-[11px] text-emerald-600 font-semibold mt-1">↑ +18.4% this quarter</div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-white border border-border">
+                <div className="text-[11px] font-bold text-muted uppercase tracking-wider">Annual Run Rate (ARR)</div>
+                <div className="text-2xl font-black text-text mt-1">₹1.74 Cr</div>
+                <div className="text-[11px] text-muted mt-1">Normalized contract value</div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-white border border-border">
+                <div className="text-[11px] font-bold text-muted uppercase tracking-wider">Automated Billing</div>
+                <div className="text-2xl font-black text-emerald-600 mt-1">100%</div>
+                <div className="text-[11px] text-muted mt-1">Zero missed renewals</div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-white border border-border">
+                <div className="text-[11px] font-bold text-muted uppercase tracking-wider">Engine Latency</div>
+                <div className="text-2xl font-black text-brand mt-1">12ms</div>
+                <div className="text-[11px] text-muted mt-1">Neon Serverless SQL</div>
+              </div>
+            </div>
+
+            {/* Mock Ledger Preview */}
+            <div className="p-3 text-left overflow-x-auto">
+              <table className="ledger-table text-xs">
+                <thead>
+                  <tr>
+                    <th>Contract / ID</th>
+                    <th>Customer</th>
+                    <th>Plan &amp; Variant</th>
+                    <th className="text-right">Amount (₹)</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="font-mono text-brand font-bold">SUB-2026-0042</td>
+                    <td className="font-semibold text-text">Nordic Retail AB</td>
+                    <td>Business ERP Suite <span className="text-[10px] px-1.5 py-0.5 rounded bg-sunburst-light text-sunburst font-bold">+₹560 Odoo</span></td>
+                    <td className="text-right font-bold text-text">₹25,560.00</td>
+                    <td><span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">ACTIVE</span></td>
+                  </tr>
+                  <tr>
+                    <td className="font-mono text-brand font-bold">SUB-2026-0043</td>
+                    <td className="font-semibold text-text">Apex Logistics Global</td>
+                    <td>Enterprise Cloud HA (Quarterly)</td>
+                    <td className="text-right font-bold text-text">₹1,44,000.00</td>
+                    <td><span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">ACTIVE</span></td>
+                  </tr>
+                  <tr>
+                    <td className="font-mono text-brand font-bold">SUB-2026-0044</td>
+                    <td className="font-semibold text-text">Studio Kraft Design</td>
+                    <td>Analytics Engine + Support Bundle</td>
+                    <td className="text-right font-bold text-text">₹49,990.00</td>
+                    <td><span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">RENEWING</span></td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
-          <PlanDistributionChart data={subscriptionsByPlan} />
         </div>
-      </div>
+      </section>
 
-      {/* Overdue Invoices Alert Section */}
-      <div className="bg-surface rounded-card border border-border overflow-hidden">
-        <div className="p-4 border-b border-border flex items-center justify-between">
-          <div>
-            <h2 className="text-sm font-semibold text-text">Overdue Invoices & Collection Queue</h2>
-            <p className="text-xs text-muted">
-              Invoices with passed due dates requiring follow-up before becoming bad debt.
+      {/* 3. BEFORE VS AFTER COMPARISON */}
+      <section className="max-w-6xl mx-auto px-4">
+        <div className="text-center space-y-3 mb-12">
+          <h2 className="text-xs font-bold text-brand uppercase tracking-widest">The Transformation</h2>
+          <p className="text-3xl sm:text-4xl font-extrabold text-text tracking-tight">
+            How subscription businesses run today vs. with Brightloop
+          </p>
+          <p className="text-sm text-muted max-w-xl mx-auto">
+            Say goodbye to scattered renewal spreadsheets, missed billing cycles, and manual bank scrolling.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Today / Pain */}
+          <div className="p-6 sm:p-8 rounded-2xl bg-white border border-rose-200 shadow-sm space-y-5 relative">
+            <div className="flex items-center gap-2 text-rose-600 font-bold text-sm">
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span>
+              <span>How things run today (Broken)</span>
+            </div>
+
+            <ul className="space-y-4 text-xs text-slate-700">
+              <li className="flex items-start gap-3">
+                <span className="text-rose-500 font-bold">✕</span>
+                <div>
+                  <strong>Customer Subscriptions:</strong> Tracked across disjointed spreadsheets that fall out of sync the moment a seat changes.
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-rose-500 font-bold">✕</span>
+                <div>
+                  <strong>Renewals:</strong> Remembered by whoever notices first. Contract expiries slip through the cracks, leaking recurring cash.
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-rose-500 font-bold">✕</span>
+                <div>
+                  <strong>Invoices &amp; Taxes:</strong> Typed up by hand every month. Taxes and volume discounts calculated manually with frequent errors.
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-rose-500 font-bold">✕</span>
+                <div>
+                  <strong>Payments &amp; Collections:</strong> Matched to invoices by scrolling through PDF bank statements and UPI receipts.
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-rose-500 font-bold">✕</span>
+                <div>
+                  <strong>Revenue Reporting:</strong> Takes days at the end of each quarter to compile MRR, ARR, and churn metrics.
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          {/* With Brightloop */}
+          <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-br from-brand/5 via-white to-sunburst/5 border border-brand/30 shadow-card space-y-5 relative">
+            <div className="flex items-center gap-2 text-brand font-bold text-sm">
+              <span className="w-2.5 h-2.5 rounded-full bg-brand inline-block animate-pulse"></span>
+              <span>With Brightloop Platform (Automated)</span>
+            </div>
+
+            <ul className="space-y-4 text-xs text-text">
+              <li className="flex items-start gap-3">
+                <span className="text-brand font-bold">✓</span>
+                <div>
+                  <strong>Unified Lifecycle Engine:</strong> From draft quotes to confirmed, active, and paused contracts with automated transitions.
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-brand font-bold">✓</span>
+                <div>
+                  <strong>Idempotent Billing Day:</strong> Hundreds of subscriptions billed simultaneously. Guaranteed zero double-billing and zero skips.
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-brand font-bold">✓</span>
+                <div>
+                  <strong>Automated GST &amp; Discounts:</strong> Rules-based engine applies coupon caps, volume tiers, and CGST/SGST/IGST automatically.
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-brand font-bold">✓</span>
+                <div>
+                  <strong>Multi-Method Collections:</strong> Record UPI, IMPS, NEFT, NetBanking, and cards with instant invoice reconciliation.
+                </div>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-brand font-bold">✓</span>
+                <div>
+                  <strong>Sub-2-Second Finance Telemetry:</strong> Instant executive dashboard calculating MRR, ARR, and aging overdue queues in under 20ms.
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. CORE ARCHITECTURE & FEATURES (BENTO GRID) */}
+      <section id="features" className="max-w-6xl mx-auto px-4 space-y-12">
+        <div className="text-center space-y-3">
+          <h2 className="text-xs font-bold text-brand uppercase tracking-widest">Platform Capabilities</h2>
+          <p className="text-3xl sm:text-4xl font-extrabold text-text tracking-tight">
+            Engineered for every day of the billing month
+          </p>
+          <p className="text-sm text-muted max-w-xl mx-auto">
+            Brightloop handles the nuanced edges of real-world subscriptions that basic payment gateways ignore.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Card 1: Billing Day Engine */}
+          <div className="p-6 rounded-2xl bg-white border border-border shadow-card hover:shadow-card-hover transition-all space-y-4">
+            <div className="w-10 h-10 rounded-xl bg-brand-light text-brand flex items-center justify-center font-bold">
+              ⚡
+            </div>
+            <h3 className="text-base font-bold text-text">Idempotent Billing Day</h3>
+            <p className="text-xs text-muted leading-relaxed">
+              When hundreds of subscriptions come due at once, Brightloop validates existing cycles to guarantee nothing is billed twice or skipped, auto-advancing next billing dates.
             </p>
           </div>
-          <Link
-            href="/invoices?overdue=true"
-            className="text-xs text-chartHue hover:underline font-medium"
-          >
-            View all overdue ({metrics.overdueInvoicesCount}) →
-          </Link>
+
+          {/* Card 2: Brand Variants */}
+          <div className="p-6 rounded-2xl bg-white border border-border shadow-card hover:shadow-card-hover transition-all space-y-4">
+            <div className="w-10 h-10 rounded-xl bg-sunburst-light text-sunburst flex items-center justify-center font-bold">
+              🏷️
+            </div>
+            <h3 className="text-base font-bold text-text">Product &amp; Brand Variants</h3>
+            <p className="text-xs text-muted leading-relaxed">
+              Define software products with flexible variants. For example, selecting the <strong>Odoo Brand Edition</strong> automatically adds ₹560 to base contract lines.
+            </p>
+          </div>
+
+          {/* Card 3: Quotation Templates */}
+          <div className="p-6 rounded-2xl bg-white border border-border shadow-card hover:shadow-card-hover transition-all space-y-4">
+            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
+              📋
+            </div>
+            <h3 className="text-base font-bold text-text">Quote to Subscription in 1 Click</h3>
+            <p className="text-xs text-muted leading-relaxed">
+              Sales reps instantiate ready-to-sign offers from pre-configured quotation templates valid for 14 to 30 days, pre-filling lines, taxes, and payment terms.
+            </p>
+          </div>
+
+          {/* Card 4: Automated Discounts */}
+          <div className="p-6 rounded-2xl bg-white border border-border shadow-card hover:shadow-card-hover transition-all space-y-4">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+              🎟️
+            </div>
+            <h3 className="text-base font-bold text-text">Automated Discount Rules</h3>
+            <p className="text-xs text-muted leading-relaxed">
+              Set fixed amount or percentage discounts triggered by minimum seats or purchase values. Automatically applies to eligible invoices and ceases once expired or exhausted.
+            </p>
+          </div>
+
+          {/* Card 5: Customer Portal */}
+          <div className="p-6 rounded-2xl bg-white border border-border shadow-card hover:shadow-card-hover transition-all space-y-4">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+              👤
+            </div>
+            <h3 className="text-base font-bold text-text">Self-Service Customer Portal</h3>
+            <p className="text-xs text-muted leading-relaxed">
+              Clients access their own dedicated portal to inspect contract lines, download itemized GST tax invoices, pause or close contracts early (when enabled by plan), and pay online.
+            </p>
+          </div>
+
+          {/* Card 6: Sub-2s Telemetry */}
+          <div className="p-6 rounded-2xl bg-white border border-border shadow-card hover:shadow-card-hover transition-all space-y-4">
+            <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold">
+              📊
+            </div>
+            <h3 className="text-base font-bold text-text">Sub-2s Query Telemetry</h3>
+            <p className="text-xs text-muted leading-relaxed">
+              With thousands of contracts on the books, every dashboard aggregate executes in under 20 milliseconds, providing real-time MRR, ARR, and overdue receivables.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. PRICING SECTION IN ₹ INR */}
+      <section id="pricing" className="max-w-6xl mx-auto px-4 space-y-12">
+        <div className="text-center space-y-3">
+          <h2 className="text-xs font-bold text-brand uppercase tracking-widest">Transparent Pricing</h2>
+          <p className="text-3xl sm:text-4xl font-extrabold text-text tracking-tight">
+            Simple plans tailored in Indian Rupees (₹)
+          </p>
+          <p className="text-sm text-muted max-w-xl mx-auto">
+            Choose the tier that matches your monthly recurring volume. All plans include automated GST invoicing.
+          </p>
+
+          {/* Billing Frequency Toggle */}
+          <div className="flex items-center justify-center gap-3 pt-4">
+            <span className={`text-xs font-bold ${billingCycle === 'MONTHLY' ? 'text-text' : 'text-muted'}`}>Monthly</span>
+            <button
+              onClick={() => setBillingCycle(billingCycle === 'MONTHLY' ? 'ANNUAL' : 'MONTHLY')}
+              className="w-12 h-6 rounded-full bg-brand p-0.5 transition-colors relative"
+            >
+              <span
+                className={`block w-5 h-5 rounded-full bg-white transition-transform ${
+                  billingCycle === 'ANNUAL' ? 'translate-x-6' : 'translate-x-0'
+                }`}
+              />
+            </button>
+            <div className="flex items-center gap-1.5">
+              <span className={`text-xs font-bold ${billingCycle === 'ANNUAL' ? 'text-text' : 'text-muted'}`}>Annual</span>
+              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-sunburst text-white">
+                Save 20%
+              </span>
+            </div>
+          </div>
         </div>
 
-        {overdueInvoices.length === 0 ? (
-          <div className="p-8 text-center text-xs text-muted">
-            No overdue invoices at this time. All receivables are in good standing.
+        {/* Pricing Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+          {/* Tier 1: Starter */}
+          <div className="p-8 rounded-2xl bg-white border border-border shadow-card flex flex-col justify-between space-y-6">
+            <div className="space-y-4">
+              <div className="font-bold text-sm text-text">Starter Business</div>
+              <div className="text-xs text-muted">For boutique firms and early-stage software companies.</div>
+              <div className="pt-2">
+                <span className="text-4xl font-black text-text">
+                  {formatINR(Math.round(2499 * discountMultiplier), { showDecimals: false })}
+                </span>
+                <span className="text-xs text-muted ml-1.5">/ month</span>
+              </div>
+              <ul className="space-y-2.5 text-xs text-slate-700 pt-4 border-t border-rule">
+                <li className="flex items-center gap-2"><span>✓</span> Up to 150 Active Subscriptions</li>
+                <li className="flex items-center gap-2"><span>✓</span> Daily, Weekly &amp; Monthly Plans</li>
+                <li className="flex items-center gap-2"><span>✓</span> GST Tax Rules &amp; PDF Invoices</li>
+                <li className="flex items-center gap-2"><span>✓</span> Self-Service Customer Portal</li>
+                <li className="flex items-center gap-2"><span>✓</span> Nodemailer Email Notifications</li>
+              </ul>
+            </div>
+            <Link
+              href="/auth/register"
+              className="w-full py-2.5 text-center text-xs font-bold bg-raised hover:bg-brand-light text-text hover:text-brand rounded-xl border border-border transition-all"
+            >
+              Start Free Trial
+            </Link>
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="ledger-table">
-              <thead>
-                <tr>
-                  <th>Invoice</th>
-                  <th>Customer</th>
-                  <th>Due Date</th>
-                  <th className="text-right">Total</th>
-                  <th className="text-right">Balance Due</th>
-                  <th>Status</th>
-                  <th className="text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {overdueInvoices.map((inv) => {
-                  const balance = Math.max(0, inv.grandTotal - inv.amountPaid);
-                  return (
-                    <tr key={inv.id}>
-                      <td className="font-mono text-xs font-medium">
-                        <Link href={`/invoices/${inv.id}`} className="hover:underline text-chartHue">
-                          {inv.invoiceNumber}
-                        </Link>
-                      </td>
-                      <td>
-                        <div className="font-medium text-text">{inv.customer.name}</div>
-                        <div className="text-[11px] text-muted">{inv.customer.companyName || inv.customer.email}</div>
-                      </td>
-                      <td className="text-xs text-negative font-medium tabular-nums">
-                        {new Date(inv.dueDate).toLocaleDateString()}
-                      </td>
-                      <td className="text-right font-medium tabular-nums">
-                        ${inv.grandTotal.toFixed(2)}
-                      </td>
-                      <td className="text-right font-semibold text-negative tabular-nums">
-                        ${balance.toFixed(2)}
-                      </td>
-                      <td>
-                        <StatusBadge status="OVERDUE" />
-                      </td>
-                      <td className="text-right">
-                        <button
-                          onClick={() => handleOpenPayment(inv)}
-                          className="px-2.5 py-1 text-xs bg-accent text-white rounded hover:opacity-90 font-medium"
-                        >
-                          Record Payment
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+
+          {/* Tier 2: Pro Growth (Featured) */}
+          <div className="p-8 rounded-2xl bg-gradient-to-b from-brand/5 via-white to-white border-2 border-brand shadow-xl relative flex flex-col justify-between space-y-6">
+            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-brand text-white text-[10px] font-black uppercase tracking-wider shadow-sm">
+              Most Popular
+            </div>
+            <div className="space-y-4">
+              <div className="font-bold text-sm text-brand">Growth Operating System</div>
+              <div className="text-xs text-muted">Full automation for scaleups running recurring volume.</div>
+              <div className="pt-2">
+                <span className="text-4xl font-black text-text">
+                  {formatINR(Math.round(7999 * discountMultiplier), { showDecimals: false })}
+                </span>
+                <span className="text-xs text-muted ml-1.5">/ month</span>
+              </div>
+              <ul className="space-y-2.5 text-xs text-slate-800 pt-4 border-t border-brand/10 font-medium">
+                <li className="flex items-center gap-2 text-brand"><span>✓</span> <strong>Automated Idempotent Billing Day</strong></li>
+                <li className="flex items-center gap-2"><span>✓</span> Up to 1,500 Active Subscriptions</li>
+                <li className="flex items-center gap-2"><span>✓</span> Product &amp; Brand Variants (Odoo +₹560)</li>
+                <li className="flex items-center gap-2"><span>✓</span> Quotation Templates Engine</li>
+                <li className="flex items-center gap-2"><span>✓</span> Automated Discount Rules &amp; Limits</li>
+                <li className="flex items-center gap-2"><span>✓</span> Sub-20ms Finance Telemetry</li>
+              </ul>
+            </div>
+            <Link
+              href="/dashboard"
+              className="w-full py-3 text-center text-xs font-extrabold bg-brand hover:bg-brand-hover text-white rounded-xl shadow-brand hover:scale-[1.02] transition-all"
+            >
+              Launch Live Platform
+            </Link>
           </div>
-        )}
-      </div>
 
-      {/* Record Payment Modal */}
-      {selectedInvoice && (
-        <Modal
-          isOpen={!!selectedInvoice}
-          onClose={() => setSelectedInvoice(null)}
-          title={`Record Payment for ${selectedInvoice.invoiceNumber}`}
-        >
-          <form onSubmit={handleRecordPayment} className="space-y-4 text-xs">
-            <div>
-              <label className="block text-muted mb-1 font-medium">Customer</label>
-              <div className="p-2 bg-raised rounded font-medium text-text">
-                {selectedInvoice.customer.name} ({selectedInvoice.customer.companyName || selectedInvoice.customer.email})
+          {/* Tier 3: Enterprise */}
+          <div className="p-8 rounded-2xl bg-white border border-border shadow-card flex flex-col justify-between space-y-6">
+            <div className="space-y-4">
+              <div className="font-bold text-sm text-text">Enterprise Scale</div>
+              <div className="text-xs text-muted">Dedicated infrastructure for high-throughput enterprises.</div>
+              <div className="pt-2">
+                <span className="text-4xl font-black text-text">
+                  {formatINR(Math.round(24999 * discountMultiplier), { showDecimals: false })}
+                </span>
+                <span className="text-xs text-muted ml-1.5">/ month</span>
               </div>
+              <ul className="space-y-2.5 text-xs text-slate-700 pt-4 border-t border-rule">
+                <li className="flex items-center gap-2"><span>✓</span> Unlimited Active Subscriptions</li>
+                <li className="flex items-center gap-2"><span>✓</span> Multi-Staff Role-Based Governance</li>
+                <li className="flex items-center gap-2"><span>✓</span> Dedicated Neon PostgreSQL Connection</li>
+                <li className="flex items-center gap-2"><span>✓</span> Custom Brand Variant Architectures</li>
+                <li className="flex items-center gap-2"><span>✓</span> 99.99% Execution SLA &amp; Support</li>
+              </ul>
             </div>
+            <Link
+              href="/auth/register"
+              className="w-full py-2.5 text-center text-xs font-bold bg-raised hover:bg-brand-light text-text hover:text-brand rounded-xl border border-border transition-all"
+            >
+              Contact Sales
+            </Link>
+          </div>
+        </div>
+      </section>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-muted mb-1 font-medium">Payment Amount ($)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  required
-                  value={payAmount}
-                  onChange={(e) => setPayAmount(parseFloat(e.target.value) || 0)}
-                  className="w-full p-2 border border-border rounded bg-surface text-text tabular-nums text-sm font-semibold"
-                />
+      {/* 6. ONE-CLICK DEMO PERSONA SHOWCASE */}
+      <section className="max-w-5xl mx-auto px-4">
+        <div className="p-8 sm:p-12 rounded-3xl bg-dark-mesh text-white shadow-2xl relative overflow-hidden space-y-8">
+          <div className="max-w-2xl space-y-3">
+            <div className="text-xs font-bold uppercase tracking-widest text-sunburst">Try It Right Now</div>
+            <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
+              Experience the exact workflow with 3 pre-loaded personas
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300">
+              No registration or setup needed. Switch roles with 1 click to test full Admin oversight, Sales Staff operations, and Customer self-service.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <Link
+              href="/auth/login"
+              className="p-5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 transition-all text-left group"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-white">Elena Rostova</span>
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-brand text-white">ADMIN</span>
               </div>
+              <div className="text-xs text-slate-300">Runs billing day, sets tax &amp; discount rules, monitors ₹ MRR telemetry.</div>
+              <div className="text-[11px] text-brand-light group-hover:text-sunburst font-semibold mt-3">Sign in as Elena →</div>
+            </Link>
 
-              <div>
-                <label className="block text-muted mb-1 font-medium">Payment Method</label>
-                <select
-                  value={payMethod}
-                  onChange={(e) => setPayMethod(e.target.value)}
-                  className="w-full p-2 border border-border rounded bg-surface text-text"
-                >
-                  <option value="BANK_TRANSFER">Bank Wire / Transfer</option>
-                  <option value="CREDIT_CARD">Credit Card / Stripe</option>
-                  <option value="DIRECT_DEBIT">Direct Debit (ACH/SEPA)</option>
-                  <option value="CHECK">Company Check</option>
-                  <option value="CASH">Cash</option>
-                </select>
+            <Link
+              href="/auth/login"
+              className="p-5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 transition-all text-left group"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-white">Sarah Jenkins</span>
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-purple-500 text-white">STAFF</span>
               </div>
-            </div>
+              <div className="text-xs text-slate-300">Builds quotes from templates, activates contracts, and records UPI payments.</div>
+              <div className="text-[11px] text-brand-light group-hover:text-sunburst font-semibold mt-3">Sign in as Sarah →</div>
+            </Link>
 
-            <div>
-              <label className="block text-muted mb-1 font-medium">Transaction Reference / Note</label>
-              <input
-                type="text"
-                required
-                value={payRef}
-                onChange={(e) => setPayRef(e.target.value)}
-                placeholder="e.g. WIRE-89412 or STRIPE-TX"
-                className="w-full p-2 border border-border rounded bg-surface text-text"
-              />
-            </div>
+            <Link
+              href="/auth/login"
+              className="p-5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 transition-all text-left group"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-white">Alex Lindqvist</span>
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-emerald-500 text-white">CLIENT</span>
+              </div>
+              <div className="text-xs text-slate-300">Self-service portal: downloads GST invoices, reviews seats, settles online.</div>
+              <div className="text-[11px] text-brand-light group-hover:text-sunburst font-semibold mt-3">Sign in as Alex →</div>
+            </Link>
+          </div>
+        </div>
+      </section>
 
-            <div className="pt-2 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setSelectedInvoice(null)}
-                className="px-3 py-1.5 border border-border rounded text-text hover:bg-raised"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={payLoading}
-                className="px-3 py-1.5 bg-accent text-white rounded font-medium hover:opacity-90 disabled:opacity-50"
-              >
-                {payLoading ? 'Recording...' : 'Confirm Payment'}
-              </button>
-            </div>
-          </form>
-        </Modal>
-      )}
+      {/* 7. CALL TO ACTION FOOTER BANNER */}
+      <section className="text-center max-w-4xl mx-auto px-4 space-y-6 pt-6">
+        <BrightloopLogo size="lg" showText={true} className="justify-center" />
+        <h2 className="text-3xl sm:text-5xl font-black text-text tracking-tight">
+          Ready to automate your recurring revenue in ₹ INR?
+        </h2>
+        <p className="text-sm text-muted max-w-xl mx-auto">
+          Start in 2 minutes. Pre-configured with Neon PostgreSQL, Nodemailer transactional templates, and idempotent billing runs.
+        </p>
+        <div className="flex items-center justify-center gap-4 pt-2">
+          <Link
+            href="/dashboard"
+            className="px-8 py-3.5 rounded-xl bg-brand hover:bg-brand-hover text-white font-bold text-sm shadow-brand hover:scale-[1.02] transition-all"
+          >
+            Launch Console Now
+          </Link>
+          <Link
+            href="/auth/login"
+            className="px-6 py-3.5 rounded-xl bg-white text-text font-bold text-sm border border-border hover:bg-raised transition-all"
+          >
+            Sign in
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

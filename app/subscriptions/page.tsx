@@ -165,7 +165,7 @@ export default function SubscriptionsPage() {
                       <td>
                         <div className="font-medium text-text">{sub.plan.name}</div>
                         <div className="text-[11px] text-muted tracking-tight">
-                          Every {sub.plan.billingInterval.toLowerCase()} · ${sub.plan.cost}
+                          Every {sub.plan.billingInterval.toLowerCase()} · ₹{sub.plan.cost}
                         </div>
                       </td>
                       <td className="text-xs">

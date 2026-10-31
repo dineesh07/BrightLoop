@@ -134,7 +134,7 @@ export default function CustomerPortalPage() {
         <div className="p-4 bg-ground border border-border rounded-card text-right">
           <div className="text-xs text-muted">Current Amount Due</div>
           <div className="text-xl font-bold tabular-nums text-text">
-            ${totalDue.toFixed(2)}
+            ₹{totalDue.toFixed(2)}
           </div>
           {unpaidInvoices.length > 0 && (
             <div className="text-[11px] text-negative font-medium">
@@ -188,7 +188,7 @@ export default function CustomerPortalPage() {
                     <td>
                       <div className="font-semibold text-text">{sub.plan.name}</div>
                       <div className="text-xs text-muted">
-                        ${sub.plan.cost} / {sub.plan.billingInterval.toLowerCase()}
+                        ₹{sub.plan.cost} / {sub.plan.billingInterval.toLowerCase()}
                       </div>
                     </td>
                     <td className="text-xs text-muted">
@@ -283,14 +283,14 @@ export default function CustomerPortalPage() {
                         {new Date(inv.dueDate).toLocaleDateString()}
                       </td>
                       <td className="text-right text-xs font-semibold tabular-nums text-text">
-                        ${inv.grandTotal.toFixed(2)}
+                        ₹{inv.grandTotal.toFixed(2)}
                       </td>
                       <td className="text-right text-xs tabular-nums text-positive">
-                        ${inv.amountPaid.toFixed(2)}
+                        ₹{inv.amountPaid.toFixed(2)}
                       </td>
                       <td className="text-right text-xs tabular-nums font-bold">
                         <span className={balance > 0 ? 'text-negative' : 'text-positive'}>
-                          ${balance.toFixed(2)}
+                          ₹{balance.toFixed(2)}
                         </span>
                       </td>
                       <td>
@@ -303,7 +303,7 @@ export default function CustomerPortalPage() {
                               onClick={() => openPayModal(inv)}
                               className="px-2.5 py-1 text-xs bg-accent text-white rounded font-medium hover:opacity-90"
                             >
-                              Pay Now (${balance.toFixed(2)})
+                              Pay Now (₹{balance.toFixed(2)})
                             </button>
                           ) : (
                             <span className="text-xs text-positive font-medium">Settled</span>
@@ -336,18 +336,18 @@ export default function CustomerPortalPage() {
             <div className="p-3 bg-ground rounded border border-border flex justify-between items-center">
               <div>
                 <div className="font-semibold text-text">Invoice {payInvoice.invoiceNumber}</div>
-                <div className="text-muted">Total: ${payInvoice.grandTotal.toFixed(2)}</div>
+                <div className="text-muted">Total: ₹{payInvoice.grandTotal.toFixed(2)}</div>
               </div>
               <div className="text-right">
                 <div className="text-[11px] text-muted">Balance Due</div>
                 <div className="text-base font-bold text-negative tabular-nums">
-                  ${Math.max(0, payInvoice.grandTotal - payInvoice.amountPaid).toFixed(2)}
+                  ₹{Math.max(0, payInvoice.grandTotal - payInvoice.amountPaid).toFixed(2)}
                 </div>
               </div>
             </div>
 
             <div>
-              <label className="block text-muted font-medium mb-1">Amount to Pay ($) *</label>
+              <label className="block text-muted font-medium mb-1">Amount to Pay (₹ INR) *</label>
               <input
                 type="number"
                 step="0.01"
@@ -395,7 +395,7 @@ export default function CustomerPortalPage() {
                 disabled={paying}
                 className="px-4 py-1.5 bg-accent text-white rounded font-medium hover:opacity-90 disabled:opacity-50"
               >
-                {paying ? 'Authorizing...' : `Pay $${payAmount.toFixed(2)} Now`}
+                {paying ? 'Authorizing...' : `Pay ₹${payAmount.toFixed(2)} Now`}
               </button>
             </div>
           </form>

@@ -167,7 +167,7 @@ export default function QuotationTemplatesPage() {
                     <div>
                       <h2 className="text-sm font-bold text-text">{tmpl.name}</h2>
                       <div className="text-xs text-muted mt-0.5">
-                        Plan: <strong>{tmpl.plan.name}</strong> (${tmpl.plan.cost}/{tmpl.plan.billingInterval.toLowerCase()})
+                        Plan: <strong>{tmpl.plan.name}</strong> (₹{tmpl.plan.cost}/{tmpl.plan.billingInterval.toLowerCase()})
                       </div>
                     </div>
                     <span className="text-xs bg-raised border border-border px-2 py-0.5 rounded text-muted">
@@ -193,7 +193,7 @@ export default function QuotationTemplatesPage() {
                           {line.variant && <span className="text-chartHue ml-1">({line.variant.name})</span>}
                         </span>
                         <span className="tabular-nums font-medium text-text">
-                          ${(line.quantity * line.unitPrice).toFixed(2)}
+                          ₹{(line.quantity * line.unitPrice).toFixed(2)}
                         </span>
                       </div>
                     ))}
@@ -204,7 +204,7 @@ export default function QuotationTemplatesPage() {
                   <div>
                     <span className="text-xs text-muted">Bundle Total: </span>
                     <span className="text-sm font-bold text-text tabular-nums">
-                      ${templateSubtotal.toFixed(2)}
+                      ₹{templateSubtotal.toFixed(2)}
                     </span>
                   </div>
 
@@ -246,7 +246,7 @@ export default function QuotationTemplatesPage() {
               >
                 {plans.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.name} (${p.cost})
+                    {p.name} (₹{p.cost})
                   </option>
                 ))}
               </select>
@@ -317,7 +317,7 @@ export default function QuotationTemplatesPage() {
                     <option value="">Base Edition</option>
                     {product?.variants?.map((v: any) => (
                       <option key={v.id} value={v.id}>
-                        {v.name} (+${v.priceExtra})
+                        {v.name} (+₹{v.priceExtra})
                       </option>
                     ))}
                   </select>

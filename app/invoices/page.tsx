@@ -209,14 +209,14 @@ function InvoicesContent() {
                         {isPastDue && <span className="ml-1 text-[10px] text-negative font-bold">OVERDUE</span>}
                       </td>
                       <td className="text-right text-xs font-semibold tabular-nums text-text">
-                        ${inv.grandTotal.toFixed(2)}
+                        ₹{inv.grandTotal.toFixed(2)}
                       </td>
                       <td className="text-right text-xs tabular-nums text-positive">
-                        ${inv.amountPaid.toFixed(2)}
+                        ₹{inv.amountPaid.toFixed(2)}
                       </td>
                       <td className="text-right text-xs tabular-nums font-semibold">
                         <span className={balance > 0 ? 'text-negative' : 'text-positive'}>
-                          ${balance.toFixed(2)}
+                          ₹{balance.toFixed(2)}
                         </span>
                       </td>
                       <td>
@@ -293,7 +293,7 @@ function InvoicesContent() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-muted mb-1 font-medium">Payment Amount ($)</label>
+                <label className="block text-muted mb-1 font-medium">Payment Amount (₹ INR)</label>
                 <input
                   type="number"
                   step="0.01"
