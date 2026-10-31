@@ -1,5 +1,4 @@
 import { jsPDF } from 'jspdf';
-import { formatINR } from './currency';
 
 export interface ReceiptData {
   invoiceNumber: string;
@@ -44,6 +43,19 @@ export interface ReceiptData {
 }
 
 /**
+ * Standard PDF-safe Indian Rupee formatting.
+ * Using ISO 'INR ' prevents standard font glyph corruption (which converts unicode ₹ to superscript ¹).
+ */
+function formatPDFINR(amount: number | null | undefined): string {
+  if (amount === null || amount === undefined || isNaN(amount)) return 'INR 0.00';
+  const formatted = new Intl.NumberFormat('en-IN', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+  return `INR ${formatted}`;
+}
+
+/**
  * Generates and downloads an authentic, professional PDF document directly.
  */
 export function downloadReceiptPDF(data: ReceiptData) {
@@ -63,34 +75,27 @@ export function downloadReceiptPDF(data: ReceiptData) {
 
   let y = margin;
 
-  // 1. HEADER: Draw Brand Logo (Sunburst Rays + Infinity Loop)
-  // Orange Sunburst Rays
-  doc.setDrawColor(245, 158, 11); // Amber #F59E0B
-  doc.setLineWidth(0.8);
-  // Center ray
-  doc.line(margin + 6, y + 2, margin + 6, y + 5);
-  // Left ray
-  doc.line(margin + 3.5, y + 3, margin + 4.5, y + 5.5);
-  // Right ray
-  doc.line(margin + 8.5, y + 3, margin + 7.5, y + 5.5);
+  // 1. HEADER: Draw Official Brand Logo (Exact icon.svg: Purple Squircle + White Infinity)
+  // Purple Squircle (#4F46E5)
+  doc.setFillColor(79, 70, 229);
+  doc.roundedRect(margin, y + 1, 10, 10, 2.5, 2.5, 'F');
 
-  // Indigo Infinity Loop
-  doc.setDrawColor(79, 70, 229); // Indigo #4F46E5
-  doc.setLineWidth(1.2);
-  // Draw left loop and right loop
-  doc.ellipse(margin + 3.5, y + 9, 3.2, 2.4);
-  doc.ellipse(margin + 8.5, y + 9, 3.2, 2.4);
+  // White Infinity Loop
+  doc.setDrawColor(255, 255, 255);
+  doc.setLineWidth(0.85);
+  doc.ellipse(margin + 3.2, y + 6, 1.8, 1.3);
+  doc.ellipse(margin + 6.8, y + 6, 1.8, 1.3);
 
-  // Brand Name
+  // Brand Name & Subtitle
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(18);
-  doc.setTextColor(49, 46, 129); // Deep Indigo
-  doc.text('Brightloop', margin + 14, y + 10);
+  doc.setFontSize(16);
+  doc.setTextColor(30, 27, 75); // Deep Indigo
+  doc.text('Brightloop', margin + 13, y + 7.5);
 
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8.5);
+  doc.setFontSize(8);
   doc.setTextColor(100, 116, 139); // Slate 500
-  doc.text('Subscription Billing & Revenue Platform', margin + 14, y + 14);
+  doc.text('Subscription Billing & Revenue Platform', margin + 13, y + 11);
 
   // Right Header: Receipt Status & Details
   if (isPaid) {
@@ -98,7 +103,7 @@ export function downloadReceiptPDF(data: ReceiptData) {
     doc.setDrawColor(167, 243, 208); // Emerald 200
     doc.roundedRect(pageWidth - margin - 38, y + 2, 38, 7.5, 3, 3, 'FD');
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8.5);
+    doc.setFontSize(8);
     doc.setTextColor(4, 120, 87); // Emerald 700
     doc.text('PAID · OFFICIAL RECEIPT', pageWidth - margin - 35, y + 7);
   } else {
@@ -106,7 +111,7 @@ export function downloadReceiptPDF(data: ReceiptData) {
     doc.setDrawColor(254, 205, 211); // Rose 200
     doc.roundedRect(pageWidth - margin - 36, y + 2, 36, 7.5, 3, 3, 'FD');
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8.5);
+    doc.setFontSize(8);
     doc.setTextColor(190, 18, 60); // Rose 700
     doc.text(`DUE · ${data.status}`, pageWidth - margin - 33, y + 7);
   }
@@ -222,10 +227,10 @@ export function downloadReceiptPDF(data: ReceiptData) {
     doc.text(line.description, margin + 3, y);
     doc.setFont('helvetica', 'normal');
     doc.text(String(line.quantity), margin + 92, y, { align: 'center' });
-    doc.text(formatINR(line.unitPrice), margin + 118, y, { align: 'right' });
+    doc.text(formatPDFINR(line.unitPrice), margin + 118, y, { align: 'right' });
     doc.text(`${line.taxRate}%`, margin + 142, y, { align: 'right' });
     doc.setFont('helvetica', 'bold');
-    doc.text(formatINR(line.lineTotal), pageWidth - margin - 3, y, { align: 'right' });
+    doc.text(formatPDFINR(line.lineTotal), pageWidth - margin - 3, y, { align: 'right' });
     doc.setFont('helvetica', 'normal');
 
     y += 2.5;
@@ -244,20 +249,20 @@ export function downloadReceiptPDF(data: ReceiptData) {
   doc.setTextColor(100, 116, 139);
   doc.text('Subtotal:', summaryX, y);
   doc.setTextColor(15, 23, 42);
-  doc.text(formatINR(data.subtotal), summaryValX, y, { align: 'right' });
+  doc.text(formatPDFINR(data.subtotal), summaryValX, y, { align: 'right' });
 
   if (data.discountTotal && data.discountTotal > 0) {
     y += 4.5;
     doc.setTextColor(79, 70, 229);
     doc.text('Discount Applied:', summaryX, y);
-    doc.text(`-${formatINR(data.discountTotal)}`, summaryValX, y, { align: 'right' });
+    doc.text(`-${formatPDFINR(data.discountTotal)}`, summaryValX, y, { align: 'right' });
   }
 
   y += 4.5;
   doc.setTextColor(100, 116, 139);
   doc.text('GST Total (18%):', summaryX, y);
   doc.setTextColor(15, 23, 42);
-  doc.text(formatINR(data.taxTotal), summaryValX, y, { align: 'right' });
+  doc.text(formatPDFINR(data.taxTotal), summaryValX, y, { align: 'right' });
 
   y += 5.5;
   doc.setDrawColor(203, 213, 225);
@@ -268,14 +273,14 @@ export function downloadReceiptPDF(data: ReceiptData) {
   doc.setFontSize(10);
   doc.setTextColor(15, 23, 42);
   doc.text('Grand Total:', summaryX, y + 3);
-  doc.text(formatINR(data.grandTotal), summaryValX, y + 3, { align: 'right' });
+  doc.text(formatPDFINR(data.grandTotal), summaryValX, y + 3, { align: 'right' });
 
   y += 7.5;
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8.5);
   doc.setTextColor(5, 150, 105); // Emerald
   doc.text('Amount Paid:', summaryX, y);
-  doc.text(`-${formatINR(data.amountPaid)}`, summaryValX, y, { align: 'right' });
+  doc.text(`-${formatPDFINR(data.amountPaid)}`, summaryValX, y, { align: 'right' });
 
   y += 5;
   doc.setDrawColor(226, 232, 240);
@@ -286,11 +291,11 @@ export function downloadReceiptPDF(data: ReceiptData) {
   if (balanceDue > 0) {
     doc.setTextColor(225, 29, 72);
     doc.text('Balance Due:', summaryX, y + 3);
-    doc.text(formatINR(balanceDue), summaryValX, y + 3, { align: 'right' });
+    doc.text(formatPDFINR(balanceDue), summaryValX, y + 3, { align: 'right' });
   } else {
     doc.setTextColor(5, 150, 105);
     doc.text('Balance Due:', summaryX, y + 3);
-    doc.text('₹0.00 (Fully Settled)', summaryValX, y + 3, { align: 'right' });
+    doc.text('INR 0.00 (Fully Settled)', summaryValX, y + 3, { align: 'right' });
   }
 
   // 5. PAYMENT SETTLEMENT DETAILS BOX
