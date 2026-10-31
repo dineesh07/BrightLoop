@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Modal } from '@/components/Modal';
+import { formatINR } from '@/lib/currency';
+import { downloadReceiptFile } from '@/lib/receiptGenerator';
+import { Download } from 'lucide-react';
 
 function InvoicesContent() {
   const searchParams = useSearchParams();
@@ -159,112 +162,129 @@ function InvoicesContent() {
       </div>
 
       {/* Invoices Ledger Table */}
-      <div className="bg-surface rounded-card border border-border overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-subtle overflow-hidden">
         {loading ? (
           <div className="p-12 text-center text-xs text-muted">Loading invoices ledger...</div>
         ) : invoices.length === 0 ? (
           <div className="p-12 text-center text-xs text-muted">No invoices found.</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="ledger-table">
+            <table className="w-full text-left border-collapse">
               <thead>
-                <tr>
-                  <th>Number</th>
-                  <th>Customer</th>
-                  <th>Subscription</th>
-                  <th>Issue Date</th>
-                  <th>Due Date</th>
-                  <th className="text-right">Total</th>
-                  <th className="text-right">Paid</th>
-                  <th className="text-right">Balance Due</th>
-                  <th>Status</th>
-                  <th className="text-right">Actions</th>
+                <tr className="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                  <th className="py-3.5 px-4 whitespace-nowrap">Number</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Customer</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Subscription</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Issue Date</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Due Date</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap text-right">Total</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap text-right">Paid</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap text-right">Balance Due</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Status</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap text-right min-w-[220px]">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-100">
                 {invoices.map((inv) => {
                   const balance = Math.max(0, inv.grandTotal - inv.amountPaid);
                   const isPastDue = new Date(inv.dueDate) < new Date() && inv.status !== 'PAID' && inv.status !== 'CANCELLED';
 
                   return (
-                    <tr key={inv.id}>
-                      <td className="font-mono text-xs font-semibold">
-                        <Link href={`/invoices/${inv.id}`} className="hover:underline text-chartHue">
+                    <tr key={inv.id} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="py-3.5 px-4 font-mono text-xs font-semibold whitespace-nowrap">
+                        <Link href={`/invoices/${inv.id}`} className="text-indigo-600 hover:text-indigo-800 hover:underline">
                           {inv.invoiceNumber}
                         </Link>
                       </td>
-                      <td>
-                        <div className="font-medium text-text">{inv.customer.name}</div>
-                        <div className="text-[11px] text-muted">{inv.customer.companyName || inv.customer.email}</div>
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <div className="font-semibold text-slate-900 text-xs">{inv.customer.name}</div>
+                        <div className="text-[11px] text-slate-500">{inv.customer.companyName || inv.customer.email}</div>
                       </td>
-                      <td className="text-xs font-mono text-muted">
+                      <td className="py-3.5 px-4 text-xs font-mono text-slate-500 whitespace-nowrap">
                         {inv.subscription ? inv.subscription.subscriptionNumber : 'Direct'}
                       </td>
-                      <td className="text-xs tabular-nums text-muted">
-                        {new Date(inv.issueDate).toLocaleDateString()}
+                      <td className="py-3.5 px-4 text-xs tabular-nums text-slate-500 whitespace-nowrap">
+                        {new Date(inv.issueDate).toLocaleDateString('en-IN')}
                       </td>
-                      <td className="text-xs tabular-nums">
-                        <span className={isPastDue ? 'text-negative font-semibold' : 'text-muted'}>
-                          {new Date(inv.dueDate).toLocaleDateString()}
+                      <td className="py-3.5 px-4 text-xs tabular-nums whitespace-nowrap">
+                        <span className={isPastDue ? 'text-rose-600 font-semibold' : 'text-slate-600'}>
+                          {new Date(inv.dueDate).toLocaleDateString('en-IN')}
                         </span>
-                        {isPastDue && <span className="ml-1 text-[10px] text-negative font-bold">OVERDUE</span>}
+                        {isPastDue && (
+                          <span className="ml-1.5 px-1.5 py-0.5 text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 rounded">
+                            OVERDUE
+                          </span>
+                        )}
                       </td>
-                      <td className="text-right text-xs font-semibold tabular-nums text-text">
-                        ₹{inv.grandTotal.toFixed(2)}
+                      <td className="py-3.5 px-4 text-right text-xs font-semibold tabular-nums text-slate-900 whitespace-nowrap">
+                        {formatINR(inv.grandTotal)}
                       </td>
-                      <td className="text-right text-xs tabular-nums text-positive">
-                        ₹{inv.amountPaid.toFixed(2)}
+                      <td className="py-3.5 px-4 text-right text-xs tabular-nums text-emerald-600 font-medium whitespace-nowrap">
+                        {formatINR(inv.amountPaid)}
                       </td>
-                      <td className="text-right text-xs tabular-nums font-semibold">
-                        <span className={balance > 0 ? 'text-negative' : 'text-positive'}>
-                          ₹{balance.toFixed(2)}
+                      <td className="py-3.5 px-4 text-right text-xs tabular-nums font-semibold whitespace-nowrap">
+                        <span className={balance > 0 ? 'text-rose-600' : 'text-emerald-600'}>
+                          {formatINR(balance)}
                         </span>
                       </td>
-                      <td>
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         <StatusBadge status={isPastDue && inv.status === 'CONFIRMED' ? 'OVERDUE' : inv.status} />
                       </td>
-                      <td className="text-right">
-                        <div className="flex items-center justify-end gap-1.5">
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-1.5 flex-nowrap">
                           {inv.status === 'DRAFT' && (
                             <>
                               <button
                                 onClick={() => handleAction(inv.id, 'confirm')}
-                                className="px-3 py-1 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-subtle font-medium transition-all press-feedback"
+                                className="px-3 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-subtle font-medium transition-all press-feedback whitespace-nowrap inline-flex items-center"
                               >
                                 Confirm
                               </button>
                               <button
                                 onClick={() => handleAction(inv.id, 'cancel')}
-                                className="px-2.5 py-1 text-xs bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 rounded-lg font-medium transition-colors press-feedback"
+                                className="px-2.5 py-1.5 text-xs bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 rounded-lg font-medium transition-colors press-feedback whitespace-nowrap inline-flex items-center"
                               >
                                 Cancel
                               </button>
                             </>
                           )}
 
+                          {inv.status === 'CONFIRMED' && balance > 0 && (
+                            <button
+                              onClick={() => openPaymentModal(inv)}
+                              className="px-3 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-subtle font-semibold transition-all press-feedback whitespace-nowrap inline-flex items-center"
+                            >
+                              Record Payment
+                            </button>
+                          )}
+
+                          {(inv.status === 'PAID' || inv.amountPaid > 0) && (
+                            <button
+                              type="button"
+                              onClick={() => downloadReceiptFile(inv)}
+                              className="px-2.5 py-1.5 text-xs bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 rounded-lg font-medium transition-colors press-feedback whitespace-nowrap inline-flex items-center gap-1"
+                              title="Download official receipt"
+                            >
+                              <Download className="w-3.5 h-3.5 text-indigo-600" />
+                              Receipt
+                            </button>
+                          )}
+
                           {inv.status === 'CONFIRMED' && (
-                            <>
-                              <button
-                                onClick={() => openPaymentModal(inv)}
-                                className="px-3 py-1 text-xs bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-subtle font-medium transition-all press-feedback"
-                              >
-                                Record Pay
-                              </button>
-                              <button
-                                onClick={() => handleAction(inv.id, 'send')}
-                                className="px-2.5 py-1 text-xs bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-lg font-medium transition-colors press-feedback"
-                                title="Send email notification"
-                              >
-                                {inv.sentAt ? 'Resend' : 'Send'}
-                              </button>
-                            </>
+                            <button
+                              onClick={() => handleAction(inv.id, 'send')}
+                              className="px-2.5 py-1.5 text-xs bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-lg font-medium transition-colors press-feedback whitespace-nowrap inline-flex items-center"
+                              title="Send email notification"
+                            >
+                              {inv.sentAt ? 'Resend' : 'Send'}
+                            </button>
                           )}
 
                           <Link
                             href={`/invoices/${inv.id}`}
-                            className="px-2.5 py-1 text-xs bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-600 hover:text-slate-900 transition-colors press-feedback"
+                            className="px-2.5 py-1.5 text-xs bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-700 hover:text-slate-900 transition-colors press-feedback whitespace-nowrap inline-flex items-center"
                           >
-                            Print/View
+                            View
                           </Link>
                         </div>
                       </td>

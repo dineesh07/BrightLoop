@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { StatusBadge } from '@/components/StatusBadge';
+import { formatINR } from '@/lib/currency';
 
 export default function SubscriptionsPage() {
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
@@ -121,7 +122,7 @@ export default function SubscriptionsPage() {
       </div>
 
       {/* Subscriptions Table */}
-      <div className="bg-surface rounded-card border border-border overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-subtle overflow-hidden">
         {loading ? (
           <div className="p-12 text-center text-xs text-muted">Loading subscriptions ledger...</div>
         ) : subscriptions.length === 0 ? (
@@ -130,70 +131,74 @@ export default function SubscriptionsPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="ledger-table">
+            <table className="w-full text-left border-collapse">
               <thead>
-                <tr>
-                  <th>Number</th>
-                  <th>Customer</th>
-                  <th>Plan & Interval</th>
-                  <th>Contract Lines</th>
-                  <th>Next Billing</th>
-                  <th>Payment Terms</th>
-                  <th>Status</th>
-                  <th className="text-right">Actions</th>
+                <tr className="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                  <th className="py-3.5 px-4 whitespace-nowrap">Number</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Customer</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Plan & Interval</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Contract Lines</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Next Billing</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Payment Terms</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap">Status</th>
+                  <th className="py-3.5 px-4 whitespace-nowrap text-right min-w-[200px]">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-100">
                 {subscriptions.map((sub) => {
                   const linesCount = sub.lines.length;
                   const totalSeats = sub.lines.reduce((acc: number, l: any) => acc + l.quantity, 0);
                   const isDue = new Date(sub.nextBillingDate) <= new Date() && sub.status === 'ACTIVE';
 
                   return (
-                    <tr key={sub.id}>
-                      <td className="font-mono text-xs font-semibold">
-                        <Link href={`/subscriptions/${sub.id}`} className="hover:underline text-chartHue">
+                    <tr key={sub.id} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="py-3.5 px-4 font-mono text-xs font-semibold whitespace-nowrap">
+                        <Link href={`/subscriptions/${sub.id}`} className="text-indigo-600 hover:text-indigo-800 hover:underline">
                           {sub.subscriptionNumber}
                         </Link>
                       </td>
-                      <td>
-                        <div className="font-medium text-text">{sub.customer.name}</div>
-                        <div className="text-[11px] text-muted">
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <div className="font-semibold text-slate-900 text-xs">{sub.customer.name}</div>
+                        <div className="text-[11px] text-slate-500">
                           {sub.customer.companyName || sub.customer.email}
                         </div>
                       </td>
-                      <td>
-                        <div className="font-medium text-text">{sub.plan.name}</div>
-                        <div className="text-[11px] text-muted tracking-tight">
-                          Every {sub.plan.billingInterval.toLowerCase()} · ₹{sub.plan.cost}
+                      <td className="py-3.5 px-4 whitespace-nowrap">
+                        <div className="font-medium text-slate-900 text-xs">{sub.plan.name}</div>
+                        <div className="text-[11px] text-slate-500 tracking-tight">
+                          Every {sub.plan.billingInterval.toLowerCase()} · {formatINR(sub.plan.cost)}
                         </div>
                       </td>
-                      <td className="text-xs">
-                        <div className="text-text">{linesCount} line item{linesCount > 1 ? 's' : ''} ({totalSeats} units)</div>
+                      <td className="py-3.5 px-4 text-xs whitespace-nowrap">
+                        <div className="text-slate-800 font-medium">{linesCount} line item{linesCount > 1 ? 's' : ''} ({totalSeats} units)</div>
                         {sub.discountRule && (
-                          <div className="text-[11px] text-chartHue font-medium">
+                          <div className="text-[11px] text-indigo-600 font-medium">
                             Discount: {sub.discountRule.code}
                           </div>
                         )}
                       </td>
-                      <td className="text-xs tabular-nums">
-                        <span className={isDue ? 'text-negative font-semibold' : 'text-text'}>
-                          {new Date(sub.nextBillingDate).toLocaleDateString()}
+                      <td className="py-3.5 px-4 text-xs tabular-nums whitespace-nowrap">
+                        <span className={isDue ? 'text-rose-600 font-semibold' : 'text-slate-600'}>
+                          {new Date(sub.nextBillingDate).toLocaleDateString('en-IN')}
                         </span>
-                        {isDue && <span className="ml-1 text-[10px] text-negative font-bold">DUE</span>}
+                        {isDue && (
+                          <span className="ml-1.5 px-1.5 py-0.5 text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 rounded">
+                            DUE
+                          </span>
+                        )}
                       </td>
-                      <td className="text-xs text-muted">{sub.paymentTerms}</td>
-                      <td>
+                      <td className="py-3.5 px-4 text-xs text-slate-500 whitespace-nowrap">{sub.paymentTerms}</td>
+                      <td className="py-3.5 px-4 whitespace-nowrap">
                         <StatusBadge status={sub.status} />
                       </td>
-                      <td className="text-right">
-                        <div className="flex items-center justify-end gap-1.5">
+                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                        <div className="flex items-center justify-end gap-1.5 flex-nowrap">
                           {/* Stage transitions */}
                           {sub.status === 'DRAFT' && (
                             <button
                               disabled={actionLoading === sub.id}
                               onClick={() => handleAction(sub.id, 'CONFIRM')}
-                              className="px-2 py-0.5 text-xs bg-raised border border-border rounded hover:bg-ground font-medium"
+                              className="px-2.5 py-1.5 text-xs bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-lg font-medium press-feedback whitespace-nowrap inline-flex items-center"
                             >
                               Send Quote
                             </button>
@@ -202,7 +207,7 @@ export default function SubscriptionsPage() {
                             <button
                               disabled={actionLoading === sub.id}
                               onClick={() => handleAction(sub.id, 'ACTIVATE')}
-                              className="px-3 py-1 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-subtle font-medium transition-all press-feedback"
+                              className="px-3 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-subtle font-medium transition-all press-feedback whitespace-nowrap inline-flex items-center"
                             >
                               Confirm &amp; Activate
                             </button>
@@ -211,7 +216,7 @@ export default function SubscriptionsPage() {
                             <button
                               disabled={actionLoading === sub.id}
                               onClick={() => handleAction(sub.id, 'ACTIVATE')}
-                              className="px-3 py-1 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-subtle font-medium transition-all press-feedback"
+                              className="px-3 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-subtle font-medium transition-all press-feedback whitespace-nowrap inline-flex items-center"
                             >
                               Activate
                             </button>
@@ -222,7 +227,7 @@ export default function SubscriptionsPage() {
                                 <button
                                   disabled={actionLoading === sub.id}
                                   onClick={() => handleAction(sub.id, 'PAUSE')}
-                                  className="px-2.5 py-1 text-xs bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 rounded-lg font-medium transition-colors press-feedback"
+                                  className="px-2.5 py-1.5 text-xs bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 rounded-lg font-medium transition-colors press-feedback whitespace-nowrap inline-flex items-center"
                                 >
                                   Pause
                                 </button>
@@ -231,7 +236,7 @@ export default function SubscriptionsPage() {
                                 <button
                                   disabled={actionLoading === sub.id}
                                   onClick={() => handleAction(sub.id, 'CLOSE')}
-                                  className="px-2.5 py-1 text-xs bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 rounded-lg font-medium transition-colors press-feedback"
+                                  className="px-2.5 py-1.5 text-xs bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 rounded-lg font-medium transition-colors press-feedback whitespace-nowrap inline-flex items-center"
                                 >
                                   Close
                                 </button>
@@ -242,7 +247,7 @@ export default function SubscriptionsPage() {
                             <button
                               disabled={actionLoading === sub.id}
                               onClick={() => handleAction(sub.id, 'RESUME')}
-                              className="px-3 py-1 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-subtle font-medium transition-all press-feedback"
+                              className="px-3 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-subtle font-medium transition-all press-feedback whitespace-nowrap inline-flex items-center"
                             >
                               Resume
                             </button>
@@ -251,14 +256,14 @@ export default function SubscriptionsPage() {
                             <button
                               disabled={actionLoading === sub.id}
                               onClick={() => handleAction(sub.id, 'RENEW')}
-                              className="px-2.5 py-1 text-xs bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-lg font-medium transition-colors press-feedback"
+                              className="px-2.5 py-1.5 text-xs bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-lg font-medium transition-colors press-feedback whitespace-nowrap inline-flex items-center"
                             >
                               Renew
                             </button>
                           )}
                           <Link
                             href={`/subscriptions/${sub.id}`}
-                            className="px-2.5 py-1 text-xs bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-600 hover:text-slate-900 transition-colors press-feedback"
+                            className="px-2.5 py-1.5 text-xs bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-slate-700 hover:text-slate-900 transition-colors press-feedback whitespace-nowrap inline-flex items-center"
                           >
                             Details
                           </Link>

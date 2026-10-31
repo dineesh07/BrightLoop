@@ -43,13 +43,30 @@ export function AppSidebar() {
   const router = useRouter();
   const [user, setUser] = useState<UserSession | null>(null);
   
-  // Expand on hover + optional pin state
-  const [isPinned, setIsPinned] = useState(true);
-  const [isHovered, setIsHovered] = useState(false);
+  // Predictable, intentional collapsed state (persisted)
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Visible as expanded if pinned OR if hovered
-  const isExpanded = isPinned || isHovered;
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('brightloop_sidebar_collapsed');
+      if (saved !== null) {
+        setIsCollapsed(saved === 'true');
+      }
+    } catch {}
+  }, []);
+
+  const toggleSidebar = () => {
+    setIsCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('brightloop_sidebar_collapsed', String(next));
+      } catch {}
+      return next;
+    });
+  };
+
+  const isExpanded = !isCollapsed;
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -114,31 +131,49 @@ export function AppSidebar() {
     <div className="flex flex-col h-full justify-between bg-white border-r border-slate-200 select-none shadow-subtle">
       {/* Top: Logo & Toggle Header */}
       <div>
-        <div
-          className={`h-16 flex items-center border-b border-slate-100 transition-all ${
-            isExpanded ? 'px-4 justify-between' : 'px-0 justify-center'
-          }`}
-        >
-          <Link
-            href={user?.role === 'CUSTOMER' ? '/portal' : '/dashboard'}
-            className="flex items-center gap-2.5 overflow-hidden"
-          >
-            <BrightloopLogo size="sm" showText={isExpanded} />
-          </Link>
-          
-          {/* Toggle button only renders when expanded to avoid crowding the logo in compact mode */}
-          {isExpanded && (
+        {isExpanded ? (
+          <div className="h-16 px-4 flex items-center justify-between border-b border-slate-100">
+            <Link
+              href={user?.role === 'CUSTOMER' ? '/portal' : '/dashboard'}
+              className="flex items-center gap-2.5 overflow-hidden"
+            >
+              <BrightloopLogo size="sm" showText={true} />
+            </Link>
             <button
               type="button"
-              onClick={() => setIsPinned(!isPinned)}
-              className="hidden lg:flex w-7 h-7 rounded-lg border border-slate-200 text-slate-400 hover:text-slate-800 hover:bg-slate-50 items-center justify-center transition-colors press-feedback"
-              title={isPinned ? 'Collapse to icon bar' : 'Pin sidebar expanded'}
-              aria-label={isPinned ? 'Collapse to icon bar' : 'Pin sidebar expanded'}
+              onClick={toggleSidebar}
+              className="hidden lg:flex w-8 h-8 rounded-lg border border-slate-200 text-slate-400 hover:text-slate-800 hover:bg-slate-50 items-center justify-center transition-colors press-feedback"
+              title="Collapse sidebar"
+              aria-label="Collapse sidebar"
             >
-              {isPinned ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+              <ChevronLeft className="w-4 h-4" />
             </button>
-          )}
-        </div>
+          </div>
+        ) : (
+          <>
+            <div className="h-16 px-0 flex items-center justify-center border-b border-slate-100">
+              <Link
+                href={user?.role === 'CUSTOMER' ? '/portal' : '/dashboard'}
+                className="flex items-center justify-center"
+                title="Brightloop Dashboard"
+              >
+                <BrightloopLogo size="sm" showText={false} />
+              </Link>
+            </div>
+            {/* Dedicated Expand Button centered cleanly beneath the logo */}
+            <div className="p-2 border-b border-slate-100 flex justify-center bg-slate-50/50">
+              <button
+                type="button"
+                onClick={toggleSidebar}
+                className="hidden lg:flex w-9 h-9 rounded-xl border border-slate-200/90 bg-white hover:bg-indigo-50 hover:border-indigo-200 text-slate-500 hover:text-indigo-600 items-center justify-center transition-all press-feedback shadow-subtle"
+                title="Expand sidebar"
+                aria-label="Expand sidebar"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </>
+        )}
 
         {/* Navigation list */}
         <div className="p-3 space-y-5 overflow-y-auto max-h-[calc(100dvh-140px)]">
@@ -242,14 +277,8 @@ export function AppSidebar() {
 
   return (
     <>
-      {/* Desktop Hover-to-Expand + Pin Sidebar */}
+      {/* Desktop Sidebar (Persistent Expand/Collapse) */}
       <aside
-        onMouseEnter={() => {
-          if (!isPinned) setIsHovered(true);
-        }}
-        onMouseLeave={() => {
-          if (!isPinned) setIsHovered(false);
-        }}
         className={`hidden lg:block shrink-0 sticky top-0 h-[100dvh] transition-all duration-200 ease-out z-40 ${
           isExpanded ? 'w-[240px]' : 'w-[68px]'
         }`}

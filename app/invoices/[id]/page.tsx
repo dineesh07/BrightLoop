@@ -5,6 +5,10 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Modal } from '@/components/Modal';
+import { BrightloopLogo } from '@/components/BrightloopLogo';
+import { downloadReceiptFile } from '@/lib/receiptGenerator';
+import { formatINR } from '@/lib/currency';
+import { Download, Printer } from 'lucide-react';
 
 export default function InvoiceDetailPage() {
   const params = useParams();
@@ -113,20 +117,20 @@ export default function InvoiceDetailPage() {
           <span className="font-mono text-text">{invoice.invoiceNumber}</span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {invoice.status === 'DRAFT' && (
             <>
               <button
                 disabled={actionLoading}
                 onClick={() => handleAction('confirm')}
-                className="px-3.5 py-1.5 text-xs font-semibold bg-emerald-600 text-white rounded-xl shadow-subtle hover:bg-emerald-700 press-feedback disabled:opacity-50"
+                className="px-3.5 py-1.5 text-xs font-semibold bg-emerald-600 text-white rounded-xl shadow-subtle hover:bg-emerald-700 press-feedback disabled:opacity-50 whitespace-nowrap"
               >
                 Confirm Invoice
               </button>
               <button
                 disabled={actionLoading}
                 onClick={() => handleAction('cancel')}
-                className="px-3.5 py-1.5 text-xs font-medium border border-rose-200 bg-rose-50/50 text-rose-700 rounded-xl hover:bg-rose-100/60 press-feedback disabled:opacity-50"
+                className="px-3.5 py-1.5 text-xs font-medium border border-rose-200 bg-rose-50/50 text-rose-700 rounded-xl hover:bg-rose-100/60 press-feedback disabled:opacity-50 whitespace-nowrap"
               >
                 Cancel
               </button>
@@ -137,24 +141,34 @@ export default function InvoiceDetailPage() {
             <button
               disabled={actionLoading}
               onClick={() => setIsPayOpen(true)}
-              className="px-3.5 py-1.5 text-xs font-semibold bg-indigo-600 text-white rounded-xl shadow-subtle hover:bg-indigo-700 press-feedback disabled:opacity-50"
+              className="px-3.5 py-1.5 text-xs font-semibold bg-indigo-600 text-white rounded-xl shadow-subtle hover:bg-indigo-700 press-feedback disabled:opacity-50 whitespace-nowrap"
             >
               Record Payment
             </button>
           )}
 
           <button
+            onClick={() => downloadReceiptFile(invoice)}
+            className="px-3.5 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-subtle press-feedback inline-flex items-center gap-1.5 whitespace-nowrap"
+            title="Download verified receipt"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Download Receipt
+          </button>
+
+          <button
             disabled={actionLoading}
             onClick={() => handleAction('send')}
-            className="px-3.5 py-1.5 text-xs font-medium border border-slate-200 bg-white text-slate-700 rounded-xl hover:bg-slate-50 press-feedback"
+            className="px-3.5 py-1.5 text-xs font-medium border border-slate-200 bg-white text-slate-700 rounded-xl hover:bg-slate-50 press-feedback whitespace-nowrap"
           >
             {invoice.sentAt ? 'Resend to Customer' : 'Send Invoice'}
           </button>
 
           <button
             onClick={() => window.print()}
-            className="px-3.5 py-1.5 text-xs font-medium border border-slate-200 bg-white text-slate-700 rounded-xl hover:bg-slate-50 press-feedback"
+            className="px-3.5 py-1.5 text-xs font-medium border border-slate-200 bg-white text-slate-700 rounded-xl hover:bg-slate-50 press-feedback inline-flex items-center gap-1.5 whitespace-nowrap"
           >
+            <Printer className="w-3.5 h-3.5" />
             Print / PDF
           </button>
         </div>
@@ -165,12 +179,12 @@ export default function InvoiceDetailPage() {
         {/* Invoice Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start gap-4 pb-6 border-b border-border">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="w-3 h-3 bg-text rounded-full inline-block"></span>
-              <span className="text-base font-bold text-text tracking-tight">Brightloop Software</span>
+            <div className="mb-2">
+              <BrightloopLogo size="md" showText={true} />
             </div>
             <div className="text-xs text-muted">Recurring Subscription Billing Platform</div>
             <div className="text-xs text-muted">100 Enterprise Way, Suite 400</div>
+            <div className="text-xs text-muted font-mono">GSTIN: 27AABCB1234F1Z8</div>
             <div className="text-xs text-muted">billing@brightloop.com</div>
           </div>
 
@@ -311,26 +325,47 @@ export default function InvoiceDetailPage() {
         {/* Payment History */}
         {invoice.payments && invoice.payments.length > 0 && (
           <div className="pt-6 border-t border-border space-y-3">
-            <h3 className="text-xs font-semibold text-muted">
-              Payment receipts ledger
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-semibold text-muted">
+                Payment receipts ledger
+              </h3>
+              <button
+                type="button"
+                onClick={() => downloadReceiptFile(invoice)}
+                className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold inline-flex items-center gap-1 hover:underline"
+              >
+                <Download className="w-3.5 h-3.5" />
+                Download Tax Receipt
+              </button>
+            </div>
             <div className="space-y-2">
               {invoice.payments.map((p: any) => (
                 <div
                   key={p.id}
-                  className="p-3 bg-ground rounded border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
+                  className="p-3 bg-ground rounded-xl border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
                 >
                   <div>
-                    <div className="font-semibold text-text">
-                      ${p.amount.toFixed(2)} via {p.method}
+                    <div className="font-semibold text-text flex items-center gap-2">
+                      <span>{formatINR(p.amount)} via {p.method.replace('_', ' ')}</span>
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">SETTLED</span>
                     </div>
-                    <div className="text-muted text-[11px] font-mono">
+                    <div className="text-muted text-[11px] font-mono mt-0.5">
                       Ref: {p.transactionReference} {p.notes ? `· ${p.notes}` : ''}
                     </div>
                   </div>
-                  <div className="text-right text-[11px] text-muted tabular-nums">
-                    <div>{new Date(p.paymentDate).toLocaleString()}</div>
-                    {p.recordedBy && <div>Recorded by {p.recordedBy.name}</div>}
+                  <div className="flex items-center gap-3">
+                    <div className="text-right text-[11px] text-muted tabular-nums">
+                      <div>{new Date(p.paymentDate).toLocaleString()}</div>
+                      {p.recordedBy && <div>Recorded by {p.recordedBy.name}</div>}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => downloadReceiptFile(invoice)}
+                      className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 transition-colors"
+                      title="Download payment receipt"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </div>
               ))}
