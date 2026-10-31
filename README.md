@@ -10,6 +10,10 @@
   </p>
 
   <p align="center">
+    <a href="https://brightloopsw.vercel.app/"><img src="https://img.shields.io/badge/🌐_Live_Deployment-brightloopsw.vercel.app-5638F5?style=for-the-badge&logo=vercel&logoColor=white" alt="Live Deployment on Vercel" /></a>
+  </p>
+
+  <p align="center">
     <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js-14.2.15-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" /></a>
     <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-5.6-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
     <a href="https://neon.tech"><img src="https://img.shields.io/badge/Neon-PostgreSQL-00E599?style=for-the-badge&logo=postgresql&logoColor=black" alt="Neon PostgreSQL" /></a>
@@ -22,9 +26,11 @@
 
 ---
 
-## 🚀 Live Demo Personas (1-Click Switcher)
+## 🚀 Live Demo & Personas (1-Click Switcher)
 
-Brightloop includes a **1-Click Role Switcher** in the top navigation bar, enabling instant evaluation across all three operational personas without logging in and out:
+> **Live Production URL**: [https://brightloopsw.vercel.app/](https://brightloopsw.vercel.app/)
+
+Brightloop is deployed on Vercel and includes a built-in **1-Click Role Switcher** in the top navigation bar, enabling instant evaluation across all operational personas without logging in and out:
 
 | Persona | Role | Credentials | Real-World Capabilities |
 | :--- | :---: | :--- | :--- |
@@ -134,7 +140,7 @@ JWT_SECRET="brightloop_super_secret_jwt_key_2026_subscription_system"
 
 # Application Settings
 NEXT_PUBLIC_APP_NAME="Brightloop Software"
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
+NEXT_PUBLIC_APP_URL="https://brightloopsw.vercel.app" # Or http://localhost:3000 locally
 
 # Nodemailer SMTP Configuration
 SMTP_HOST="smtp.gmail.com"
