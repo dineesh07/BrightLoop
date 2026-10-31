@@ -48,17 +48,6 @@
   --control-height: 44px;
 }
 
-html.dark {
-  --ground: #0b0f19;
-  --surface: #111827;
-  --raised: #1f2937;
-  --border: rgba(255, 255, 255, 0.1);
-  --rule: #1f2937;
-  --control: #374151;
-  --text: #f9fafb;
-  --muted: #9ca3af;
-}
-
 html {
   -webkit-tap-highlight-color: transparent;
   scroll-behavior: smooth;

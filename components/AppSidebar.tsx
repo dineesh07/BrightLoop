@@ -20,8 +20,6 @@ import {
   ChevronRight,
   Menu,
   X,
-  Sun,
-  Moon,
 } from 'lucide-react';
 import { BrightloopLogo } from './BrightloopLogo';
 import {
@@ -59,7 +57,6 @@ export function AppSidebar() {
   // Collapsed state persisted in a cookie + localStorage
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   // Read initial cookie on mount
   useEffect(() => {
@@ -72,16 +69,6 @@ export function AppSidebar() {
         if (saved !== null) {
           setIsCollapsed(saved === 'true');
         }
-      }
-
-      // Check current theme
-      const savedTheme = localStorage.getItem('brightloop_theme');
-      if (
-        savedTheme === 'dark' ||
-        document.documentElement.classList.contains('dark')
-      ) {
-        setTheme('dark');
-        document.documentElement.classList.add('dark');
       }
     } catch {}
   }, []);
@@ -119,20 +106,6 @@ export function AppSidebar() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [toggleSidebar]);
-
-  // Theme toggle
-  const toggleTheme = () => {
-    const next = theme === 'dark' ? 'light' : 'dark';
-    setTheme(next);
-    try {
-      localStorage.setItem('brightloop_theme', next);
-      if (next === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    } catch {}
-  };
 
   const isExpanded = !isCollapsed;
 
@@ -214,18 +187,12 @@ export function AppSidebar() {
                         <Link
                           href={item.href}
                           aria-label={item.label}
-                          className={`relative min-h-[44px] h-[44px] w-[44px] mx-auto flex items-center justify-center rounded-xl transition-all select-none press-feedback focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 ${
+                          className={`min-h-[44px] h-[44px] w-[44px] mx-auto flex items-center justify-center rounded-xl transition-all select-none press-feedback focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 ${
                             active
                               ? 'bg-indigo-50/90 text-indigo-700 font-semibold shadow-subtle'
                               : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                           }`}
                         >
-                          {active && (
-                            <span
-                              className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-indigo-600 rounded-r-full"
-                              aria-hidden="true"
-                            />
-                          )}
                           <Icon className={`w-5 h-5 shrink-0 ${active ? 'text-indigo-600' : 'text-slate-500'}`} />
                         </Link>
                       </TooltipTrigger>
@@ -242,18 +209,12 @@ export function AppSidebar() {
                     href={item.href}
                     onClick={() => setMobileOpen(false)}
                     aria-label={item.label}
-                    className={`relative min-h-[44px] h-[44px] px-3 flex items-center gap-3 rounded-xl text-xs font-medium transition-all select-none press-feedback focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 ${
+                    className={`min-h-[44px] h-[44px] px-3 flex items-center gap-3 rounded-xl text-xs font-medium transition-all select-none press-feedback focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 ${
                       active
                         ? 'bg-indigo-50/90 text-indigo-700 font-semibold shadow-subtle'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                     }`}
                   >
-                    {active && (
-                      <span
-                        className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-indigo-600 rounded-r-full"
-                        aria-hidden="true"
-                      />
-                    )}
                     <Icon className={`w-5 h-5 shrink-0 ${active ? 'text-indigo-600' : 'text-slate-500'}`} />
                     <span className="truncate whitespace-nowrap overflow-hidden transition-opacity duration-150 ease-out opacity-100">
                       {item.label}
@@ -291,18 +252,12 @@ export function AppSidebar() {
                             <Link
                               href={item.href}
                               aria-label={item.label}
-                              className={`relative min-h-[44px] h-[44px] w-[44px] mx-auto flex items-center justify-center rounded-xl transition-all select-none press-feedback focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 ${
+                              className={`min-h-[44px] h-[44px] w-[44px] mx-auto flex items-center justify-center rounded-xl transition-all select-none press-feedback focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 ${
                                 active
                                   ? 'bg-indigo-50/90 text-indigo-700 font-semibold shadow-subtle'
                                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                               }`}
                             >
-                              {active && (
-                                <span
-                                  className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-indigo-600 rounded-r-full"
-                                  aria-hidden="true"
-                                />
-                              )}
                               <Icon className={`w-5 h-5 shrink-0 ${active ? 'text-indigo-600' : 'text-slate-500'}`} />
                             </Link>
                           </TooltipTrigger>
@@ -319,18 +274,12 @@ export function AppSidebar() {
                         href={item.href}
                         onClick={() => setMobileOpen(false)}
                         aria-label={item.label}
-                        className={`relative min-h-[44px] h-[44px] px-3 flex items-center gap-3 rounded-xl text-xs font-medium transition-all select-none press-feedback focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 ${
+                        className={`min-h-[44px] h-[44px] px-3 flex items-center gap-3 rounded-xl text-xs font-medium transition-all select-none press-feedback focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600 focus-visible:ring-offset-2 ${
                           active
                             ? 'bg-indigo-50/90 text-indigo-700 font-semibold shadow-subtle'
                             : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                         }`}
                       >
-                        {active && (
-                          <span
-                            className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-indigo-600 rounded-r-full"
-                            aria-hidden="true"
-                          />
-                        )}
                         <Icon className={`w-5 h-5 shrink-0 ${active ? 'text-indigo-600' : 'text-slate-500'}`} />
                         <span className="truncate whitespace-nowrap overflow-hidden transition-opacity duration-150 ease-out opacity-100">
                           {item.label}
@@ -424,25 +373,6 @@ export function AppSidebar() {
                     </div>
                   </div>
 
-                  {/* Theme Toggle in Popover */}
-                  <div className="py-2.5 border-b border-slate-100 flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-xs font-medium text-slate-700">
-                      {theme === 'dark' ? (
-                        <Moon className="w-4 h-4 text-indigo-600" />
-                      ) : (
-                        <Sun className="w-4 h-4 text-amber-500" />
-                      )}
-                      <span>Appearance</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={toggleTheme}
-                      className="px-2.5 py-1 text-xs font-medium rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 transition-colors press-feedback focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
-                    >
-                      {theme === 'dark' ? 'Dark' : 'Light'}
-                    </button>
-                  </div>
-
                   {/* Sign Out in Popover */}
                   <div className="pt-2">
                     <button
@@ -458,7 +388,7 @@ export function AppSidebar() {
               </Popover>
             </div>
           ) : (
-            /* Expanded Mode: Inline User Profile with Theme & Sign out */
+            /* Expanded Mode: Inline User Profile with Sign out */
             <div className="flex items-center justify-between gap-2 px-1 py-0.5">
               <div className="flex items-center gap-2.5 overflow-hidden">
                 <div className="w-9 h-9 rounded-full bg-indigo-600 text-white font-medium text-xs flex items-center justify-center shrink-0 shadow-sm">
@@ -473,30 +403,15 @@ export function AppSidebar() {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={toggleTheme}
-                  className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 flex items-center justify-center transition-colors press-feedback focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600"
-                  title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
-                  aria-label="Toggle theme"
-                >
-                  {theme === 'dark' ? (
-                    <Sun className="w-4 h-4 text-amber-500" />
-                  ) : (
-                    <Moon className="w-4 h-4 text-slate-500" />
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="w-8 h-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors press-feedback focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
-                  title="Sign out"
-                  aria-label="Sign out"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="w-8 h-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition-colors press-feedback focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+                title="Sign out"
+                aria-label="Sign out"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
             </div>
           )
         ) : (
@@ -594,18 +509,6 @@ export function AppSidebar() {
                         </div>
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={toggleTheme}
-                      className="w-9 h-9 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 flex items-center justify-center transition-colors press-feedback"
-                      aria-label="Toggle theme"
-                    >
-                      {theme === 'dark' ? (
-                        <Sun className="w-4 h-4 text-amber-500" />
-                      ) : (
-                        <Moon className="w-4 h-4 text-slate-500" />
-                      )}
-                    </button>
                   </div>
                   <button
                     type="button"
