@@ -62,6 +62,21 @@ export default function RegisterPage() {
 
   return (
     <div className="max-w-xl mx-auto py-10 px-4 space-y-6">
+      <div className="flex items-center justify-between">
+        <Link
+          href="/auth/login"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors"
+        >
+          <span>&larr; Back to Sign in</span>
+        </Link>
+        <Link
+          href="/"
+          className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors"
+        >
+          Home
+        </Link>
+      </div>
+
       <div className="text-center space-y-2">
         <BrightloopLogo size="lg" showText={false} className="justify-center" />
         <h1 className="text-2xl font-bold tracking-tight text-slate-900">Create Brightloop Account</h1>

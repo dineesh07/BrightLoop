@@ -62,6 +62,15 @@ function ResetPasswordContent() {
 
   return (
     <div className="max-w-md mx-auto py-12 px-4 space-y-6">
+      <div>
+        <Link
+          href="/auth/login"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors"
+        >
+          <span>&larr; Back to Sign in</span>
+        </Link>
+      </div>
+
       <div className="text-center space-y-2">
         <BrightloopLogo size="lg" showText={false} className="justify-center" />
         <h1 className="text-2xl font-bold tracking-tight text-slate-900">Choose New Password</h1>

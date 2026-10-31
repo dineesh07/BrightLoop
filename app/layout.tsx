@@ -1,6 +1,6 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
-import { Navbar } from '@/components/Navbar';
+import { AppShell } from '@/components/AppShell';
 
 export const metadata: Metadata = {
   title: 'Brightloop — Subscription Management & Recurring Billing',
@@ -35,25 +35,8 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-[100dvh] bg-ground text-text antialiased flex flex-col font-sans">
-        <Navbar />
-        <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
-          {children}
-        </main>
-        <footer className="border-t border-border bg-ground py-6 text-xs text-muted">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div>Brightloop Software — Recurring Billing & Plan Management</div>
-            <div className="flex items-center gap-4 text-[12px]">
-              <span>Plans &amp; Variants</span>
-              <span>•</span>
-              <span>Automated Invoicing</span>
-              <span>•</span>
-              <span>Payment Matching</span>
-              <span>•</span>
-              <span>Revenue Reporting</span>
-            </div>
-          </div>
-        </footer>
+      <body className="min-h-[100dvh] bg-ground text-text antialiased font-sans">
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

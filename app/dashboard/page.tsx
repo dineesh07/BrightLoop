@@ -123,33 +123,24 @@ export default function DashboardPage() {
       {/* Header bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-extrabold tracking-tight text-text">
-              Finance &amp; Executive Overview
-            </h1>
-            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand-light text-brand border border-brand/20">
-              INR (₹) Base
-            </span>
-          </div>
-          <p className="text-sm text-muted mt-1">
-            Brightloop Software recurring billing, collections, and automated renewal posture.
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+            Finance &amp; Executive Overview
+          </h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Subscription performance, recurring collections, and overdue receivables.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="text-[11px] text-muted border border-border px-2.5 py-1.5 rounded-lg bg-surface tabular-nums shadow-subtle flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Query Latency: <strong className="text-emerald-700">{metrics.responseTimeMs}ms</strong></span>
-          </span>
+        <div className="flex items-center gap-2.5">
           <Link
             href="/billing"
-            className="px-3.5 py-1.5 text-xs font-semibold bg-sunburst hover:bg-sunburst-hover text-white rounded-lg shadow-sm transition-all"
+            className="px-3.5 py-2 text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl shadow-subtle transition-all flex items-center gap-1.5 press-feedback"
           >
-            ⚡ Billing Day Center
+            Billing Day Center
           </Link>
           <Link
             href="/subscriptions/new"
-            className="px-3.5 py-1.5 text-xs font-semibold bg-brand hover:bg-brand-hover text-white rounded-lg shadow-brand transition-all"
+            className="px-3.5 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-subtle transition-all flex items-center gap-1.5 press-feedback"
           >
             + New Subscription
           </Link>
@@ -201,8 +192,8 @@ export default function DashboardPage() {
               <h2 className="text-sm font-bold text-text">Recurring Revenue Trend</h2>
               <p className="text-xs text-muted">Monthly billing &amp; renewals collected</p>
             </div>
-            <span className="text-xs font-semibold text-brand bg-brand-light px-2.5 py-1 rounded-full border border-brand/20">
-              Currency: INR (₹)
+            <span className="text-xs font-medium text-slate-500">
+              Amounts in ₹
             </span>
           </div>
           <RevenueTrendChart data={revenueTrend} />
