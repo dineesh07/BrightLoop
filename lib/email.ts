@@ -105,9 +105,27 @@ export async function verifyEmailConnection(): Promise<{ ok: boolean; message: s
   }
 }
 
+/**
+ * Resolves the canonical base URL for email links.
+ * Prefers explicitly configured NEXT_PUBLIC_APP_URL, then Vercel production domain,
+ * then Vercel deployment URL, falling back to localhost for local testing.
+ */
+export function getBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return process.env.NEXT_PUBLIC_APP_URL.replace(/\/+$/, '');
+  }
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL.replace(/\/+$/, '')}`;
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL.replace(/\/+$/, '')}`;
+  }
+  return 'http://localhost:3000';
+}
+
 // 1. Password Reset Email
 export async function sendPasswordResetEmail(email: string, resetUrl: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+  const baseUrl = getBaseUrl();
   const fullUrl = resetUrl.startsWith('http') ? resetUrl : `${baseUrl}${resetUrl}`;
 
   const html = `
@@ -155,7 +173,7 @@ export async function sendPasswordResetEmail(email: string, resetUrl: string) {
 
 // 2. Invoice Dispatch Email
 export async function sendInvoiceEmail(invoice: any, to: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+  const baseUrl = getBaseUrl();
   const invoiceUrl = `${baseUrl}/invoices/${invoice.id}`;
   const portalUrl = `${baseUrl}/portal`;
   const balanceDue = Math.max(0, invoice.grandTotal - invoice.amountPaid);
@@ -268,7 +286,7 @@ export async function sendInvoiceEmail(invoice: any, to: string) {
 
 // 3. Customer Welcome Email (High-conversion branded SaaS welcome template)
 export async function sendWelcomeEmail(to: string, name: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+  const baseUrl = getBaseUrl();
   const portalUrl = `${baseUrl}/portal`;
   const loginUrl = `${baseUrl}/auth/login`;
 
