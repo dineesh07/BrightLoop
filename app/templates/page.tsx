@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Modal } from '@/components/Modal';
+import { formatINR } from '@/lib/currency';
 
 export default function QuotationTemplatesPage() {
   const [templates, setTemplates] = useState<any[]>([]);
@@ -147,77 +148,89 @@ export default function QuotationTemplatesPage() {
         </button>
       </div>
 
-      {/* Templates List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Templates Table */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-subtle overflow-hidden">
         {loading ? (
-          <div className="col-span-2 p-12 text-center text-xs text-muted">Loading quotation templates...</div>
+          <div className="p-12 text-center text-xs text-muted">Loading quotation templates...</div>
         ) : templates.length === 0 ? (
-          <div className="col-span-2 p-12 text-center text-xs text-muted">No quotation templates configured yet.</div>
+          <div className="p-12 text-center text-xs text-muted">No quotation templates configured yet.</div>
         ) : (
-          templates.map((tmpl) => {
-            const templateSubtotal = tmpl.lines.reduce(
-              (acc: number, l: any) => acc + l.quantity * l.unitPrice,
-              0
-            );
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                <th className="py-3.5 px-4 w-[28%]">Template &amp; Associated Plan</th>
+                <th className="py-3.5 px-4 w-[32%]">Preset Bundle Items</th>
+                <th className="py-3.5 px-4 w-[16%]">Notes &amp; Validity</th>
+                <th className="py-3.5 px-4 w-[12%] text-right">Bundle Total</th>
+                <th className="py-3.5 px-4 w-[12%] text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {templates.map((tmpl) => {
+                const templateSubtotal = tmpl.lines.reduce(
+                  (acc: number, l: any) => acc + l.quantity * l.unitPrice,
+                  0
+                );
 
-            return (
-              <div key={tmpl.id} className="bg-surface p-5 rounded-card border border-border flex flex-col justify-between space-y-4">
-                <div>
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <h2 className="text-sm font-bold text-text">{tmpl.name}</h2>
-                      <div className="text-xs text-muted mt-0.5">
-                        Plan: <strong>{tmpl.plan.name}</strong> (₹{tmpl.plan.cost}/{tmpl.plan.billingInterval.toLowerCase()})
-                      </div>
-                    </div>
-                    <span className="text-xs bg-raised border border-border px-2 py-0.5 rounded text-muted">
-                      Valid {tmpl.validityDays} Days
-                    </span>
-                  </div>
-
-                  {tmpl.notes && (
-                    <p className="text-xs text-muted mt-2 italic bg-ground p-2 rounded border border-rule">
-                      {tmpl.notes}
-                    </p>
-                  )}
-
-                  {/* Preset Lines */}
-                  <div className="mt-3 pt-3 border-t border-rule space-y-1.5">
-                    <div className="text-[11px] font-semibold text-muted uppercase tracking-wider">
-                      Preset Line Items
-                    </div>
-                    {tmpl.lines.map((line: any) => (
-                      <div key={line.id} className="flex justify-between text-xs">
-                        <span className="text-text">
-                          {line.quantity}x {line.product.name}
-                          {line.variant && <span className="text-chartHue ml-1">({line.variant.name})</span>}
+                return (
+                  <tr key={tmpl.id} className="hover:bg-slate-50/70 transition-colors">
+                    <td className="py-3.5 px-4">
+                      <div className="font-semibold text-slate-900 text-xs">{tmpl.name}</div>
+                      <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                        <span className="text-[10px] font-medium bg-indigo-50 border border-indigo-200/70 text-indigo-700 px-2 py-0.5 rounded-md">
+                          Plan: {tmpl.plan.name}
                         </span>
-                        <span className="tabular-nums font-medium text-text">
-                          ₹{(line.quantity * line.unitPrice).toFixed(2)}
+                        <span className="text-[11px] text-slate-400">
+                          ({formatINR(tmpl.plan.cost)}/{tmpl.plan.billingInterval.toLowerCase()})
                         </span>
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-rule flex items-center justify-between">
-                  <div>
-                    <span className="text-xs text-muted">Bundle Total: </span>
-                    <span className="text-sm font-bold text-text tabular-nums">
-                      ₹{templateSubtotal.toFixed(2)}
-                    </span>
-                  </div>
-
-                  <Link
-                    href={`/subscriptions/new?templateId=${tmpl.id}`}
-                    className="px-3 py-1.5 text-xs font-semibold bg-chartHue text-white rounded hover:opacity-90 transition-opacity"
-                  >
-                    Use in Quote →
-                  </Link>
-                </div>
-              </div>
-            );
-          })
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <div className="space-y-1">
+                        {tmpl.lines.map((line: any) => (
+                          <div key={line.id} className="text-xs text-slate-700 flex items-center justify-between gap-2">
+                            <span>
+                              <span className="font-semibold text-slate-900">{line.quantity}x</span> {line.product.name}
+                              {line.variant && (
+                                <span className="text-slate-500 text-[11px] ml-1">({line.variant.name})</span>
+                              )}
+                            </span>
+                            <span className="tabular-nums text-slate-500 text-[11px]">
+                              {formatINR(line.quantity * line.unitPrice)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4 text-xs text-slate-500">
+                      <div>
+                        Valid: <span className="font-semibold text-slate-800">{tmpl.validityDays} days</span>
+                      </div>
+                      {tmpl.notes && (
+                        <div className="text-[11px] text-slate-400 italic mt-1 leading-snug line-clamp-2">
+                          {tmpl.notes}
+                        </div>
+                      )}
+                    </td>
+                    <td className="py-3.5 px-4 text-right">
+                      <div className="text-xs font-bold text-slate-900 tabular-nums">
+                        {formatINR(templateSubtotal)}
+                      </div>
+                      <div className="text-[10px] text-slate-400 mt-0.5">Recurring / cycle</div>
+                    </td>
+                    <td className="py-3.5 px-4 text-right">
+                      <Link
+                        href={`/subscriptions/new?templateId=${tmpl.id}`}
+                        className="inline-flex items-center px-3 py-1.5 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-subtle press-feedback transition-all"
+                      >
+                        Use in Quote →
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         )}
       </div>
 

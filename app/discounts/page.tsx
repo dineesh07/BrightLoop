@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal } from '@/components/Modal';
 import { StatusBadge } from '@/components/StatusBadge';
+import { formatINR } from '@/lib/currency';
 
 export default function DiscountsPage() {
   const [discounts, setDiscounts] = useState<any[]>([]);
@@ -105,84 +106,96 @@ export default function DiscountsPage() {
       </div>
 
       {/* Discounts Table */}
-      <div className="bg-surface rounded-card border border-border overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-subtle overflow-hidden">
         {loading ? (
           <div className="p-12 text-center text-xs text-muted">Loading discount rules...</div>
         ) : discounts.length === 0 ? (
           <div className="p-12 text-center text-xs text-muted">No discount rules configured yet.</div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="ledger-table">
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Description</th>
-                  <th>Discount Value</th>
-                  <th>Scope</th>
-                  <th>Eligibility Criteria</th>
-                  <th className="text-center">Usage Count</th>
-                  <th>Validity Dates</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {discounts.map((d) => {
-                  const now = new Date();
-                  const isExpired = d.endDate && new Date(d.endDate) < now;
-                  const isLimitReached = d.maxUsageLimit && d.usageCount >= d.maxUsageLimit;
-                  const status = isExpired
-                    ? 'EXPIRED'
-                    : isLimitReached
-                    ? 'MAXED'
-                    : d.active
-                    ? 'ACTIVE'
-                    : 'INACTIVE';
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                <th className="py-3.5 px-4 w-[28%]">Code &amp; Scope</th>
+                <th className="py-3.5 px-4 w-[16%]">Discount Value</th>
+                <th className="py-3.5 px-4 w-[24%]">Eligibility Criteria</th>
+                <th className="py-3.5 px-4 w-[20%]">Usage &amp; Validity</th>
+                <th className="py-3.5 px-4 w-[12%] text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {discounts.map((d) => {
+                const now = new Date();
+                const isExpired = d.endDate && new Date(d.endDate) < now;
+                const isLimitReached = d.maxUsageLimit && d.usageCount >= d.maxUsageLimit;
+                const status = isExpired
+                  ? 'EXPIRED'
+                  : isLimitReached
+                  ? 'MAXED'
+                  : d.active
+                  ? 'ACTIVE'
+                  : 'INACTIVE';
 
-                  return (
-                    <tr key={d.id}>
-                      <td className="font-mono text-xs font-bold text-chartHue">
+                return (
+                  <tr key={d.id} className="hover:bg-slate-50/70 transition-colors">
+                    <td className="py-3.5 px-4">
+                      <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200/70">
                         {d.code}
-                      </td>
-                      <td className="text-xs font-medium text-text">{d.description}</td>
-                      <td className="text-xs font-bold text-text tabular-nums">
-                        {d.discountType === 'PERCENTAGE' ? `${d.value}% Off` : `₹${d.value.toFixed(2)} Off`}
-                      </td>
-                      <td>
+                      </span>
+                      <div className="text-xs font-semibold text-slate-900 mt-1.5">{d.description}</div>
+                      <div className="text-[11px] text-slate-500 mt-0.5">
                         {d.scope === 'ALL_SUBSCRIPTION' ? (
-                          <span className="text-xs text-text">Whole Subscription</span>
+                          <span>Whole Subscription</span>
                         ) : (
-                          <span className="text-xs text-muted">
-                            Specific: {d.product ? d.product.name : 'Targeted Product'}
-                          </span>
+                          <span>Target: {d.product ? d.product.name : 'Specific Product'}</span>
                         )}
-                      </td>
-                      <td className="text-xs text-muted">
-                        {d.minQuantity && <div>Min Qty: {d.minQuantity} seats</div>}
-                        {d.minPurchaseAmount && <div>Min Spend: ₹{d.minPurchaseAmount.toFixed(2)}</div>}
-                        {!d.minQuantity && !d.minPurchaseAmount && <div>None (Unconditional)</div>}
-                      </td>
-                      <td className="text-center text-xs tabular-nums font-medium text-text">
-                        {d.usageCount} {d.maxUsageLimit ? `/ ${d.maxUsageLimit}` : 'times'}
-                      </td>
-                      <td className="text-xs text-muted">
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <div className="text-xs font-bold text-slate-900 tabular-nums">
+                        {d.discountType === 'PERCENTAGE' ? `${d.value}% Off` : `${formatINR(d.value)} Off`}
+                      </div>
+                      <div className="text-[11px] text-slate-400 mt-0.5">
+                        {d.discountType === 'PERCENTAGE' ? 'Percentage concession' : 'Fixed credit'}
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4 text-xs text-slate-600 leading-relaxed">
+                      {d.minQuantity ? (
+                        <div>
+                          Min seats: <span className="font-semibold text-slate-800">{d.minQuantity}</span>
+                        </div>
+                      ) : null}
+                      {d.minPurchaseAmount ? (
+                        <div>
+                          Min spend: <span className="font-semibold text-slate-800">{formatINR(d.minPurchaseAmount)}</span>
+                        </div>
+                      ) : null}
+                      {!d.minQuantity && !d.minPurchaseAmount && (
+                        <span className="text-slate-400 italic">No minimum spend/qty</span>
+                      )}
+                    </td>
+                    <td className="py-3.5 px-4 text-xs text-slate-600">
+                      <div className="font-medium text-slate-800 tabular-nums">
+                        {d.usageCount} {d.maxUsageLimit ? `/ ${d.maxUsageLimit} redemptions` : 'redemptions'}
+                      </div>
+                      <div className="text-[11px] text-slate-400 mt-0.5">
                         {d.startDate || d.endDate ? (
                           <span>
-                            {d.startDate ? new Date(d.startDate).toLocaleDateString() : 'Start'} —{' '}
+                            {d.startDate ? new Date(d.startDate).toLocaleDateString() : 'Now'} —{' '}
                             {d.endDate ? new Date(d.endDate).toLocaleDateString() : 'Forever'}
                           </span>
                         ) : (
                           <span>Unlimited duration</span>
                         )}
-                      </td>
-                      <td>
-                        <StatusBadge status={status} />
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4 text-right">
+                      <StatusBadge status={status} />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         )}
       </div>
 

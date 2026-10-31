@@ -84,48 +84,46 @@ export default function TaxesPage() {
       </div>
 
       {/* Tax Rules Table */}
-      <div className="bg-surface rounded-card border border-border overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-subtle overflow-hidden">
         {loading ? (
           <div className="p-12 text-center text-xs text-muted">Loading tax rules...</div>
         ) : taxes.length === 0 ? (
           <div className="p-12 text-center text-xs text-muted">No tax rules configured yet.</div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="ledger-table">
-              <thead>
-                <tr>
-                  <th>Tax Rule Name</th>
-                  <th className="text-right">Rate (%)</th>
-                  <th>Country / Jurisdiction</th>
-                  <th>Default Tax Status</th>
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                <th className="py-3.5 px-4 w-[35%]">Tax Rule Name</th>
+                <th className="py-3.5 px-4 w-[20%] text-right">Rate (%)</th>
+                <th className="py-3.5 px-4 w-[25%]">Country / Jurisdiction</th>
+                <th className="py-3.5 px-4 w-[20%] text-right">Default Tax Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {taxes.map((t) => (
+                <tr key={t.id} className="hover:bg-slate-50/70 transition-colors">
+                  <td className="py-3.5 px-4">
+                    <div className="font-semibold text-slate-900 text-xs">{t.name}</div>
+                  </td>
+                  <td className="py-3.5 px-4 text-right font-bold text-slate-900 text-xs tabular-nums">
+                    {t.rate}%
+                  </td>
+                  <td className="py-3.5 px-4 text-xs text-slate-600">
+                    {t.country || 'Global / All Regions'}
+                  </td>
+                  <td className="py-3.5 px-4 text-right">
+                    {t.isDefault ? (
+                      <span className="inline-flex items-center text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60 px-2 py-0.5 rounded-md">
+                        Default Tax
+                      </span>
+                    ) : (
+                      <span className="text-xs text-slate-400">Optional</span>
+                    )}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {taxes.map((t) => (
-                  <tr key={t.id}>
-                    <td>
-                      <div className="font-semibold text-text">{t.name}</div>
-                    </td>
-                    <td className="text-right font-bold text-text tabular-nums">
-                      {t.rate}%
-                    </td>
-                    <td className="text-xs text-muted">
-                      {t.country || 'Global / All Regions'}
-                    </td>
-                    <td>
-                      {t.isDefault ? (
-                        <span className="text-xs font-medium bg-positive/10 text-positive px-2 py-0.5 rounded">
-                          Default Tax (Auto-assigned)
-                        </span>
-                      ) : (
-                        <span className="text-xs text-muted">Optional</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
 

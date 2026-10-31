@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Modal } from '@/components/Modal';
+import { formatINR } from '@/lib/currency';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
@@ -94,7 +95,7 @@ export default function ProductsPage() {
         <div>
           <h1 className="text-xl font-bold tracking-tight text-text">Products &amp; Variants Catalog</h1>
           <p className="text-xs text-muted mt-0.5">
-            Configure software suites, add-ons, modules and brand variants (e.g. Odoo Brand +₹560).
+            Configure software suites, add-ons, modules and multi-tier product variants.
           </p>
         </div>
 
@@ -107,70 +108,68 @@ export default function ProductsPage() {
       </div>
 
       {/* Products Grid / Table */}
-      <div className="bg-surface rounded-card border border-border overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-subtle overflow-hidden">
         {loading ? (
           <div className="p-12 text-center text-xs text-muted">Loading product catalog...</div>
         ) : products.length === 0 ? (
           <div className="p-12 text-center text-xs text-muted">No products configured yet.</div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="ledger-table">
-              <thead>
-                <tr>
-                  <th>Product Name</th>
-                  <th>Category</th>
-                  <th className="text-right">Sales Price</th>
-                  <th className="text-right">Cost Price</th>
-                  <th>Configured Variants & Brand Add-ons</th>
-                  <th>Notes</th>
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                <th className="py-3.5 px-4 w-[28%]">Product Name</th>
+                <th className="py-3.5 px-4 w-[12%]">Category</th>
+                <th className="py-3.5 px-4 w-[14%] text-right">Sales Price</th>
+                <th className="py-3.5 px-4 w-[12%] text-right">Cost Price</th>
+                <th className="py-3.5 px-4 w-[20%]">Configured Variants</th>
+                <th className="py-3.5 px-4 w-[14%]">Notes</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {products.map((p) => (
+                <tr key={p.id} className="hover:bg-slate-50/70 transition-colors">
+                  <td className="py-3.5 px-4">
+                    <div className="font-semibold text-slate-900 text-xs">{p.name}</div>
+                  </td>
+                  <td className="py-3.5 px-4">
+                    <span className="text-[10px] font-semibold uppercase bg-slate-100 border border-slate-200/70 px-2 py-0.5 rounded-md text-slate-700">
+                      {p.type}
+                    </span>
+                  </td>
+                  <td className="py-3.5 px-4 text-right font-bold text-slate-900 text-xs tabular-nums">
+                    {formatINR(p.salesPrice)}
+                  </td>
+                  <td className="py-3.5 px-4 text-right text-slate-500 text-xs tabular-nums">
+                    {formatINR(p.costPrice)}
+                  </td>
+                  <td className="py-3.5 px-4">
+                    {p.variants && p.variants.length > 0 ? (
+                      <div className="flex flex-wrap gap-1.5">
+                        {p.variants.map((v: any) => (
+                          <span
+                            key={v.id}
+                            className="text-xs bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-lg text-slate-700"
+                          >
+                            <span className="font-medium">{v.name.replace(/Odoo\s*/gi, '')}</span>
+                            {v.priceExtra > 0 ? (
+                              <span className="text-indigo-600 ml-1 font-semibold">
+                                (+{formatINR(v.priceExtra)})
+                              </span>
+                            ) : (
+                              <span className="text-slate-400 ml-1 font-normal">(+₹0)</span>
+                            )}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-slate-400 italic">Standard only</span>
+                    )}
+                  </td>
+                  <td className="py-3.5 px-4 text-xs text-slate-500 leading-relaxed">{p.notes || '—'}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {products.map((p) => (
-                  <tr key={p.id}>
-                    <td>
-                      <div className="font-semibold text-text">{p.name}</div>
-                    </td>
-                    <td>
-                      <span className="text-[11px] font-mono uppercase bg-raised px-1.5 py-0.5 rounded text-muted">
-                        {p.type}
-                      </span>
-                    </td>
-                    <td className="text-right font-bold text-text tabular-nums">
-                      ₹{p.salesPrice.toFixed(2)}
-                    </td>
-                    <td className="text-right text-muted tabular-nums">
-                      ₹{p.costPrice.toFixed(2)}
-                    </td>
-                    <td>
-                      {p.variants && p.variants.length > 0 ? (
-                        <div className="flex flex-wrap gap-1.5">
-                          {p.variants.map((v: any) => (
-                            <span
-                              key={v.id}
-                              className="text-xs bg-ground border border-border px-2 py-0.5 rounded text-text"
-                            >
-                              <strong>{v.name}</strong>
-                              {v.priceExtra > 0 ? (
-                                <span className="text-chartHue ml-1 font-semibold">
-                                  (+₹{v.priceExtra})
-                                </span>
-                              ) : (
-                                <span className="text-muted ml-1 font-normal">(+₹0)</span>
-                              )}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="text-xs text-muted italic">Standard only</span>
-                      )}
-                    </td>
-                    <td className="text-xs text-muted max-w-xs truncate">{p.notes || '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
 

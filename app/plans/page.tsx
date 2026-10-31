@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Modal } from '@/components/Modal';
+import { formatINR } from '@/lib/currency';
 
 export default function PlansPage() {
   const [plans, setPlans] = useState<any[]>([]);
@@ -99,83 +100,83 @@ export default function PlansPage() {
       </div>
 
       {/* Plans Table */}
-      <div className="bg-surface rounded-card border border-border overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-subtle overflow-hidden">
         {loading ? (
           <div className="p-12 text-center text-xs text-muted">Loading plans...</div>
         ) : plans.length === 0 ? (
           <div className="p-12 text-center text-xs text-muted">No plans configured yet.</div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="ledger-table">
-              <thead>
-                <tr>
-                  <th>Plan & Code</th>
-                  <th>Interval</th>
-                  <th className="text-right">Base Cost</th>
-                  <th className="text-center">Min Qty</th>
-                  <th>Availability Dates</th>
-                  <th>Lifecycle Policies</th>
-                </tr>
-              </thead>
-              <tbody>
-                {plans.map((p) => (
-                  <tr key={p.id}>
-                    <td>
-                      <div className="font-semibold text-text">{p.name}</div>
-                      <div className="text-[11px] font-mono text-muted">{p.code}</div>
-                    </td>
-                    <td>
-                      <span className="text-xs font-medium bg-raised px-2 py-0.5 rounded text-text">
-                        {p.billingInterval}
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-50/80 border-b border-slate-200/80 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                <th className="py-3.5 px-4 w-[26%]">Plan &amp; Code</th>
+                <th className="py-3.5 px-4 w-[12%]">Interval</th>
+                <th className="py-3.5 px-4 w-[14%] text-right">Base Cost</th>
+                <th className="py-3.5 px-4 w-[10%] text-center">Min Qty</th>
+                <th className="py-3.5 px-4 w-[16%]">Availability</th>
+                <th className="py-3.5 px-4 w-[22%]">Lifecycle Policies</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {plans.map((p) => (
+                <tr key={p.id} className="hover:bg-slate-50/70 transition-colors">
+                  <td className="py-3.5 px-4">
+                    <div className="font-semibold text-slate-900 text-xs">{p.name}</div>
+                    <div className="text-[11px] font-mono text-slate-400 mt-0.5">{p.code}</div>
+                  </td>
+                  <td className="py-3.5 px-4">
+                    <span className="text-[10px] font-semibold uppercase bg-slate-100 border border-slate-200/70 px-2 py-0.5 rounded-md text-slate-700">
+                      {p.billingInterval}
+                    </span>
+                  </td>
+                  <td className="py-3.5 px-4 text-right font-bold text-slate-900 text-xs tabular-nums">
+                    {formatINR(p.cost)}
+                  </td>
+                  <td className="py-3.5 px-4 text-center tabular-nums text-slate-600 text-xs font-medium">
+                    {p.minQuantity}
+                  </td>
+                  <td className="py-3.5 px-4 text-xs text-slate-500">
+                    {p.availableStartDate || p.availableEndDate ? (
+                      <span>
+                        {p.availableStartDate ? new Date(p.availableStartDate).toLocaleDateString() : 'Now'} —{' '}
+                        {p.availableEndDate ? new Date(p.availableEndDate).toLocaleDateString() : 'Ongoing'}
                       </span>
-                    </td>
-                    <td className="text-right font-bold text-text tabular-nums">
-                      ₹{p.cost.toFixed(2)}
-                    </td>
-                    <td className="text-center tabular-nums text-muted">{p.minQuantity}</td>
-                    <td className="text-xs text-muted">
-                      {p.availableStartDate || p.availableEndDate ? (
-                        <span>
-                          {p.availableStartDate ? new Date(p.availableStartDate).toLocaleDateString() : 'Now'} —{' '}
-                          {p.availableEndDate ? new Date(p.availableEndDate).toLocaleDateString() : 'Ongoing'}
+                    ) : (
+                      <span className="text-slate-400 italic">Always Open</span>
+                    )}
+                  </td>
+                  <td className="py-3.5 px-4">
+                    <div className="flex flex-wrap gap-1.5">
+                      {p.autoCloseOnEnd && (
+                        <span className="inline-flex items-center text-[10px] font-medium bg-rose-50 text-rose-700 border border-rose-200/60 px-2 py-0.5 rounded-md">
+                          Auto-Close
+                        </span>
+                      )}
+                      {p.allowEarlyClose ? (
+                        <span className="inline-flex items-center text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60 px-2 py-0.5 rounded-md">
+                          Early Close
                         </span>
                       ) : (
-                        <span>Open Availability</span>
+                        <span className="inline-flex items-center text-[10px] font-medium bg-slate-100 text-slate-500 border border-slate-200/60 px-2 py-0.5 rounded-md">
+                          Fixed Contract
+                        </span>
                       )}
-                    </td>
-                    <td>
-                      <div className="flex flex-wrap gap-1 text-[11px]">
-                        {p.autoCloseOnEnd && (
-                          <span className="bg-negative/10 text-negative px-1.5 py-0.5 rounded">
-                            Auto-Close on End
-                          </span>
-                        )}
-                        {p.allowEarlyClose ? (
-                          <span className="bg-positive/10 text-positive px-1.5 py-0.5 rounded">
-                            Early Close Allowed
-                          </span>
-                        ) : (
-                          <span className="bg-raised text-muted px-1.5 py-0.5 rounded">
-                            Fixed Contract
-                          </span>
-                        )}
-                        {p.allowPause && (
-                          <span className="bg-raised text-text px-1.5 py-0.5 rounded">
-                            Pausable
-                          </span>
-                        )}
-                        {p.allowRenewal && (
-                          <span className="bg-raised text-text px-1.5 py-0.5 rounded">
-                            Renewable
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      {p.allowPause && (
+                        <span className="inline-flex items-center text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200/60 px-2 py-0.5 rounded-md">
+                          Pausable
+                        </span>
+                      )}
+                      {p.allowRenewal && (
+                        <span className="inline-flex items-center text-[10px] font-medium bg-indigo-50 text-indigo-700 border border-indigo-200/60 px-2 py-0.5 rounded-md">
+                          Renewable
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
 
