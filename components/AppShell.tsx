@@ -40,7 +40,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   // 3. Application internal routes: collapsible modern AppSidebar on the left + responsive main content
   return (
-    <div className="min-h-[100dvh] bg-ground text-text flex flex-col lg:flex-row">
+    <div className="min-h-[100dvh] bg-ground text-text flex flex-col md:flex-row">
       <AppSidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
