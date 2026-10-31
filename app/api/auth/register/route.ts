@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db';
 import { hashPassword, signToken, COOKIE_NAME } from '@/lib/auth';
 import { registerSchema } from '@/lib/validations';
+import { sendWelcomeEmail } from '@/lib/email';
 import { cookies } from 'next/headers';
 
 export async function POST(req: Request) {
@@ -63,11 +64,17 @@ export async function POST(req: Request) {
       maxAge: 60 * 60 * 24 * 7,
     });
 
-    // Send welcome email via Nodemailer
-    const { sendWelcomeEmail } = await import('@/lib/email');
-    sendWelcomeEmail(newUser.email, newUser.name).catch((err) =>
-      console.error('Welcome email error:', err)
-    );
+    // Dispatch branded welcome email via Nodemailer
+    try {
+      const emailResult = await sendWelcomeEmail(newUser.email, newUser.name);
+      if (emailResult.success) {
+        console.log(`[Registration] Welcome email dispatched successfully to ${newUser.email} (MessageID: ${emailResult.messageId})`);
+      } else {
+        console.warn(`[Registration] Welcome email failed to send to ${newUser.email}:`, emailResult.error);
+      }
+    } catch (mailErr) {
+      console.error('[Registration] Exception dispatching welcome email:', mailErr);
+    }
 
     return Response.json({
       success: true,

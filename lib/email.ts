@@ -1,16 +1,27 @@
 import nodemailer, { Transporter } from 'nodemailer';
+import dns from 'dns';
+
+// Ensure IPv4 is prioritized on Windows / Node 18+ to avoid IPv6 connection hangs with Gmail SMTP
+try {
+  dns.setDefaultResultOrder('ipv4first');
+} catch {}
 
 let transporter: Transporter | null = null;
 
 function getTransporter(): Transporter {
+  if (transporter) {
+    return transporter;
+  }
+
   const smtpHost = process.env.SMTP_HOST;
-  const smtpPort = parseInt(process.env.SMTP_PORT || '587', 10);
+  const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
   const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
+  // Clean whitespace from app passwords (e.g. Google 16-character passwords)
+  const smtpPass = (process.env.SMTP_PASS || '').replace(/\s+/g, '');
   const smtpSecure = process.env.SMTP_SECURE === 'true' || smtpPort === 465;
 
   if (smtpHost && smtpUser && smtpPass) {
-    return nodemailer.createTransport({
+    transporter = nodemailer.createTransport({
       host: smtpHost,
       port: smtpPort,
       secure: smtpSecure,
@@ -18,15 +29,23 @@ function getTransporter(): Transporter {
         user: smtpUser,
         pass: smtpPass,
       },
+      connectionTimeout: 10000, // 10s
+      greetingTimeout: 10000,
+      socketTimeout: 15000,
+      pool: true,
+      maxConnections: 3,
+      maxMessages: 100,
     });
   } else {
     // Development fallback transport: logs email details safely without requiring live SMTP credentials
-    return nodemailer.createTransport({
+    transporter = nodemailer.createTransport({
       streamTransport: true,
       newline: 'unix',
       buffer: true,
     });
   }
+
+  return transporter;
 }
 
 export interface SendEmailOptions {
@@ -39,7 +58,10 @@ export interface SendEmailOptions {
 export async function sendEmail({ to, subject, html, text }: SendEmailOptions) {
   try {
     const client = getTransporter();
-    const fromAddress = process.env.EMAIL_FROM || '"Brightloop Software" <billing@brightloop.com>';
+    const fallbackFrom = process.env.SMTP_USER
+      ? `"Brightloop Software" <${process.env.SMTP_USER}>`
+      : '"Brightloop Software" <billing@brightloop.com>';
+    const fromAddress = process.env.EMAIL_FROM || fallbackFrom;
 
     const info = await client.sendMail({
       from: fromAddress,
@@ -57,6 +79,32 @@ export async function sendEmail({ to, subject, html, text }: SendEmailOptions) {
   }
 }
 
+/**
+ * Health check helper to verify SMTP transporter credentials and connectivity
+ */
+export async function verifyEmailConnection(): Promise<{ ok: boolean; message: string; details?: any }> {
+  try {
+    const client = getTransporter();
+    await client.verify();
+    return {
+      ok: true,
+      message: 'SMTP transporter verified successfully',
+      details: {
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
+        user: process.env.SMTP_USER,
+        from: process.env.EMAIL_FROM,
+      },
+    };
+  } catch (err: any) {
+    return {
+      ok: false,
+      message: err?.message || 'SMTP verification failed',
+      details: err,
+    };
+  }
+}
+
 // 1. Password Reset Email
 export async function sendPasswordResetEmail(email: string, resetUrl: string) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
@@ -71,10 +119,10 @@ export async function sendPasswordResetEmail(email: string, resetUrl: string) {
           body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #f8fafc; margin: 0; padding: 32px 16px; color: #1e293b; }
           .card { max-width: 520px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
           .logo { font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
-          .logo-dot { width: 10px; height: 10px; background: #2563eb; border-radius: 50%; display: inline-block; }
+          .logo-dot { width: 10px; height: 10px; background: #5638F5; border-radius: 50%; display: inline-block; }
           h1 { font-size: 20px; font-weight: 600; color: #0f172a; margin: 0 0 12px; }
           p { font-size: 14px; line-height: 1.6; color: #475569; margin: 0 0 20px; }
-          .btn { display: inline-block; background: #2563eb; color: #ffffff !important; text-decoration: none; font-size: 14px; font-weight: 600; padding: 12px 24px; border-radius: 6px; margin: 8px 0 24px; }
+          .btn { display: inline-block; background: #5638F5; color: #ffffff !important; text-decoration: none; font-size: 14px; font-weight: 600; padding: 12px 24px; border-radius: 8px; margin: 8px 0 24px; }
           .footer { font-size: 12px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 16px; margin-top: 24px; }
           .code { font-family: monospace; background: #f1f5f9; padding: 4px 8px; border-radius: 4px; font-size: 12px; word-break: break-all; }
         </style>
@@ -145,7 +193,7 @@ export async function sendInvoiceEmail(invoice: any, to: string) {
           table { width: 100%; border-collapse: collapse; margin: 16px 0; }
           th { text-align: left; font-size: 12px; color: #64748b; font-weight: 600; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; }
           .total-box { margin-top: 16px; padding: 16px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
-          .btn { display: inline-block; background: #2563eb; color: #ffffff !important; text-decoration: none; font-size: 14px; font-weight: 600; padding: 12px 24px; border-radius: 6px; margin: 20px 0 12px; }
+          .btn { display: inline-block; background: #5638F5; color: #ffffff !important; text-decoration: none; font-size: 14px; font-weight: 600; padding: 12px 24px; border-radius: 8px; margin: 20px 0 12px; }
           .footer { font-size: 12px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 16px; margin-top: 24px; }
         </style>
       </head>
@@ -218,38 +266,89 @@ export async function sendInvoiceEmail(invoice: any, to: string) {
   });
 }
 
-// 3. Customer Welcome Email
+// 3. Customer Welcome Email (High-conversion branded SaaS welcome template)
 export async function sendWelcomeEmail(to: string, name: string) {
-  const portalUrl = `http://localhost:3000/portal`;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+  const portalUrl = `${baseUrl}/portal`;
+  const loginUrl = `${baseUrl}/auth/login`;
 
   const html = `
     <!DOCTYPE html>
     <html>
       <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Welcome to Brightloop Software</title>
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #f8fafc; margin: 0; padding: 32px 16px; color: #1e293b; }
-          .card { max-width: 520px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 32px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
-          .logo { font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 24px; }
-          h1 { font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 12px; }
+          .card { max-width: 540px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; padding: 36px 32px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); }
+          h1 { font-size: 22px; font-weight: 700; color: #0f172a; margin: 0 0 12px; letter-spacing: -0.02em; }
           p { font-size: 14px; line-height: 1.6; color: #475569; margin: 0 0 16px; }
-          .btn { display: inline-block; background: #2563eb; color: #ffffff !important; text-decoration: none; font-size: 14px; font-weight: 600; padding: 12px 24px; border-radius: 6px; margin: 12px 0 20px; }
-          .footer { font-size: 12px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 16px; margin-top: 24px; }
+          .feature-list { font-size: 14px; color: #475569; line-height: 1.7; padding-left: 20px; margin: 16px 0 24px; }
+          .btn { display: inline-block; background-color: #5638F5; color: #ffffff !important; text-decoration: none; font-size: 14px; font-weight: 600; padding: 13px 28px; border-radius: 10px; box-shadow: 0 2px 8px rgba(86, 56, 245, 0.25); }
+          .footer { font-size: 12px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 20px; margin-top: 28px; text-align: center; }
         </style>
       </head>
       <body>
         <div class="card">
-          <div class="logo">Brightloop Software</div>
+          <!-- Branded Header with Infinity SVG -->
+          <div style="margin-bottom: 24px;">
+            <table cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="width: 38px; height: 38px; background-color: #5638F5; border-radius: 10px; text-align: center; vertical-align: middle;">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="display: block; margin: 0 auto;">
+                    <path d="M18.178 8c5.096 0 5.096 8 0 8-5.095 0-7.133-8-12.739-8-4.585 0-4.585 8 0 8 5.606 0 7.644-8 12.739-8z" />
+                  </svg>
+                </td>
+                <td style="padding-left: 12px; vertical-align: middle;">
+                  <span style="font-size: 20px; font-weight: 800; color: #1e1b4b; letter-spacing: -0.02em;">Brightloop</span>
+                </td>
+              </tr>
+            </table>
+          </div>
+
           <h1>Welcome to Brightloop, ${name}!</h1>
-          <p>Your subscription account has been created successfully. Through the self-service portal, you can:</p>
-          <ul style="font-size: 14px; color: #475569; line-height: 1.6; padding-left: 20px;">
-            <li>View your active business plans, seats, and add-on modules</li>
-            <li>Monitor billing dates and automated renewal schedules</li>
-            <li>Settle and download PDF invoices instantly</li>
+          <p>Your subscription management and billing account has been set up successfully. We're excited to have you onboard.</p>
+
+          <!-- Account Details Box -->
+          <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px 20px; margin: 20px 0;">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #5638F5; margin-bottom: 10px;">
+              Your Account Summary
+            </div>
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size: 13px;">
+              <tr>
+                <td style="color: #64748b; padding: 4px 0;">Account Holder:</td>
+                <td style="color: #0f172a; font-weight: 600; text-align: right; padding: 4px 0;">${name}</td>
+              </tr>
+              <tr>
+                <td style="color: #64748b; padding: 4px 0;">Registered Email:</td>
+                <td style="color: #0f172a; font-weight: 600; text-align: right; padding: 4px 0;">${to}</td>
+              </tr>
+              <tr>
+                <td style="color: #64748b; padding: 4px 0;">Portal Role:</td>
+                <td style="color: #059669; font-weight: 600; text-align: right; padding: 4px 0;">Customer Self-Service</td>
+              </tr>
+            </table>
+          </div>
+
+          <p>Through your personal Customer Portal, you can conveniently manage everything in one place:</p>
+          <ul class="feature-list">
+            <li><strong>Subscription Management</strong>: Review active plans, configured product variants, seats, and add-on modules.</li>
+            <li><strong>Automated Billing & Renewals</strong>: Monitor upcoming renewal dates, lifecycle triggers, and pause policies.</li>
+            <li><strong>Invoices & Payment Receipts</strong>: Settle invoices online and download authentic PDF receipts instantly.</li>
           </ul>
-          <a href="${portalUrl}" class="btn">Open Customer Portal</a>
+
+          <div style="text-align: center; margin: 28px 0 20px;">
+            <a href="${portalUrl}" class="btn">Launch Customer Portal &rarr;</a>
+          </div>
+
+          <p style="font-size: 12px; color: #64748b; text-align: center; margin: 0 0 16px;">
+            You can also log in anytime at <a href="${loginUrl}" style="color: #5638F5; text-decoration: none; font-weight: 500;">${loginUrl}</a>.
+          </p>
+
           <div class="footer">
-            Questions? Reply directly to this email or reach us at support@brightloop.com.
+            <p style="margin: 0 0 6px;">Need assistance? Reply directly to this email or reach us at <a href="mailto:support@brightloop.com" style="color: #5638F5; text-decoration: none;">support@brightloop.com</a></p>
+            <p style="margin: 0; color: #94a3b8; font-size: 11px;">Brightloop Software &bull; Recurring Billing & Subscription Management Platform</p>
           </div>
         </div>
       </body>
@@ -258,8 +357,8 @@ export async function sendWelcomeEmail(to: string, name: string) {
 
   return sendEmail({
     to,
-    subject: 'Welcome to Brightloop Software',
+    subject: 'Welcome to Brightloop Software — Your Account is Ready',
     html,
+    text: `Welcome to Brightloop, ${name}!\n\nYour subscription management account has been created successfully.\nRegistered Email: ${to}\n\nAccess your Customer Portal: ${portalUrl}\nSign in: ${loginUrl}\n\nNeed assistance? Contact support@brightloop.com.`,
   });
 }
-

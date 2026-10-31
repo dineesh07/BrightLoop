@@ -1,6 +1,7 @@
 import { getSessionUser, hashPassword } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 import { staffCreateSchema } from '@/lib/validations';
+import { sendWelcomeEmail } from '@/lib/email';
 
 export async function GET(req: Request) {
   const session = await getSessionUser(req);
@@ -68,6 +69,13 @@ export async function POST(req: Request) {
         createdAt: true,
       },
     });
+
+    // Send onboarding welcome email via Nodemailer
+    try {
+      await sendWelcomeEmail(newStaff.email, newStaff.name);
+    } catch (mailErr) {
+      console.warn('[Staff] Failed to send onboarding welcome email:', mailErr);
+    }
 
     return Response.json({ success: true, staff: newStaff });
   } catch (error) {
