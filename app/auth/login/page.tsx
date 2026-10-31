@@ -53,73 +53,59 @@ export default function LoginPage() {
     <div className="min-h-[calc(100vh-140px)] flex items-center justify-center py-8 px-4">
       <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl border border-border overflow-hidden grid grid-cols-1 lg:grid-cols-12">
         {/* Left Side: Brand Story & System Features */}
-        <div className="lg:col-span-5 bg-dark-mesh p-8 sm:p-10 text-white flex flex-col justify-between relative overflow-hidden">
-          {/* Subtle background glow accents */}
-          <div className="absolute top-0 right-0 w-72 h-72 bg-brand/20 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-72 h-72 bg-sunburst/15 rounded-full blur-3xl pointer-events-none" />
-
+        <div className="lg:col-span-5 bg-slate-900 p-8 sm:p-10 text-white flex flex-col justify-between relative overflow-hidden">
           <div className="relative z-10 space-y-6">
-            {/* Logo */}
             <div>
-              <BrightloopLogo size="lg" inverted={true} useRaster={false} />
-              <span className="block text-[10px] text-slate-400 uppercase tracking-widest font-bold mt-1 ml-11">
-                Recurring Billing Platform (₹ INR)
+              <BrightloopLogo size="lg" inverted={true} />
+              <span className="block text-[11px] text-slate-400 uppercase tracking-widest font-medium mt-2">
+                Recurring Billing &amp; Plan Management
               </span>
             </div>
 
-            {/* Headline */}
             <div className="space-y-2 pt-2">
-              <h2 className="text-2xl font-black text-white tracking-tight leading-snug">
-                One platform to run plans, subscriptions, and INR billing.
+              <h2 className="text-xl font-semibold text-white tracking-tight leading-snug">
+                One platform to manage plans, subscriptions, and recurring revenue.
               </h2>
               <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-                Automate your entire recurring cycle: from Odoo brand variants to tax rules, invoice dispatch, and live ₹ MRR telemetry.
+                Automate your entire recurring billing flow: from quotation templates to automated GST invoicing, payment recording, and financial reporting.
               </p>
             </div>
 
-            {/* Feature Pills */}
             <div className="space-y-3 pt-2">
-              <div className="flex items-start gap-3 p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                <div className="w-7 h-7 rounded-lg bg-brand/30 text-white flex items-center justify-center shrink-0 mt-0.5 font-bold">
-                  ⚡
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
+                <div className="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center shrink-0 mt-0.5 font-medium text-xs">
+                  01
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-white">Idempotent Billing Day</div>
-                  <div className="text-[11px] text-slate-300">Generate and dispatch hundreds of accurate invoices without duplicates or skips.</div>
+                  <div className="text-xs font-semibold text-white">Automated Billing Day</div>
+                  <div className="text-[11px] text-slate-300">Generate and dispatch hundreds of accurate invoices without duplicates.</div>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                <div className="w-7 h-7 rounded-lg bg-sunburst/30 text-sunburst flex items-center justify-center shrink-0 mt-0.5 font-bold">
-                  🏷️
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
+                <div className="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center shrink-0 mt-0.5 font-medium text-xs">
+                  02
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-white">Product &amp; Brand Variants</div>
-                  <div className="text-[11px] text-slate-300">Offer add-ons and brand editions (e.g. Odoo brand +₹560).</div>
+                  <div className="text-xs font-semibold text-white">Quotation Templates</div>
+                  <div className="text-[11px] text-slate-300">Convert sales quotes into active subscriptions in one click.</div>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                <div className="w-7 h-7 rounded-lg bg-emerald-500/30 text-emerald-300 flex items-center justify-center shrink-0 mt-0.5 font-bold">
-                  📊
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
+                <div className="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center shrink-0 mt-0.5 font-medium text-xs">
+                  03
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-white">Sub-2s Query Telemetry</div>
-                  <div className="text-[11px] text-slate-300">Real-time ₹ MRR, ARR, overdue aging, and payment tracking in &lt;20ms.</div>
+                  <div className="text-xs font-semibold text-white">Payment Reconciliation</div>
+                  <div className="text-[11px] text-slate-300">Record UPI, bank transfers, and track outstanding invoices instantly.</div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Testimonial Quote */}
-          <div className="relative z-10 pt-6 border-t border-white/10 mt-6">
-            <p className="text-xs text-slate-300 italic">
-              &ldquo;Brightloop replaced our scattered renewal spreadsheets with automated billing runs that save us 40 hours every month.&rdquo;
-            </p>
-            <div className="mt-2 text-xs font-semibold text-slate-400 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-sunburst inline-block"></span>
-              <span>Elena Rostova &middot; Finance Lead, Brightloop</span>
-            </div>
+          <div className="relative z-10 pt-6 border-t border-white/10 mt-6 text-xs text-slate-400">
+            Brightloop Software &bull; Role-Based Access Control
           </div>
         </div>
 
@@ -128,17 +114,17 @@ export default function LoginPage() {
           <div className="max-w-md mx-auto w-full space-y-6">
             {/* Header */}
             <div>
-              <h1 className="text-2xl font-black tracking-tight text-text">Sign in to your account</h1>
-              <p className="text-xs sm:text-sm text-muted mt-1">
-                Enter your credentials or choose a demo persona below to explore.
+              <h1 className="text-2xl font-semibold tracking-tight text-slate-900">Sign in to your account</h1>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                Enter your credentials or choose a pre-loaded demo account below.
               </p>
             </div>
 
-            {/* Quick Demo Persona Picker */}
-            <div className="p-4 rounded-2xl bg-raised border border-border space-y-2.5">
-              <div className="flex items-center justify-between text-xs font-bold text-text">
-                <span>Select a Demo Persona:</span>
-                <span className="text-[11px] text-muted font-normal">One-click auto-fill</span>
+            {/* Quick Demo Persona Picker - ONE neutral style for all 3 */}
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2.5">
+              <div className="flex items-center justify-between text-xs font-medium text-slate-700">
+                <span>Select a demo role:</span>
+                <span className="text-[11px] text-slate-500">Auto-fill credentials</span>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <button
@@ -146,17 +132,17 @@ export default function LoginPage() {
                   onClick={() => handleSelectPersona('admin', 'admin@brightloop.com', 'Admin@12345!')}
                   className={`p-2.5 rounded-xl border text-left transition-all ${
                     selectedPersona === 'admin'
-                      ? 'bg-brand text-white border-brand ring-2 ring-brand/30 shadow-sm'
-                      : 'bg-white hover:bg-ground border-border'
+                      ? 'bg-white border-indigo-600 ring-1 ring-indigo-600 text-slate-900'
+                      : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'
                   }`}
                 >
-                  <div className="font-extrabold text-xs flex items-center justify-between">
+                  <div className="font-semibold text-xs flex items-center justify-between">
                     <span>Elena</span>
-                    <span className={`text-[9px] uppercase px-1.5 py-0.5 rounded font-black ${selectedPersona === 'admin' ? 'bg-white text-brand' : 'bg-brand-light text-brand'}`}>
+                    <span className="text-[10px] font-medium px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 border border-slate-200">
                       Admin
                     </span>
                   </div>
-                  <div className={`text-[10px] mt-1 truncate ${selectedPersona === 'admin' ? 'text-white/80' : 'text-muted'}`}>
+                  <div className="text-[11px] text-slate-500 mt-1 truncate">
                     Full Control
                   </div>
                 </button>
@@ -166,17 +152,17 @@ export default function LoginPage() {
                   onClick={() => handleSelectPersona('staff', 'sarah.sales@brightloop.com', 'Staff@12345!')}
                   className={`p-2.5 rounded-xl border text-left transition-all ${
                     selectedPersona === 'staff'
-                      ? 'bg-purple-600 text-white border-purple-600 ring-2 ring-purple-600/30 shadow-sm'
-                      : 'bg-white hover:bg-ground border-border'
+                      ? 'bg-white border-indigo-600 ring-1 ring-indigo-600 text-slate-900'
+                      : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'
                   }`}
                 >
-                  <div className="font-extrabold text-xs flex items-center justify-between">
+                  <div className="font-semibold text-xs flex items-center justify-between">
                     <span>Sarah</span>
-                    <span className={`text-[9px] uppercase px-1.5 py-0.5 rounded font-black ${selectedPersona === 'staff' ? 'bg-white text-purple-700' : 'bg-purple-100 text-purple-700'}`}>
+                    <span className="text-[10px] font-medium px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 border border-slate-200">
                       Staff
                     </span>
                   </div>
-                  <div className={`text-[10px] mt-1 truncate ${selectedPersona === 'staff' ? 'text-white/80' : 'text-muted'}`}>
+                  <div className="text-[11px] text-slate-500 mt-1 truncate">
                     Sales &amp; Quotes
                   </div>
                 </button>
@@ -186,18 +172,18 @@ export default function LoginPage() {
                   onClick={() => handleSelectPersona('customer', 'alex@nordicretail.com', 'Customer@12345!')}
                   className={`p-2.5 rounded-xl border text-left transition-all ${
                     selectedPersona === 'customer'
-                      ? 'bg-emerald-600 text-white border-emerald-600 ring-2 ring-emerald-600/30 shadow-sm'
-                      : 'bg-white hover:bg-ground border-border'
+                      ? 'bg-white border-indigo-600 ring-1 ring-indigo-600 text-slate-900'
+                      : 'bg-white hover:bg-slate-100 border-slate-200 text-slate-700'
                   }`}
                 >
-                  <div className="font-extrabold text-xs flex items-center justify-between">
+                  <div className="font-semibold text-xs flex items-center justify-between">
                     <span>Alex</span>
-                    <span className={`text-[9px] uppercase px-1.5 py-0.5 rounded font-black ${selectedPersona === 'customer' ? 'bg-white text-emerald-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                    <span className="text-[10px] font-medium px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 border border-slate-200">
                       Client
                     </span>
                   </div>
-                  <div className={`text-[10px] mt-1 truncate ${selectedPersona === 'customer' ? 'text-white/80' : 'text-muted'}`}>
-                    Portal Access
+                  <div className="text-[11px] text-slate-500 mt-1 truncate">
+                    Customer Portal
                   </div>
                 </button>
               </div>

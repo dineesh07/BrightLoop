@@ -3,9 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { DemoRoleSwitcher } from './DemoRoleSwitcher';
-import { StatusBadge } from './StatusBadge';
 import { BrightloopLogo } from './BrightloopLogo';
+import { DemoRoleSwitcher } from './DemoRoleSwitcher';
 
 interface UserSession {
   id: string;
@@ -19,16 +18,24 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<UserSession | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     fetch('/api/auth/me')
       .then((res) => (res.ok ? res.json() : { user: null }))
       .then((data) => {
         setUser(data.user);
-        setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {});
   }, [pathname]);
 
   const handleLogout = async () => {
@@ -37,57 +44,58 @@ export function Navbar() {
     router.push('/');
   };
 
-  const navLinks = user?.role === 'CUSTOMER'
+  // 4 links max for public visitors
+  const publicLinks = [
+    { href: '/#features', label: 'Features' },
+    { href: '/#workflow', label: 'Workflow' },
+    { href: '/#pricing', label: 'Pricing' },
+    { href: '/#preview', label: 'Live Preview' },
+  ];
+
+  const appLinks = user?.role === 'CUSTOMER'
     ? [
-        { href: '/portal', label: 'Overview' },
-        { href: '/subscriptions', label: 'My Subscriptions' },
-        { href: '/invoices', label: 'My Invoices' },
+        { href: '/portal', label: 'Portal' },
+        { href: '/subscriptions', label: 'Subscriptions' },
+        { href: '/invoices', label: 'Invoices' },
       ]
-    : user
-    ? [
+    : [
         { href: '/dashboard', label: 'Dashboard' },
         { href: '/subscriptions', label: 'Subscriptions' },
         { href: '/billing', label: 'Billing Day' },
         { href: '/invoices', label: 'Invoices' },
-        { href: '/products', label: 'Products & Variants' },
-        { href: '/plans', label: 'Plans' },
-        { href: '/templates', label: 'Templates' },
-        { href: '/discounts', label: 'Discounts' },
-        ...(user?.role === 'ADMIN'
-          ? [
-              { href: '/taxes', label: 'Taxes' },
-              { href: '/staff', label: 'Staff' },
-            ]
-          : []),
-        { href: '/portal', label: 'Customer Portal' },
-      ]
-    : [
-        { href: '/#features', label: 'Features' },
-        { href: '/#pricing', label: 'Pricing (INR)' },
-        { href: '/#telemetry', label: 'Sub-2s Engine' },
-        { href: '/#security', label: 'Security & RBAC' },
       ];
 
+  const activeLinks = user ? appLinks : publicLinks;
+
   return (
-    <header className="w-full bg-white/90 backdrop-blur-md border-b border-border sticky top-0 z-50 transition-colors shadow-subtle">
+    <header
+      className={`sticky top-0 z-50 w-full transition-all duration-200 backdrop-blur-md ${
+        scrolled
+          ? 'bg-white/85 border-b border-slate-200/80 shadow-subtle'
+          : 'bg-white/70 border-b border-transparent'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        {/* Left: Brand Logo & Navigation */}
-        <div className="flex items-center gap-7">
-          <Link href={user ? (user.role === 'CUSTOMER' ? '/portal' : '/dashboard') : '/'} className="flex items-center group">
+        {/* Left: Logo & Links */}
+        <div className="flex items-center gap-8">
+          <Link
+            href={user ? (user.role === 'CUSTOMER' ? '/portal' : '/dashboard') : '/'}
+            className="flex items-center"
+          >
             <BrightloopLogo size="md" showText={true} />
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-1.5 overflow-x-auto py-1">
-            {navLinks.map((link) => {
-              const active = pathname === link.href || (link.href !== '/' && !link.href.startsWith('/#') && pathname.startsWith(link.href));
+          <nav className="hidden md:flex items-center gap-1">
+            {activeLinks.map((link) => {
+              const isActive = pathname === link.href;
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-3 py-1.5 text-xs rounded-lg transition-all whitespace-nowrap font-medium ${
-                    active
-                      ? 'text-brand bg-brand-light font-semibold border border-brand/20 shadow-subtle'
-                      : 'text-muted hover:text-text hover:bg-raised'
+                  className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                    isActive
+                      ? 'text-indigo-600 bg-indigo-50 font-semibold'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
                   }`}
                 >
                   {link.label}
@@ -97,65 +105,85 @@ export function Navbar() {
           </nav>
         </div>
 
-        {/* Right: Demo Role Switcher & User Actions */}
+        {/* Right: Actions */}
         <div className="flex items-center gap-3">
-          <div className="hidden xl:block">
-            <DemoRoleSwitcher />
-          </div>
-
-          {user ? (
-            <div className="flex items-center gap-3 text-xs">
-              <div className="text-right hidden sm:block">
-                <div className="font-bold text-text">{user.name}</div>
-                <div className="text-muted text-[11px] flex items-center justify-end gap-1.5">
-                  <span className="truncate max-w-[140px]">{user.companyName || user.email}</span>
-                  <StatusBadge status={user.role} showDot={false} />
-                </div>
+          {!user ? (
+            <>
+              <div className="hidden sm:block">
+                <DemoRoleSwitcher />
               </div>
-              <button
-                onClick={handleLogout}
-                className="px-3 py-1.5 text-xs text-muted hover:text-rose-600 hover:bg-rose-50 rounded-lg border border-border hover:border-rose-200 transition-colors font-medium"
-              >
-                Sign out
-              </button>
-            </div>
-          ) : !loading ? (
-            <div className="flex items-center gap-2.5">
               <Link
                 href="/auth/login"
-                className="px-4 py-2 text-xs font-semibold text-text hover:text-brand hover:bg-raised rounded-lg transition-colors"
+                className="text-xs font-medium text-slate-600 hover:text-slate-900 px-2 py-1.5 transition-colors"
               >
                 Sign in
               </Link>
               <Link
                 href="/dashboard"
-                className="px-4 py-2 text-xs font-bold bg-brand hover:bg-brand-hover text-white rounded-lg shadow-brand transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center gap-1.5"
+                className="h-9 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs flex items-center justify-center press-feedback shadow-subtle"
               >
-                <span>Live Demo</span>
-                <span className="text-[10px] bg-sunburst px-1.5 py-0.2 rounded-full text-white font-extrabold uppercase">Console</span>
+                Get Started
               </Link>
+            </>
+          ) : (
+            <div className="flex items-center gap-3">
+              <span className="hidden sm:inline-block text-xs text-slate-600 font-medium truncate max-w-[150px]">
+                {user.name}
+              </span>
+              <button
+                onClick={handleLogout}
+                className="text-xs text-slate-500 hover:text-slate-900 font-medium px-2 py-1"
+              >
+                Sign out
+              </button>
             </div>
-          ) : null}
+          )}
+
+          {/* Mobile hamburger menu toggle (min 44x44px touch target) */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden w-11 h-11 flex items-center justify-center text-slate-600 hover:text-slate-900 rounded-lg"
+            aria-label="Toggle navigation menu"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {mobileMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
         </div>
       </div>
 
-      {/* Mobile Nav strip */}
-      <div className="lg:hidden flex items-center gap-1.5 px-4 py-2 overflow-x-auto border-t border-border bg-white">
-        {navLinks.map((link) => {
-          const active = pathname === link.href || (link.href !== '/' && !link.href.startsWith('/#') && pathname.startsWith(link.href));
-          return (
+      {/* Mobile Drawer */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-b border-slate-200 bg-white px-4 py-3 space-y-2">
+          {activeLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`px-3 py-1 text-xs rounded-md whitespace-nowrap font-medium ${
-                active ? 'text-brand bg-brand-light border border-brand/20 font-semibold' : 'text-muted hover:bg-raised'
-              }`}
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-lg"
             >
               {link.label}
             </Link>
-          );
-        })}
-      </div>
+          ))}
+          {!user && (
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+              <DemoRoleSwitcher />
+              <Link
+                href="/auth/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-sm font-medium text-indigo-600 px-3 py-2"
+              >
+                Sign in →
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
     </header>
   );
 }
