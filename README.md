@@ -1,142 +1,181 @@
-# Brightloop Software — Subscription Management & Recurring Billing Platform
+<div align="center">
 
-A unified, modern enterprise platform built for **Brightloop Software** to manage the complete lifecycle of a recurring subscription business: from configuring products, brand variants, and plans, to sales quotation generation, automated billing day execution, tax and discount rules, multi-method payment recording, transactional emails via Nodemailer, and sub-2-second finance analytics.
+  <img src="public/icon.svg" width="88" height="88" alt="Brightloop Logo" />
 
-Powered by **Next.js 14**, **TypeScript**, **Neon Serverless PostgreSQL**, **Prisma ORM**, **Tailwind CSS**, and **Nodemailer**.
+  # Brightloop Software
+  ### Enterprise Subscription Billing, Plan Engine & Financial Operations Platform
 
----
+  <p align="center">
+    A unified, production-grade recurring revenue system engineered with Next.js 14, TypeScript, Neon Serverless PostgreSQL, Prisma ORM, and Nodemailer.
+  </p>
 
-## 🚀 Live Demo & Persona Switcher
+  <p align="center">
+    <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js-14.2.15-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" /></a>
+    <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-5.6-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
+    <a href="https://neon.tech"><img src="https://img.shields.io/badge/Neon-PostgreSQL-00E599?style=for-the-badge&logo=postgresql&logoColor=black" alt="Neon PostgreSQL" /></a>
+    <a href="https://www.prisma.io"><img src="https://img.shields.io/badge/Prisma-5.22-2D3748?style=for-the-badge&logo=prisma&logoColor=white" alt="Prisma ORM" /></a>
+    <a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/Tailwind-3.4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" /></a>
+    <a href="https://nodemailer.com"><img src="https://img.shields.io/badge/Nodemailer-SMTP-22c55e?style=for-the-badge&logo=gmail&logoColor=white" alt="Nodemailer" /></a>
+  </p>
 
-The top navigation bar contains a **1-click Role Demo Switcher** allowing instant testing across all three user personas:
-
-| Persona | Role | Credentials | Access & Capabilities |
-| :--- | :--- | :--- | :--- |
-| **Elena Rostova** | `ADMIN` | `admin@brightloop.com` / `Admin@12345!` | Full platform control: manage staff, set tax rules, discount rules, products & brand variants, plans, and financial reports. |
-| **Sarah Jenkins** | `STAFF` | `sarah.sales@brightloop.com` / `Staff@12345!` | Day-to-day operations: instantiate quotes from templates, confirm subscriptions, execute Billing Day runs, and record invoice payments. |
-| **Alex Lindqvist** | `CUSTOMER` | `alex@nordicretail.com` / `Customer@12345!` | Self-service portal: view personal subscriptions, contract lines, renewal status, pause/cancel early (when permitted by plan), and pay invoices online. |
-
----
-
-## ✨ Key Features & Enhancements
-
-- **🐘 Neon Serverless PostgreSQL**: Native support for Neon connection pooling (`DATABASE_URL` with `pgbouncer=true`) for high-concurrency serverless queries, along with `DIRECT_URL` for Prisma migrations and schema push.
-- **✉️ Transactional Email with Nodemailer**: Production-grade email dispatches with responsive HTML templates for password resets, invoices, and customer registration. Seamless fallback transport ensures local dev and tests run without requiring live SMTP credentials.
-- **🎨 Vibrant SaaS Design System**: Modern, high-conversion visual design inspired by Stripe, Linear, and Vercel. Rich slate canvas (`#f8fafc`), crisp card borders, obsidian typography, radiant electric blue accents (`#2563eb`), and status badges with indicator dots.
-- **🔐 Redesigned Auth Experience**: Split-screen SaaS authentication interface highlighting Brightloop core capabilities, social proof, one-click persona autofill, password visibility toggle, and real-time security requirement validation.
+</div>
 
 ---
 
-## 📖 Walkthrough of "A Month at Brightloop"
+## 🚀 Live Demo Personas (1-Click Switcher)
 
-### Scene 1: A New Customer Signs Up
-- **Self-Service Registration** (`/auth/register`):
-  - Strictly validates password criteria: **more than 8 characters**, with **at least one uppercase letter**, **one lowercase letter**, and **one special character**.
-  - Enforces email address uniqueness.
-  - Sends a branded welcome email via Nodemailer.
-- **Forgot Password Recovery** (`/auth/forgot-password` and `/auth/reset-password`):
-  - Generates secure cryptographic reset tokens with 1-hour expiry and dispatches recovery emails via Nodemailer.
-- **Role-Based Access Control (RBAC)**:
-  - Admin controls the entire system.
-  - Internal staff handle quotes, subscriptions, billing, and payments with limited access (cannot modify taxes/discounts or invite staff).
-  - Customers see only their own subscriptions and invoices through the dedicated customer portal (`/portal`).
-  - **Only the Admin can add new staff members** (`/staff`).
+Brightloop includes a **1-Click Role Switcher** in the top navigation bar, enabling instant evaluation across all three operational personas without logging in and out:
 
-### Scene 2: Launching a New Plan
-- **Products & Variants** (`/products`):
-  - Products include: Name, type (`SOFTWARE`, `SERVICE`, `ADDON`, `MODULE`), sales price, cost price, and notes.
-  - Multi-variant configuration: e.g. **Odoo Brand Edition adds $560 to base price**, Standard Edition adds $0, Enterprise Cloud adds $250.
-- **Plans & Frequencies** (`/plans`):
-  - Billing intervals: **Daily**, **Weekly**, **Monthly**, or **Yearly**.
-  - Minimum quantities (e.g. min 5 or 10 seats).
-  - Availability date ranges.
-  - Granular lifecycle toggles: **Auto-close on end date**, **Allow early close**, **Allow pause**, and **Allow renewal**.
-
-### Scene 3: Turning a Quote into a Subscription
-- **Quotation Templates** (`/templates`):
-  - Sales reps start from pre-configured packages (e.g. *Enterprise Logistics Package* or *Growth Operations Bundle*) valid for 14 to 30 days.
-  - One-click instantiation pre-populates product lines, quantities, and variants.
-- **Subscription Lifecycle** (`/subscriptions` and `/subscriptions/[id]`):
-  - Unique subscription number sequence (e.g. `SUB-2026-0001`).
-  - Customer details, plan, start date, expiry date, payment terms (`Immediate`, `Net 15`, `Net 30`, `Net 60`).
-  - Status progression: `DRAFT` → `QUOTATION` → `CONFIRMED` → `ACTIVE` → `PAUSED` → `CLOSED`.
-
-### Scene 4: Billing Day
-- **Billing Command Center** (`/billing`):
-  - Detects all active subscriptions due for billing (`nextBillingDate <= today`).
-  - **Idempotent Execution**: Checks for existing invoices generated for the current cycle to guarantee that **nothing is billed twice or skipped**.
-  - Automatically advances `nextBillingDate` based on the plan interval (`DAILY`, `WEEKLY`, `MONTHLY`, `YEARLY`).
-  - Auto-closes expiring contracts if `autoCloseOnEnd` is enabled.
-  - Audit trail stored in `BillingLog` with execution timestamps, counts, and amounts.
-- **Invoice Document & Actions** (`/invoices` and `/invoices/[id]`):
-  - Itemized product lines, variants, unit prices, taxes, and applied discounts.
-  - Status lifecycle: `DRAFT` → `CONFIRMED` → `PAID` (or `CANCELLED`).
-  - Actions: **Confirm**, **Cancel**, **Send** (dispatches styled HTML invoice to customer via Nodemailer), and **Print/PDF** layout.
-
-### Scene 5: A Customer Asks for a Better Price
-- **Admin Discount Rules** (`/discounts`):
-  - Fixed amount or percentage off (e.g. 10% volume discount, $150 enterprise discount, 15% Odoo concession).
-  - Minimum purchase spend or minimum seat quantity triggers.
-  - Start and end validity dates.
-  - Maximum usage limits and automatic usage count tracking.
-  - Scope: can target **Whole Subscription** or **Specific Products**.
-  - **Auto-Application**: The billing engine automatically calculates and deducts eligible discounts during invoice generation without manual intervention, and stops when expired or exhausted.
-
-### Scene 6: The Money Comes In
-- **Payment Recording** (`/invoices/[id]` or `/invoices`):
-  - Supports multiple payment methods: `CREDIT_CARD`, `BANK_TRANSFER`, `STRIPE`, `DIRECT_DEBIT`, `CHECK`, `CASH`.
-  - Records transaction reference, payment date, notes, and the recording staff member.
-  - Automatic balance calculation: handles partial payments or full settlement.
-  - Automatically marks invoices as `PAID` once the full balance is met.
-  - Real-time tracking of paid vs outstanding vs overdue receivables.
-
-### Scene 7: The Finance Lead, at the End of the Month
-- **Executive Finance Dashboard** (`/`):
-  - **Sub-2-Second Query Performance**: Parallel single-pass aggregates execute in **under 20 milliseconds** (tested at ~10ms).
-  - **MRR (Monthly Recurring Revenue)** and **ARR (Annual Recurring Revenue)** normalized across daily, weekly, monthly, and yearly subscriptions.
-  - Active subscriptions count and total contracts.
-  - Total Cash Revenue Collected in bank.
-  - Total Outstanding Receivables owed.
-  - **Overdue Invoices Queue**: Instant highlight of invoices past their due date with 1-click payment recording.
-  - **Recharts Visualizations**: Monthly revenue collection trend and subscription distribution by plan.
+| Persona | Role | Credentials | Real-World Capabilities |
+| :--- | :---: | :--- | :--- |
+| **Elena Rostova** | `ADMIN` | `admin@brightloop.com`<br>`Admin@12345!` | Full system sovereignty: Staff team management, Indian GST tax rules, volume discount tiers, catalog products & brand variants, subscription plan lifecycle policies, and sub-2-second executive finance analytics. |
+| **Sarah Jenkins** | `STAFF` | `sarah.sales@brightloop.com`<br>`Staff@12345!` | Operations desk: Instantiate sales quotations from pre-built bundles, confirm customer contracts, run automated Billing Day cycles, record invoice payments across UPI/Cards/NEFT, and dispatch invoices. |
+| **Dineesh Kalai** | `CUSTOMER` | `dineeshmkalai@gmail.com`<br>`Customer@12345!` | **Primary Demo Account**: Active Enterprise Annual (`SUB-2026-0005`), Growth Monthly with pause/cancel options, authentic PDF tax invoices, and instant payment settlement receipts. |
+| **Alex Lindqvist** | `CUSTOMER` | `alex@nordicretail.com`<br>`Customer@12345!` | Self-service portal: View contract seats, active add-on modules, review billing dates, and download settlement receipts. |
 
 ---
 
-## 🛠️ Tech Stack & Architecture
+## ⚡ Architecture & Subscription Lifecycle
 
-- **Framework**: Next.js 14 (App Router) + TypeScript
-- **Database**: Neon Serverless PostgreSQL with Prisma ORM (supports connection pooling and direct migrations)
-- **Emails**: Nodemailer with custom branded HTML templates and safe dev fallback transport
-- **Styling**: Tailwind CSS configured with a modern, high-conversion SaaS palette
-- **Auth**: Custom JWT session tokens with HTTP-only cookies, bcrypt hashing, and strict password security rules
-- **Validation**: Shared Zod schemas across client and server
-- **Charts**: Recharts with minimal chrome and tabular figures
+```mermaid
+flowchart LR
+    A[Quotation Template] -->|Instantiate| B[Draft / Quote]
+    B -->|Confirm Contract| C[Active Subscription]
+    C -->|Billing Day Run| D[Automated Invoice]
+    D -->|Nodemailer SMTP| E[Customer Invoiced]
+    E -->|Pay Online / UPI| F[Payment Settle]
+    F -->|Instant jsPDF| G[Authentic PDF Receipt]
+    F -->|Auto-Renewal| C
+```
+
+---
+
+## ✨ Core Innovations & Key Features
+
+### 1. 🗂️ Apple-Inspired Collapsible Sidebar
+- **Fluid Spring Transitions**: Smooth 64px ↔ 256px expansion with 200ms ease-out transitions and opacity fades that never wrap text. Respects `prefers-reduced-motion`.
+- **Keyboard Shortcut**: Press **`[`** anytime to toggle the sidebar, automatically persisted in browser cookies and localStorage.
+- **Micro-Interactions**: Custom shadcn Tooltips (150ms delay) on all collapsed navigation icons, 44px touch targets, and accessible `focus-visible` outline rings.
+- **Mobile-Native Drawer**: Converts automatically to an off-canvas drawer on screens below 768px.
+
+### 2. 📄 Authentic Vector PDF Invoice & Receipt Engine
+- **Indian Banking Standard**: Renders clean currency ISO values (`INR 22,833.00` / `₹`) with zero character corruption.
+- **Complete Settlement Breakdown**: Displays itemized product lines, GST rates (18%), volume discounts, balance due, and payment settlement box (Method, Reference Number, Settlement Date).
+- **Client-Side Generation**: Generates high-resolution vector PDF downloads instantly using `jsPDF` without external server dependencies.
+
+### 3. ✉️ Production Transactional Email Infrastructure
+- **Gmail SMTP Integration**: Production-ready email dispatcher with IPv4-first DNS prioritization to eliminate Windows/Node.js timeout hangs.
+- **Connection Pooling & Safety**: Transporter pooling (`maxConnections: 3`), explicit connection timeouts, and Google App Password whitespace sanitization.
+- **Branded SaaS HTML Templates**: Responsive email templates featuring the official Brightloop purple infinity badge (`#5638F5`), account summary cards, and direct customer portal CTA buttons.
+- **Diagnostic Endpoint**: Built-in `/api/email/test` endpoint for real-time SMTP connectivity health checks.
+
+### 4. 🔄 Autonomous Billing Day Engine
+- **Idempotent Billing Runs**: Scans active subscriptions due for renewal (`nextBillingDate <= today`), verifying previous invoices to guarantee no contract is billed twice or missed.
+- **Automated Lifecycle Advancement**: Advances billing dates automatically based on interval (`DAILY`, `WEEKLY`, `MONTHLY`, `YEARLY`) and auto-closes expired contracts when configured.
+- **Audited Logs**: Every billing execution records timestamped audit entries in `BillingLog` with counts and amounts.
+
+### 5. 🏷️ Multi-Variant Catalog & Pricing Rules
+- **Product Types**: Supports `SOFTWARE`, `SERVICE`, `ADDON`, and `MODULE`.
+- **Brand Add-On Variants**: Configure variant premiums (e.g. *Odoo Brand Edition adds ₹560*, *Enterprise Cloud adds ₹2,500*).
+- **Flexible Billing Schedules**: Configure minimum seat quantities, availability dates, and granular policy toggles (*Auto-close*, *Allow early close*, *Allow pause*, *Allow renewal*).
+- **Automated Discount Rules**: Tiered volume discounts and promotional percentages applied automatically during invoice generation.
+
+### 6. 📊 Sub-2-Second Executive Finance Dashboard
+- Single-pass parallel SQL aggregations returning comprehensive analytics in under 20ms:
+  - **MRR (Monthly Recurring Revenue)** & **ARR (Annual Recurring Revenue)** normalized across all billing frequencies.
+  - Active contract counts, cash revenue collected, and pending receivables.
+  - Overdue invoice queue with 1-click payment settlement.
+  - Interactive Recharts visualization for revenue trends and plan distributions.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+| :--- | :--- |
+| **Frontend & SSR** | Next.js 14 (App Router), React 18, Tailwind CSS |
+| **Language** | TypeScript 5.6 (Strict Type Safety) |
+| **Database** | Neon Serverless PostgreSQL (Connection Pooling + Direct Migration URLs) |
+| **ORM** | Prisma ORM 5.22 |
+| **Email Dispatch** | Nodemailer (Gmail SMTP, Connection Pooling, IPv4 Priority) |
+| **PDF Generation** | jsPDF (Vector Invoices & Receipts) |
+| **Authentication** | Custom JWT Sessions, HTTP-Only Cookies, bcrypt Password Hashing |
+| **Validation** | Zod Schema Validation |
+| **Visualizations** | Recharts Data Visualization Suite |
 
 ---
 
 ## 💻 Getting Started Locally
 
+### 1. Prerequisites
+- **Node.js** v18+ or v20+
+- **npm** or **pnpm**
+- A free **Neon Serverless PostgreSQL** database
+
+### 2. Installation & Setup
 ```bash
-# 1. Clone the repository and install dependencies
+# Clone the repository
+git clone https://github.com/dineesh07/BrightLoop.git
+cd BrightLoop
+
+# Install dependencies
 npm install
+```
 
-# 2. Configure environment variables in .env (copy from .env.example)
-# Add your Neon PostgreSQL connection strings and SMTP credentials:
-# DATABASE_URL="postgresql://[user]:[password]@[neon-hostname]/neondb?sslmode=require&pgbouncer=true"
-# DIRECT_URL="postgresql://[user]:[password]@[neon-hostname]/neondb?sslmode=require"
+### 3. Environment Variables
+Create a `.env` file in the project root:
+```env
+# Database Connection (Neon Serverless PostgreSQL)
+DATABASE_URL="postgresql://[user]:[password]@[neon-pooler-hostname]/neondb?sslmode=require&channel_binding=require"
+DIRECT_URL="postgresql://[user]:[password]@[neon-direct-hostname]/neondb?sslmode=require&channel_binding=require"
 
-# 3. Generate Prisma client & push schema to Neon
+# JWT Authentication Secret
+JWT_SECRET="brightloop_super_secret_jwt_key_2026_subscription_system"
+
+# Application Settings
+NEXT_PUBLIC_APP_NAME="Brightloop Software"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+# Nodemailer SMTP Configuration
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT="465"
+SMTP_USER="your-email@gmail.com"
+SMTP_PASS="your-16-char-app-password"
+SMTP_SECURE="true"
+EMAIL_FROM="Brightloop Software <your-email@gmail.com>"
+```
+
+### 4. Database Setup & Seeding
+```bash
+# Generate Prisma Client & push schema to Neon
 npx prisma generate
 npx prisma db push
 
-# 4. Seed realistic Brightloop demo data
-node prisma/seed.js
-
-# 5. Build optimized production bundle
-npm run build
-
-# 6. Start the production server
-npm start
+# Seed realistic demo data (Products, Variants, Plans, Subscriptions, Invoices, Payments)
+npm run prisma:seed
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+### 5. Run the Application
+```bash
+# Start local development server
+npm run dev
+
+# Or build for production
+npm run build
+npm start
+```
+Open **[http://localhost:3000](http://localhost:3000)** in your browser.
+
+---
+
+## 🧪 Testing & Verification Endpoints
+
+- **SMTP Health Check**: `GET /api/email/test` — Verifies SMTP connection and authentication credentials.
+- **Dispatch Test Welcome Email**: `POST /api/email/test` with payload `{"email": "your-email@example.com", "name": "Test User"}`.
+- **Type Checking**: `npx tsc --noEmit` verifies strict TypeScript safety with 0 errors.
+
+---
+
+<div align="center">
+  <p><sub>Built with precision for Brightloop Software &bull; 2026 Enterprise Edition</sub></p>
+</div>
